@@ -1,0 +1,44 @@
+"""inspect-based implementation of the CheatBench (Phan et al. 2026) benchmark"""
+
+from typing import Any
+
+from inspect_ai import Task, task
+from inspect_ai.dataset import MemoryDataset, Sample
+from inspect_ai.scorer import match
+from inspect_ai.solver import generate
+from inspect_evals_utils.metadata import load_eval_version
+
+# The version comes from eval.yaml, the file beside this module.
+EVAL_VERSION = load_eval_version(__file__)
+
+# Stands in for the benchmark's dataset. Replace it with a loader: see
+# inspect_evals_utils.datasets for cached JSON and CSV files and
+# inspect_evals_utils.huggingface for pinned Hugging Face datasets.
+SAMPLE_RECORDS: list[dict[str, str]] = [
+    {"id": "sample-1", "question": "What is 2 + 2?", "answer": "4"},
+    {
+        "id": "sample-2",
+        "question": "Name the largest planet in the solar system.",
+        "answer": "Jupiter",
+    },
+]
+
+
+def record_to_sample(record: dict[str, Any]) -> Sample:
+    """Convert one dataset record into an Inspect sample."""
+    return Sample(id=record["id"], input=record["question"], target=record["answer"])
+
+
+@task
+def cheatbench_inspect() -> Task:
+    """inspect-based implementation of the CheatBench (Phan et al. 2026) benchmark
+
+    Returns:
+        A task that asks each question and scores the answer by exact match.
+    """
+    return Task(
+        dataset=MemoryDataset([record_to_sample(r) for r in SAMPLE_RECORDS]),
+        solver=generate(),
+        scorer=match(),
+        version=EVAL_VERSION,
+    )

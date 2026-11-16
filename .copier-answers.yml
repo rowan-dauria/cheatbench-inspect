@@ -1,0 +1,17 @@
+# This file is auto-generated and updated by Copier; do not edit by hand.
+# Run `copier update` to pull in template changes.
+_commit: v2.0.0
+_src_path: gh:Generality-Labs/inspect-evals-template
+author_email: rowandauria1@gmail.com
+author_name: Rowan d'Auria
+eval_description: inspect-based implementation of the CheatBench (Phan et al. 2026)
+    benchmark
+eval_name: cheatbench-inspect
+github_owner: rowan-dauria
+github_username: rowan-dauria
+include_examples: true
+include_llm_judge_example: true
+layout: single-eval
+license: MIT
+python_version: '3.12'
+use_template_update: true

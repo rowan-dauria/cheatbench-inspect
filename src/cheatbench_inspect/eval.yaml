@@ -1,0 +1,10 @@
+title: "cheatbench-inspect"
+description: |
+  inspect-based implementation of the CheatBench (Phan et al. 2026) benchmark
+group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
+contributors:
+  - rowan-dauria
+version: "1-A"
+tasks:
+  - name: cheatbench_inspect
+    dataset_samples: 2
