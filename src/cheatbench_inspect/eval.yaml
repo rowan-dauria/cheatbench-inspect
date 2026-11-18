@@ -8,3 +8,5 @@ version: "1-A"
 tasks:
   - name: cheatbench_inspect
     dataset_samples: 2
+  - name: cheatbench_sycophancy
+    dataset_samples: 28
