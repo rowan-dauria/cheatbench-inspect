@@ -7,17 +7,17 @@ This repo holds one Inspect AI evaluation, `cheatbench-inspect`, as the Python p
 This project uses `uv`. Do not use `pip`, bare `python` or bare `pytest`.
 
 - `uv sync` installs the project and its dev dependencies.
-- `uv run inspect eval cheatbench_inspect/cheatbench_inspect --model <provider/model>` runs the eval. `--limit N` runs N samples.
+- `uv run inspect eval cheatbench_inspect/cheatbench_sycophancy --model <provider/model>` runs the Sycophancy task. `--limit N` runs N samples.
 - `make test` runs the tests. Slow tests need `uv run pytest --runslow`.
 - `make check` runs every check CI runs.
 - `make readmes` regenerates the README sections that come from `eval.yaml` and the task signatures.
 
 ## Layout
 
-- `src/cheatbench_inspect/cheatbench_inspect.py`: the task, `record_to_sample`, and the version read from `eval.yaml`.
+- `src/cheatbench_inspect/sycophancy.py`: the Sycophancy task, its judge scorer and shift metric; `resources/` holds its data and the original judge files.
 - `src/cheatbench_inspect/eval.yaml`: title, description, contributors, version and tasks. Edit it and run `make readmes`.
 - `README.md`: the eval's documentation, including the generated sections.
-- `tests/test_cheatbench_inspect.py`: the tests.
+- `tests/cheatbench_inspect/sycophancy/`: the Sycophancy tests and fixtures generated from the original.
 - `src/examples/`: worked examples (gpqa, agentic, llm_judge). They are not part of the eval. Run one by file path: `uv run inspect eval src/examples/<name>/<name>.py`. Remove them with `uvx copier update --defaults --data include_examples=false` followed by `uv sync`.
 - `agent_artefacts/trajectory_analysis/inspect_scout/`: Scout scanners for the transcript audit.
 

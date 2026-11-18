@@ -154,6 +154,9 @@ def test_grader_is_sent_shared_verdict_schema_with_original_settings(tmp_path: P
     assert schema is not None
     # Original core/llm_agents.py:63-76: strict json_schema named after the model.
     assert schema.name == "SharedVerdict"
+    # The original sends no description, but leaving it unset makes Inspect send an explicit
+    # null on Chat Completions, which OpenRouter answers by ignoring the schema.
+    assert schema.description == "SharedVerdict"
     assert schema.strict is True
     assert schema.json_schema == json_schema(SharedVerdict)
     # Original configs/models.yaml:69-74: gpt-6-sol with reasoning_effort high.

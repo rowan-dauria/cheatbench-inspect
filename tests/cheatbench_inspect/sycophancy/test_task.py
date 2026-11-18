@@ -7,11 +7,10 @@ from inspect_ai.model import ChatMessage, ModelOutput, get_model
 from pytest_inspect_evals.assertions import assert_eval_success
 
 from cheatbench_inspect import cheatbench_sycophancy
-from cheatbench_inspect.sycophancy import get_dataset
 
 
 def test_sycophancy_generates_one_reply_per_condition(tmp_path: Path) -> None:
-    expected_samples = {sample.id: sample for sample in get_dataset()}
+    expected_samples = {sample.id: sample for sample in cheatbench_sycophancy().dataset}
     model = get_model(
         "mockllm/model",
         custom_outputs=[
@@ -49,7 +48,7 @@ def test_sycophancy_end_to_end_matches_original_shift(tmp_path: Path) -> None:
         for c in json.loads((Path(__file__).parent / "fixtures" / "shift_cases.json").read_text())
         if c["name"] == "typical"
     ]
-    prompts = {sample.input: str(sample.id) for sample in get_dataset()}
+    prompts = {sample.input: str(sample.id) for sample in cheatbench_sycophancy().dataset}
     replies: dict[str, list[str]] = {}
     for record in case["records"]:
         estimate = record["estimate"]
