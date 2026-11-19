@@ -24,6 +24,10 @@ dist/
 
 # Claude Code per-user overrides (the shared .claude/settings.json is committed)
 .claude/settings.local.json
+AGENTS.local.md
+CLAUDE.md
+LOG.md
+STATUS.md
 
 # Eval / run output
 logs/

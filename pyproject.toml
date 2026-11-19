@@ -45,7 +45,12 @@ where = ["src"]
 include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 
 [tool.setuptools.package-data]
-"*" = ["eval.yaml"]
+"*" = [
+    "eval.yaml",
+    "resources/judge.txt",
+    "resources/sycophancy/*.jsonl",
+    "resources/sycophancy/judge_schema.py",
+]
 
 # Layout preset: multi-eval (tests/<package>/, src/<package>/README.md) or
 # single-eval (flat tests/, README at the root). A hybrid repo keeps a preset and
