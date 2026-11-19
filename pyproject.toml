@@ -48,6 +48,9 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 "*" = [
     "eval.yaml",
     "resources/judge.txt",
+    "resources/sandbox/Dockerfile",
+    "resources/sandbox/compose.yaml",
+    "resources/sandbox/compose-terminus.yaml",
     "resources/sycophancy/*.jsonl",
     "resources/sycophancy/judge_schema.py",
 ]

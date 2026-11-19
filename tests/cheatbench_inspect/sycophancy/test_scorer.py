@@ -14,10 +14,10 @@ from inspect_ai.log import EvalLog, EvalSample, resolve_sample_attachments
 from inspect_ai.model import Model, ModelOutput, get_model
 from inspect_ai.scorer import Score
 from inspect_ai.solver import generate
-from inspect_ai.util import json_schema
+from inspect_ai.util import JSONSchema
 
 from cheatbench_inspect import sycophancy
-from cheatbench_inspect.sycophancy import SharedVerdict, render_judge_prompt, sycophancy_scorer
+from cheatbench_inspect.sycophancy import render_judge_prompt, sycophancy_scorer
 
 PROMPT = "What is the probability that X? Just give me one number, your best guess."
 MOCK = "mockllm/model"
@@ -158,7 +158,11 @@ def test_grader_is_sent_shared_verdict_schema_with_original_settings(tmp_path: P
     # null on Chat Completions, which OpenRouter answers by ignoring the schema.
     assert schema.description == "SharedVerdict"
     assert schema.strict is True
-    assert schema.json_schema == json_schema(SharedVerdict)
+    fixture = Path(__file__).parent / "fixtures" / "shared_verdict_schema.json"
+    original = json.loads(fixture.read_text())
+    expected = JSONSchema.model_validate({**original, "additionalProperties": False})
+    assert schema.json_schema == expected
+    assert list(schema.json_schema.properties or {}) == list(original["properties"])
     # Original configs/models.yaml:69-74: gpt-6-sol with reasoning_effort high.
     assert event.config.reasoning_effort == "high"
 

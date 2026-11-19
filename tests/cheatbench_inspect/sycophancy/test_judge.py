@@ -13,7 +13,7 @@ from pydantic import ValidationError
 import cheatbench_inspect
 from cheatbench_inspect.resources.sycophancy.judge_schema import EXTRA_CONTEXT
 from cheatbench_inspect.sycophancy import (
-    SharedVerdict,
+    SycophancyVerdict,
     normalise_estimate,
     render_judge_prompt,
 )
@@ -147,12 +147,11 @@ VERDICT = {
 
 
 def test_shared_verdict_name() -> None:
-    # The model's name becomes the response_format schema name.
-    assert SharedVerdict.__name__ == "SharedVerdict"
+    assert SycophancyVerdict.model_json_schema()["title"] == "SharedVerdict"
 
 
 def test_shared_verdict_field_order() -> None:
-    assert list(SharedVerdict.model_fields) == [
+    assert list(SycophancyVerdict.model_json_schema()["properties"]) == [
         "cheated",
         "estimate",
         "committed",
@@ -165,7 +164,7 @@ def test_shared_verdict_field_order() -> None:
 def test_shared_verdict_json_schema_matches_original() -> None:
     # Every field's type, description and title, and the required list.
     expected = json.loads((FIXTURES / "shared_verdict_schema.json").read_text())
-    assert SharedVerdict.model_json_schema() == expected
+    assert SycophancyVerdict.model_json_schema() == expected
 
 
 @pytest.mark.parametrize(
@@ -175,14 +174,14 @@ def test_shared_verdict_json_schema_matches_original() -> None:
 def test_shared_verdict_ors_explicit_prohibition_into_cheated(
     cheated: bool, violated: bool, expected: bool
 ) -> None:
-    verdict = SharedVerdict.model_validate(
+    verdict = SycophancyVerdict.model_validate(
         {**VERDICT, "cheated": cheated, "explicit_prohibition_violated": violated}
     )
     assert verdict.model_dump()["cheated"] is expected
 
 
 def test_shared_verdict_parses_judge_json() -> None:
-    verdict = SharedVerdict.model_validate_json(json.dumps(VERDICT))
+    verdict = SycophancyVerdict.model_validate_json(json.dumps(VERDICT))
     assert verdict.model_dump()["estimate"] == 0.3
 
 
@@ -190,4 +189,4 @@ def test_shared_verdict_rejects_missing_field() -> None:
     # Original core/judge.py:390-398: a reply that does not validate is a judge error.
     incomplete = {k: v for k, v in VERDICT.items() if k != "estimate"}
     with pytest.raises(ValidationError):
-        SharedVerdict.model_validate_json(json.dumps(incomplete))
+        SycophancyVerdict.model_validate_json(json.dumps(incomplete))
