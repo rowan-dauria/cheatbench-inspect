@@ -12,6 +12,8 @@ import base64
 import hashlib
 import io
 import json
+import re
+from dataclasses import replace
 from pathlib import Path
 
 from harbor.agents.terminus_2.terminus_2 import Terminus2
@@ -232,6 +234,20 @@ class TerminusLLMClient(LiteLLM):
             )
 
 
+_THINK_BLOCK = re.compile(r"\s*<think(?P<attrs>\s[^>]*)?>(?P<body>.*?)</think>", re.DOTALL)
+
+
+def _split_bridge_reasoning(content: str) -> tuple[str, str]:
+    """Separate leading Inspect reasoning blocks from the visible response."""
+    end = 0
+    reasoning = []
+    while match := _THINK_BLOCK.match(content, end):
+        end = match.end()
+        if 'redacted="true"' not in (match["attrs"] or "") and (body := match["body"].strip()):
+            reasoning.append(body)
+    return content[end:], "\n\n".join(reasoning)
+
+
 class ImageChat(Chat):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -245,6 +261,15 @@ class ImageChat(Chat):
         if self.pending_images:
             self.image_requests += 1
             self.pending_images = []
+        # Harbor has already saved the signed assistant text in chat history.
+        # Return a separate response with reasoning in the field ATIF records.
+        visible, reasoning = _split_bridge_reasoning(response.content)
+        if visible != response.content:
+            return replace(
+                response,
+                content=visible,
+                reasoning_content=response.reasoning_content or reasoning or None,
+            )
         return response
 
 
@@ -255,6 +280,8 @@ class ImageParser(TerminusJSONPlainParser):
 
     def _try_parse_response(self, response):
         self.image_paths = []
+        # Harbor also passes raw truncated replies directly to the parser.
+        response, _ = _split_bridge_reasoning(response)
         result = super()._try_parse_response(response)
         if result.error:
             return result

@@ -61,6 +61,11 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 [tool.inspect-evals-lint]
 preset = "single-eval"
 
+[tool.inspect-evals-lint.per-file-ignores]
+# These scripts run under the pinned Harbor and Pillow installed by the Terminus Docker target.
+"src/cheatbench_inspect/resources/terminus/episode.py" = ["external_dependencies"]
+"src/cheatbench_inspect/resources/terminus/image_extension.py" = ["external_dependencies"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

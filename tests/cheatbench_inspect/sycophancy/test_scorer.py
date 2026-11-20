@@ -176,6 +176,7 @@ def test_grader_defaults_to_gpt_6_sol(tmp_path: Path) -> None:
     assert spy.call_args is not None
     assert spy.call_args.kwargs["role"] == "grader"
     assert spy.call_args.kwargs["default"] == "openai/gpt-6-sol"
+    assert spy.call_args.kwargs["config"].reasoning_effort == "high"
 
 
 # --------------------------------------------------------------------------

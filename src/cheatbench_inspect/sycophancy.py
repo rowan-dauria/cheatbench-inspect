@@ -13,6 +13,7 @@ from inspect_ai.util import json_schema
 from inspect_evals_utils.metadata import load_eval_version
 from pydantic import Field, model_validator
 
+from .config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
 from .judge import Verdict as BaseVerdict
 from .judge import build_judge_prompt, scrub_trajectory_text
 from .resources.sycophancy.judge_schema import EXTRA_CONTEXT
@@ -316,8 +317,8 @@ def sycophancy_scorer() -> Scorer:
 
         judge = get_model(
             role="grader",
-            default="openai/gpt-6-sol",
-            config=GenerateConfig(reasoning_effort="high"),
+            default=DEFAULT_JUDGE_MODEL,
+            config=GenerateConfig(reasoning_effort=DEFAULT_JUDGE_REASONING_EFFORT),
         )
 
         judge_prompt = render_judge_prompt(

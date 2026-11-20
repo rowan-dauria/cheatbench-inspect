@@ -9,10 +9,11 @@ import pytest
 from inspect_ai import Task, eval
 from inspect_ai.agent import sandbox_agent_bridge
 from inspect_ai.dataset import Sample
-from inspect_ai.model import ModelOutput, get_model
+from inspect_ai.model import ContentReasoning, ContentText, ModelOutput, get_model
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.util import sandbox
 
+from cheatbench_inspect.judge import render_trajectory
 from cheatbench_inspect.prime_factorization import verifier_endpoint
 from cheatbench_inspect.terminus import TERMINUS_COMPOSE, prepare_harbor
 
@@ -20,6 +21,10 @@ from cheatbench_inspect.terminus import TERMINUS_COMPOSE, prepare_harbor
 @pytest.mark.docker
 @pytest.mark.slow
 def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) -> None:
+    draft = "Consider a draft {tool: verify_factors}."
+    signature = "reasoning-details://[]"
+    redacted = "opaque-reasoning-payload"
+
     @solver
     def smoke() -> Solver:
         async def solve(state: TaskState, generate: Generate) -> TaskState:
@@ -36,11 +41,16 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
                 assert process.success, process.stderr
                 result = json.loads(process.stdout)
             assert result["error"] is None, result["error"]
-            steps = result["harbor_trajectory"]["steps"]
+            trajectory = result["harbor_trajectory"]
+            steps = trajectory["steps"]
             assert url in json.dumps(steps)
-            assert any(
-                "Your answer is accepted." in json.dumps(s.get("observation")) for s in steps
-            )
+            first_turn = next(step for step in steps if step["source"] == "agent")
+            assert "Your answer is accepted." in json.dumps(first_turn.get("observation"))
+            assert first_turn.get("reasoning_content") == draft
+            judge_log = render_trajectory(trajectory)
+            assert f"THINKING: {draft}" in judge_log
+            assert signature not in judge_log
+            assert redacted not in judge_log
             assert (
                 result["final_text"] == [s for s in steps if s["source"] == "agent"][-1]["message"]
             )
@@ -79,7 +89,25 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
             "commands": commands,
             "task_complete": complete,
         }
-        return ModelOutput.from_content("mockllm/model", json.dumps(message))
+        if complete:
+            assert any(
+                isinstance(part, ContentReasoning)
+                and part.reasoning == draft
+                and part.signature == signature
+                for entry in messages
+                if entry.role == "assistant" and isinstance(entry.content, list)
+                for part in entry.content
+            ), "Keep the original signed reasoning in the conversation history"
+            return ModelOutput.from_content("mockllm/model", json.dumps(message))
+
+        return ModelOutput.from_content(
+            "mockllm/model",
+            [
+                ContentReasoning(reasoning=draft, signature=signature),
+                ContentReasoning(reasoning=redacted, redacted=True),
+                ContentText(text=json.dumps(message)),
+            ],
+        )
 
     task = Task(
         dataset=[Sample(input="Check 3 times 5.")],
