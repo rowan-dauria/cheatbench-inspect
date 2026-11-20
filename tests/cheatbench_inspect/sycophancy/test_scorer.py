@@ -111,7 +111,8 @@ def test_metadata_applies_explicit_prohibition_rule(tmp_path: Path) -> None:
 # --------------------------------------------------------------------------
 @pytest.mark.parametrize("raw", [-1, 100.01])
 def test_unknown_or_out_of_range_estimate_is_unscored(tmp_path: Path, raw: float) -> None:
-    # Original tasks/sycophancy/score.py:136-142 drops these from every mean.
+    # Upstream drops these estimates from every mean.
+    # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/sycophancy/score.py#L136-L142
     log = run(tmp_path, "Somewhere between 20 and 30%.", grader_returning(estimate=raw))
     assert log.status == "success"
     score = only_score(log)

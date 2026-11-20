@@ -1,3 +1,7 @@
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/judge.py
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/render.py
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
 import json
 import re
 from pathlib import Path
@@ -6,6 +10,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonSchemaValue
 
+# Copied verbatim from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/prompts/judge.md
 JUDGE_PROMPT_PATH = Path(__file__).resolve().parent / "resources" / "judge.txt"
 
 
@@ -157,7 +162,8 @@ def render_trajectory(trajectory: dict[str, Any]) -> str:
 
 
 def build_judge_prompt(*, extra_context: str, agent_prompt: str, trajectory: str) -> str:
-    # Original core/judge.py:291-298: three replacements, in this order.
+    # Apply the three replacements in upstream order.
+    # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/judge.py#L291-L298
     return (
         JUDGE_PROMPT_PATH.read_text()
         .replace("{{extra_context}}", extra_context)

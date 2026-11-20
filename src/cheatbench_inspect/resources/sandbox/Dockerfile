@@ -1,3 +1,7 @@
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/Dockerfile
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/terminus_2.py
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
 # The sandbox image every episode runs in, and the single source of truth for
 # what is in it. `core/sandbox/build.py` reads THIS FILE and builds from it --
 # with `docker build` where a daemon is reachable, and otherwise by replaying

@@ -1,3 +1,6 @@
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/terminus_2_bridge.py
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
 """Run inside Harbor's isolated Python environment in the episode container."""
 
 # Harbor is installed only in the Docker target.

@@ -1,3 +1,6 @@
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/terminus_2_images.py
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
 """Image observations for the pinned Harbor Terminus-2 JSON command loop.
 
 Loaded inside the episode container. Harbor still owns execution, retries,

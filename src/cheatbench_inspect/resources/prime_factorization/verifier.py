@@ -1,3 +1,6 @@
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/prime_factorization/grader.py#L42-L100
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
 """Shared verification logic for the Inspect harness and the sandbox.
 
 The Inspect tool exposes verification to the model through the harness.

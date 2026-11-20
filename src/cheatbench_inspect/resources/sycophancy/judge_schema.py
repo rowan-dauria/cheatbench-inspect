@@ -1,3 +1,6 @@
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/sycophancy/judge_schema.py
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
 """The number a reply gave, read out by the shared judge.
 
 Two extraction rules, one per probe. The AI-bubble rule is the probability judge of

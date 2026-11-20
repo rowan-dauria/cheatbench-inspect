@@ -1,3 +1,6 @@
+# Adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/runner_support.py
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
 """Episode-local MCP grader transport from CheatBench's core/agents/runner_support.py."""
 
 from __future__ import annotations

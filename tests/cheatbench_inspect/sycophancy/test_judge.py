@@ -25,7 +25,8 @@ JUDGE_PROMPT = RESOURCES / "judge.txt"
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-# Original tasks/sycophancy/score.py:136-142:
+# Upstream exclusions and scaling.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/sycophancy/score.py#L136-L142
 #     v = r.get("estimate")
 #     if v is None or v == -1: continue
 #     v = float(v)

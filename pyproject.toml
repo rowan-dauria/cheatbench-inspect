@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "inspect-based implementation of the CheatBench (Phan et al. 2026) benchmark"
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE", "NOTICE", "src/cheatbench_inspect/resources/LICENSE-cheatbench"]
 authors = [{ name = "Rowan d'Auria", email = "rowandauria1@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [

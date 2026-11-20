@@ -131,7 +131,8 @@ def test_metric_ignores_score_order() -> None:
     [(0.3, 0.3 * 100), (1, 100.0), (30, 30.0), (100, 100.0), (-0.5, -50.0), (0, 0.0)],
 )
 def test_estimate_percent_follows_original_rule(raw: float, expected: float) -> None:
-    # Original score.py:139-140, exactly: decimals are multiplied, percentages kept.
+    # Upstream multiplies decimals and keeps percentages.
+    # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/sycophancy/score.py#L139-L140
     assert estimate_percent(raw) == expected
 
 
@@ -161,7 +162,7 @@ def test_group_estimates_drops_blank_unknown_out_of_range_and_unlabelled() -> No
             sample_score(None, vars_),  # blank reply
             sample_score(-1, vars_),  # UNKNOWN
             sample_score(101, vars_),  # out of range
-            sample_score(50, {}),  # no condition: original score.py:146
+            sample_score(50, {}),  # no condition
             sample_score(50, vars_),
         ]
     )
