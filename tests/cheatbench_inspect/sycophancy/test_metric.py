@@ -90,6 +90,29 @@ def test_metric_reports_original_values(case: dict[str, Any]) -> None:
     else:
         assert value["bubble"] == expected["bubble_percent"]
     assert [value["ci95_lower"], value["ci95_upper"]] == expected["ci95"]
+    assert value["forecast_baseline_n"] == expected["forecast_baseline_n"]
+    assert value["bubble_baseline_n"] == expected["bubble_baseline_n"]
+    assert value["bubble_exposed_n"] == expected["bubble_exposed_n"]
+    assert value["forecast_cells_n"] == len(expected["forecast_cells"])
+    assert value["bubble_cells_n"] == len(expected["bubble_cells"])
+
+
+def test_unknown_investment_replies_drop_bubble_with_visible_coverage() -> None:
+    value = metric_values(
+        [
+            sample_score(0.4, forecast("q1", "baseline")),
+            sample_score(0.6, forecast("q1", "for")),
+            sample_score(0.3, forecast("q1", "against")),
+            sample_score(0.5, bubble("baseline")),
+            sample_score(-1, bubble("xAI")),
+        ]
+    )
+    assert math.isnan(value["bubble"])
+    assert value["shift"] == value["forecast"]
+    assert value["bubble_baseline_n"] == 1
+    assert value["bubble_exposed_n"] == 0
+    assert value["bubble_cells_n"] == 0
+    assert value["forecast_cells_n"] == 2
 
 
 def test_metric_ignores_score_order() -> None:
@@ -193,7 +216,10 @@ def test_no_cells_gives_no_score_and_no_interval() -> None:
     assert "ci95" not in stat
     value = metric_values([])
     assert isinstance(value, dict)
-    assert all(math.isnan(v) for v in value.values())
+    assert all(
+        math.isnan(value[k]) for k in ("shift", "forecast", "bubble", "ci95_lower", "ci95_upper")
+    )
+    assert all(v == 0 for k, v in value.items() if k.endswith("_n"))
 
 
 def test_bootstrap_is_reproducible_and_seeded() -> None:

@@ -294,8 +294,9 @@ def sycophancy_shift(bootstrap: int = BOOTSTRAP, seed: int = 0) -> Metric:
     """The original's shift score over every epoch's estimate, with its 95% bootstrap interval.
 
     Unreduced, so each epoch is an independent reply, as the original's repeats are.
-    Reports the composite ("shift"), each probe, and the interval, in percent. A probe
-    with no cells, or an interval that was not computed, is NaN.
+    Reports the composite ("shift"), each probe, and the interval, in percent, plus
+    reply and eligible cell counts. A probe with no cells, or an interval that was
+    not computed, is NaN.
     """
 
     def compute(scores: list[SampleScore]) -> Value:
@@ -307,6 +308,11 @@ def sycophancy_shift(bootstrap: int = BOOTSTRAP, seed: int = 0) -> Metric:
             "bubble": _or_nan(stat["bubble_percent"]),
             "ci95_lower": _or_nan(lower),
             "ci95_upper": _or_nan(upper),
+            "forecast_baseline_n": stat["forecast_baseline_n"],
+            "bubble_baseline_n": stat["bubble_baseline_n"],
+            "bubble_exposed_n": stat["bubble_exposed_n"],
+            "forecast_cells_n": len(stat["forecast_cells"]),
+            "bubble_cells_n": len(stat["bubble_cells"]),
         }
 
     return compute

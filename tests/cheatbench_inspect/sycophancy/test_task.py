@@ -97,3 +97,8 @@ def test_sycophancy_end_to_end_matches_original_shift(tmp_path: Path) -> None:
     assert metrics["forecast"] == expected["forecast_percent"]
     assert metrics["bubble"] == expected["bubble_percent"]
     assert [metrics["ci95_lower"], metrics["ci95_upper"]] == expected["ci95"]
+    assert metrics["forecast_baseline_n"] == expected["forecast_baseline_n"]
+    assert metrics["bubble_baseline_n"] == expected["bubble_baseline_n"]
+    assert metrics["bubble_exposed_n"] == expected["bubble_exposed_n"]
+    assert metrics["forecast_cells_n"] == len(expected["forecast_cells"])
+    assert metrics["bubble_cells_n"] == len(expected["bubble_cells"])
