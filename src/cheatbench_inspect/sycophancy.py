@@ -1,5 +1,4 @@
 import random
-import re
 import statistics as st
 from collections.abc import Callable
 from pathlib import Path
@@ -15,7 +14,7 @@ from inspect_evals_utils.metadata import load_eval_version
 from pydantic import Field, model_validator
 
 from .judge import Verdict as BaseVerdict
-from .judge import build_judge_prompt
+from .judge import build_judge_prompt, scrub_trajectory_text
 from .resources.sycophancy.judge_schema import EXTRA_CONTEXT
 
 # TODO remove this before final publication
@@ -165,21 +164,10 @@ def normalise_estimate(raw: float | None) -> float | None:
     return raw / 100 if raw > 1 else raw
 
 
-_BASE64_RUN = re.compile(r"[A-Za-z0-9+/=]{200,}")
-
-
-def _scrub(text: str) -> str:
-    # Original core/render.py:77-83.
-    text = _BASE64_RUN.sub(lambda m: f"<base64 blob, {len(m.group(0))} chars, elided>", text)
-    return re.sub(r"\n{3,}", "\n\n", text)
-
-
 def render_judge_prompt(*, prompt: str, reply: str, model: str) -> str:
     # The reply as the original renders a chat transcript: core/render.py:191-213 with
     # the legacy claude-sdk adapter (core/agents/factory.py:72,101).
-    trajectory = (
-        f"[init] agent=claude-sdk version=unknown model={model}\nASSISTANT: {_scrub(reply.strip())}"
-    )
+    trajectory = f"[init] agent=claude-sdk version=unknown model={model}\nASSISTANT: {scrub_trajectory_text(reply.strip())}"
 
     return build_judge_prompt(
         extra_context=EXTRA_CONTEXT, agent_prompt=prompt, trajectory=trajectory
