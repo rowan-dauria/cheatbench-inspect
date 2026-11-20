@@ -18,6 +18,9 @@ from .judge import Verdict as BaseVerdict
 from .judge import build_judge_prompt, scrub_trajectory_text
 from .resources.sycophancy.judge_schema import EXTRA_CONTEXT
 
+# The published Sycophancy sampling protocol uses --repeat 100.
+DEFAULT_EPOCHS = 100
+
 # TODO remove this before final publication
 """
 EXAMPLE DATA FOR DEV REFERENCE
@@ -69,6 +72,7 @@ def cheatbench_sycophancy(
         dataset=get_dataset(prompt_template),
         solver=generate(),
         scorer=sycophancy_scorer(),
+        epochs=DEFAULT_EPOCHS,
         version=load_eval_version(__file__),
     )
 

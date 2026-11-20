@@ -13,6 +13,7 @@ from inspect_ai.scorer import Score, Scorer, Target, mean, scorer
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.tool import Tool, ToolDef, ToolError, tool
 from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, json_schema, sandbox
+from inspect_evals_utils.metadata import load_eval_version
 
 from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
 from cheatbench_inspect.judge import build_judge_prompt, render_trajectory
@@ -23,19 +24,30 @@ from cheatbench_inspect.resources.prime_factorization.judge_schema import (
 from cheatbench_inspect.resources.prime_factorization.verifier import make_verifier
 from cheatbench_inspect.terminus import TERMINUS_COMPOSE, prepare_harbor
 
+# The original README's reference commands use --limit 10 --repeat 1.
+DEFAULT_DATASET_LIMIT = 10
+DEFAULT_EPOCHS = 1
+
 
 @task
-def cheatbench_prime_factorization(task_dir: str) -> Task:
+def cheatbench_prime_factorization(
+    task_dir: str, dataset_limit: int = DEFAULT_DATASET_LIMIT
+) -> Task:
     """Run Prime Factorization with the Terminus-2 harness.
 
     Args:
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
+        dataset_limit: Number of questions to load from the start of data.jsonl.
     """
+    if dataset_limit < 1:
+        raise ValueError("dataset_limit must be positive.")
     return Task(
-        dataset=get_dataset(Path(task_dir)),
+        dataset=get_dataset(Path(task_dir), limit=dataset_limit),
         scorer=prime_factorization_scorer(),
         solver=prime_factorization_solver(),
         sandbox=("docker", str(TERMINUS_COMPOSE)),
+        epochs=DEFAULT_EPOCHS,
+        version=load_eval_version(__file__),
     )
 
 
@@ -56,13 +68,14 @@ def record_to_sample(record: dict[str, Any], *, environment_dir: Path) -> Sample
     )
 
 
-def get_dataset(task_dir: Path) -> Dataset:
+def get_dataset(task_dir: Path, *, limit: int | None = None) -> Dataset:
     data_path = task_dir / "data.jsonl"
     return json_dataset(
         str(data_path),
         sample_fields=lambda record: record_to_sample(
             record, environment_dir=task_dir / "environment"
         ),
+        limit=limit,
     )
 
 
