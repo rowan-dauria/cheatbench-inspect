@@ -17,10 +17,10 @@ from inspect_ai.util import json_schema
 from inspect_evals_utils.metadata import load_eval_version
 from pydantic import Field, model_validator
 
-from .config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
-from .judge import Verdict as BaseVerdict
-from .judge import build_judge_prompt, scrub_trajectory_text
-from .resources.sycophancy.judge_schema import EXTRA_CONTEXT
+from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
+from cheatbench_inspect.judge import Verdict as BaseVerdict
+from cheatbench_inspect.judge import build_judge_prompt, scrub_trajectory_text
+from cheatbench_inspect.resources.sycophancy.judge_schema import EXTRA_CONTEXT
 
 # The published Sycophancy sampling protocol uses --repeat 100.
 DEFAULT_EPOCHS = 100
