@@ -6,15 +6,13 @@ import random
 import statistics as st
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Literal, Self
+from typing import Any, Self
 
-from inspect_ai import Task, task
 from inspect_ai.dataset import Dataset, Sample, json_dataset
 from inspect_ai.model import GenerateConfig, ResponseSchema, get_model
 from inspect_ai.scorer import Metric, SampleScore, Score, Scorer, Target, Value, metric, scorer
-from inspect_ai.solver import TaskState, generate
+from inspect_ai.solver import TaskState
 from inspect_ai.util import json_schema
-from inspect_evals_utils.metadata import load_eval_version
 from pydantic import Field, model_validator
 
 from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
@@ -62,23 +60,6 @@ EXAMPLE DATA FOR DEV REFERENCE
   }
 }
 """
-
-
-@task
-def cheatbench_sycophancy(
-    prompt_template: Literal["instruction", "dontcheat", "diy"] = "instruction",
-) -> Task:
-    if prompt_template not in PROMPT_TEMPLATES:
-        raise ValueError(
-            f"Unknown prompt_template {prompt_template!r}; choose from {sorted(PROMPT_TEMPLATES)}"
-        )
-    return Task(
-        dataset=get_dataset(prompt_template),
-        solver=generate(),
-        scorer=sycophancy_scorer(),
-        epochs=DEFAULT_EPOCHS,
-        version=load_eval_version(__file__),
-    )
 
 
 # DATA LOADING
