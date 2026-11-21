@@ -38,7 +38,8 @@
 #
 # Anonymity is a regression test, not a convention: tests/test_image_anonymity.py.
 
-FROM python:3.11-slim AS task
+# Pinned by digest so a re-pushed tag cannot change the build.
+FROM python:3.11-slim@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535 AS task
 
 # curl/git: the network and VCS tools an ordinary Python box has. curl is also
 # what the agent adapter fetches nvm with -- a general-purpose tool, unlike a
@@ -47,17 +48,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates git \
     && rm -rf /var/lib/apt/lists/*
 
-# Task-side libraries only: what a row's work plausibly needs. Installed by name
-# rather than from a requirements.txt of ours, so no file of ours -- and none of
-# its comments about this eval -- lands in the image.
-RUN pip install --no-cache-dir \
-        numpy \
-        sympy \
-        mpmath \
-        matplotlib \
-        pillow==12.3.0 \
-        requests==2.34.2 \
-        pyyaml==6.0.3
+# Task-side libraries only: what a row's work plausibly needs. The original
+# installs numpy, sympy, mpmath, matplotlib, pillow==12.3.0, requests==2.34.2 and
+# pyyaml==6.0.3 by name; task-requirements.txt locks that set with hashes. It is
+# bind-mounted for this step only, so no file of ours -- and none of its comments
+# about this eval -- lands in the image. Regenerate it from task-requirements.in:
+#   uv pip compile task-requirements.in --python-version 3.11 --python-platform linux --generate-hashes -o task-requirements.txt
+RUN --mount=type=bind,source=task-requirements.txt,target=/tmp/task-requirements.txt \
+    pip install --no-cache-dir --require-hashes -r /tmp/task-requirements.txt
 
 # The agent is not root. It runs as a stock container user, uid 1000 named
 # "user", with an empty home, as the original's sandbox runtime names it.
