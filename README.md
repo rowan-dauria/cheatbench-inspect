@@ -95,6 +95,25 @@ Each record becomes a `Sample` with an empty target and the record's `vars` (`pr
 
 The original's single-probe `bubble` and `forecast` variants are not ported: the paper does not use them. Use `--epochs N` for the original's `--repeat N`. The default of 100 follows the published sampling protocol.
 
+### Sycophancy model settings
+
+Use these Inspect run configs for the paper's model-specific generation settings. All leave temperature unset. Select the evaluated model with `--model` and the judge with `--model-role grader=...`. The paper used GPT-5.6 Sol as the judge for most models and GPT-6 Sol for Claude Opus 5.5 and Grok 4.7. [CheatBench, Appendix B.10](https://arxiv.org/html/2609.36308v1) · [Pinned model settings](https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml)
+
+- [`anthropic-high.yaml`](configs/sycophancy/anthropic-high.yaml) sets high reasoning effort and the 16,000-output-token cap. Inspect maps high effort to adaptive thinking with summarized display for Claude Opus 5.5 and Claude Fable 5.1. The equivalent flags are `--reasoning-effort high --max-tokens 16000`. [Upstream Anthropic cap](https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/model_settings.py#L129-L142)
+- [`anthropic-cap.yaml`](configs/sycophancy/anthropic-cap.yaml) applies the same cap for Claude Opus 5 and leaves effort at the provider default. Inspect relies on the model's default thinking behavior for this profile. The original explicitly requests adaptive thinking with summarized display.
+- [`high.yaml`](configs/sycophancy/high.yaml) sets high reasoning effort for the other paper models whose upstream entries specify it. The equivalent flag is `--reasoning-effort high`. For Gemini models left at provider defaults in the paper, run the task without either profile.
+
+```bash
+uv run inspect eval --run-config configs/sycophancy/anthropic-high.yaml \
+  --model anthropic/claude-opus-5-5 --model-role grader=openai/gpt-6-sol
+uv run inspect eval --run-config configs/sycophancy/high.yaml \
+  --model openai/gpt-6-astra --model-role grader=openai/gpt-5.6-sol
+```
+
+These commands use the task's 100-epoch default. Add `--epochs 1 --limit 1` for a smoke run. CLI generation flags override settings in the run config.
+
+Set provider routing separately. For example, the paper ran DeepSeek through OpenRouter, and the pinned Kimi K3 entry selects the Moonshot provider and disables fallback. The generic high-effort profile uses Inspect's provider-specific request translation. [Pinned routing settings](https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L180-L201)
+
 ### Prime Factorization
 
 The original Prime Factorization builder generates 20 questions, Q4 through Q23. The task defaults to the first 10 questions, Q4 through Q13, with one episode per question. That matches the original README's study command. Use `-T dataset_limit=20` for the paper's 20-question runs or `--epochs 2` for the two repetitions reported for Claude Fable 5.1. [CheatBench, Appendix B.6](https://arxiv.org/html/2609.36308v1#A2.SS6)
@@ -147,6 +166,8 @@ In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory
 
 | What changed | Why | Expected effect on scores |
 | --- | --- | --- |
+| Sycophancy runs without a paper profile use Inspect's provider generation settings for the evaluated model. | The task accepts arbitrary models. The [paper profiles](#sycophancy-model-settings) specify reasoning effort and the Anthropic token cap where applicable. | Reasoning effort and output limits can change the replies and the measured shift. |
+| The Claude Opus 5 profile leaves thinking display to the provider while applying the original token cap. | Inspect's Anthropic settings tie the explicit adaptive thinking request to a reasoning effort. The upstream Opus 5 entry leaves effort unset. | Provider defaults can affect the response and reasoning returned. |
 | Sycophancy judge calls go through Inspect's default OpenAI API, which for `gpt-6-sol` is probably the Responses API, instead of Chat Completions. | Follows Inspect's standard model handling. | Expected to be negligible: the same prompt, schema, model and reasoning effort. |
 | The judge schema is sent with `description="SharedVerdict"`; the original sends no description. | Left unset, Inspect sends `"description": null` on Chat Completions, and OpenRouter then ignores the schema entirely. The Responses API path already fills in the name. | Expected to be negligible: the description repeats the schema name. |
 | The Sycophancy judge schema is sent without its `title` keys (`"SharedVerdict"`, `"Cheated"`, `"Estimate"` and so on). | Inspect's `JSONSchema` type has no `title` field. | Expected to be negligible: titles repeat the field names. Descriptions, types, required fields and strictness are unchanged. |

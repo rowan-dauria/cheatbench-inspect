@@ -1,0 +1,6 @@
+# Claude Opus 5 leaves effort at the provider default.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L21-L31
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/model_settings.py#L129-L142
+task: cheatbench_inspect/cheatbench_sycophancy
+generate_config:
+  max_tokens: 16000

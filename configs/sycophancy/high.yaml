@@ -1,0 +1,5 @@
+# High effort for the non-Anthropic Sycophancy model entries that configure it.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml
+task: cheatbench_inspect/cheatbench_sycophancy
+generate_config:
+  reasoning_effort: high
