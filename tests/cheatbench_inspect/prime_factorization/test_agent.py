@@ -12,6 +12,7 @@ from inspect_ai.tool import ToolDef
 from inspect_ai.util import sandbox
 
 from cheatbench_inspect import prime_factorization
+from cheatbench_inspect.container import AGENT_USER
 from cheatbench_inspect.prime_factorization import verifier_endpoint
 
 
@@ -42,6 +43,14 @@ async def terminal_rpc(url: str, request_id: int, method: str, params: dict[str,
 def probe_verifier() -> Solver:
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         async with verifier_endpoint(number=state.metadata["number"]) as url:
+            # The agent's user can read every command line; none may name the eval.
+            listing = await sandbox().exec(
+                ["bash", "-c", "ps -eo user=,args= || cat /proc/[0-9]*/cmdline | tr '\\0' ' '"],
+                user=AGENT_USER,
+            )
+            assert listing.success, listing.stderr
+            for word in ("verif", "grader", "factor"):
+                assert word not in listing.stdout.lower()
             init = await terminal_rpc(url, 1, "initialize", {})
             assert init["serverInfo"]["name"] == "verifier"
             catalog = await terminal_rpc(url, 2, "tools/list", {})

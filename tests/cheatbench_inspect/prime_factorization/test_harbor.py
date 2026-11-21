@@ -13,11 +13,14 @@ from inspect_ai.model import ContentReasoning, ContentText, ModelOutput, get_mod
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.util import sandbox
 
+from cheatbench_inspect.container import AGENT_ENV, AGENT_USER, hand_staged_files_to_agent
 from cheatbench_inspect.judge import render_trajectory
 from cheatbench_inspect.prime_factorization import live_log_observer, verifier_endpoint
 from cheatbench_inspect.terminus import TERMINUS_COMPOSE, prepare_harbor
 
-LIVE_LOG_DIR = "/home/runner/work/factoring-evals/factoring-evals/logs/trajectories/15"
+REPO = "/home/runner/work/factoring-evals/factoring-evals"
+LIVE_LOG_DIR = f"{REPO}/logs/trajectories/15"
+STAGED = f"{REPO}/README.md"
 
 
 @pytest.mark.docker
@@ -30,6 +33,8 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
     @solver
     def smoke() -> Solver:
         async def solve(state: TaskState, generate: Generate) -> TaskState:
+            await sandbox().write_file(STAGED, "Factoring notes.\n")
+            await hand_staged_files_to_agent([STAGED])
             async with verifier_endpoint(15) as url, sandbox_agent_bridge():
                 command, stdin = prepare_harbor(
                     sample_id="15",
@@ -43,11 +48,13 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
                         {
                             "live_log_dir": LIVE_LOG_DIR,
                             "cache_dir": "/home/runner/work/_temp/tool_results",
-                            "staged": [],
                         },
+                        [STAGED],
                     ),
                 )
-                process = await sandbox().exec(command, input=stdin, timeout=120)
+                process = await sandbox().exec(
+                    command, input=stdin, timeout=120, user=AGENT_USER, env=AGENT_ENV
+                )
                 assert process.success, process.stderr
                 result = json.loads(process.stdout)
             assert result["error"] is None, result["error"]

@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from cheatbench_inspect.container import BOOTSTRAP
+
 _RESOURCES = Path(__file__).parent / "resources/terminus"
 TERMINUS_COMPOSE = _RESOURCES.parent / "sandbox/compose-terminus.yaml"
 
@@ -12,7 +14,7 @@ TERMINUS_COMPOSE = _RESOURCES.parent / "sandbox/compose-terminus.yaml"
 _START = """
 import asyncio, contextlib, json, os, sys
 os.environ["LITELLM_LOCAL_MODEL_COST_MAP"] = "True"
-payload = json.load(sys.stdin)
+payload = PAYLOAD
 with contextlib.redirect_stdout(sys.stderr):
     extension, runner = {}, {}
     exec(compile(payload["extension"], "image_extension.py", "exec"), extension)
@@ -45,6 +47,7 @@ def prepare_harbor(
     `MessageObserver`, and the `row` and `staged` paths it is constructed with.
     """
     payload = {
+        "code": _START,
         "config": {
             "id": sample_id,
             "prompt": prompt,
@@ -58,4 +61,4 @@ def prepare_harbor(
         "runner": (_RESOURCES / "episode.py").read_text(),
         "observer": observer["code"] if observer else None,
     }
-    return ["/opt/terminus-runtime/.venv/bin/python", "-I", "-c", _START], json.dumps(payload)
+    return ["/opt/terminus-runtime/.venv/bin/python", "-I", "-c", BOOTSTRAP], json.dumps(payload)

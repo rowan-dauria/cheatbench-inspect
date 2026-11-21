@@ -59,15 +59,23 @@ RUN pip install --no-cache-dir \
         requests==2.34.2 \
         pyyaml==6.0.3
 
+# The agent is not root. It runs as a stock container user, uid 1000 named
+# "user", with an empty home, as the original's sandbox runtime names it.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/sandbox/runtime.py#L104-L139
+RUN useradd --uid 1000 --user-group --no-create-home --home-dir /home/user --shell /bin/bash user \
+    && install -d -m 755 -o user -g user /home/user
+
 # A neutral, non-identifying working directory for the agent.
-RUN mkdir -p /workspace
+RUN install -d -o user -g user /workspace
 WORKDIR /workspace
 
 # No ENTRYPOINT and no CMD: the runner is streamed in on stdin at exec time.
 # No ENV either -- PYTHONUNBUFFERED is passed per episode by core/sandbox, and
 # ANTHROPIC_API_KEY is passed by name so it never appears in a command line.
 
-# Cache the original harness runtime only for Terminus-2 episodes.
+# Cache the original harness runtime only for Terminus-2 episodes. Harbor, which
+# runs as the agent's user, keeps its agent logs under /logs, and its Python must
+# live outside root's home.
 FROM task AS terminus
 ARG HARBOR_COMMIT=4641fd590f190411c57e1cbd824a9f6786cbe92e
 ARG HARBOR_SHA256=ca4079f8189f290134c8619c66a131b21a598893e4d454cceb64a8f53b8cfc79
@@ -81,10 +89,11 @@ RUN set -eu; \
     curl -fsSL --retry 3 "https://codeload.github.com/harbor-framework/harbor/tar.gz/${HARBOR_COMMIT}" -o source.tar.gz; \
     echo "${HARBOR_SHA256}  source.tar.gz" | sha256sum -c -; \
     tar -xzf source.tar.gz --strip-components=1; \
-    UV_PROJECT_ENVIRONMENT=/opt/terminus-runtime/.venv /opt/terminus-runtime/installer/bin/uv sync --frozen --no-dev --no-editable --package harbor --python 3.12.11; \
+    UV_PYTHON_INSTALL_DIR=/opt/terminus-runtime/python UV_PROJECT_ENVIRONMENT=/opt/terminus-runtime/.venv /opt/terminus-runtime/installer/bin/uv sync --frozen --no-dev --no-editable --package harbor --python 3.12.11; \
     /opt/terminus-runtime/installer/bin/uv pip install --python /opt/terminus-runtime/.venv/bin/python --no-deps pillow==11.3.0; \
     cp uv.lock /opt/terminus-runtime/uv.lock; \
     echo "${HARBOR_COMMIT}" > /opt/terminus-runtime/commit; \
-    cd /; rm -rf /tmp/harbor /root/.cache/uv
+    cd /; rm -rf /tmp/harbor /root/.cache/uv; \
+    install -d -o user -g user /logs
 
 FROM task AS default

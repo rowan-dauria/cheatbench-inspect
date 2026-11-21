@@ -9,6 +9,7 @@ from inspect_ai.model import ModelName
 from inspect_ai.solver import TaskState
 
 from cheatbench_inspect import prime_factorization as prime
+from cheatbench_inspect.container import AGENT_ENV, AGENT_USER, BOOTSTRAP
 
 
 def test_harbor_result_preserves_evidence_for_trajectory_judge() -> None:
@@ -100,9 +101,12 @@ async def test_solver_keeps_verifier_open_during_harness_run(harness_fails: bool
         epoch=1,
         input="Factor the number.",
         messages=[],
-        metadata={"number": number},
+        metadata={"number": number, "staged_files": ["/workspace/instance.txt"]},
     )
     events = []
+
+    async def hand_over(staged: list[str]) -> None:
+        events.append(("hand_over", tuple(staged)))
 
     @asynccontextmanager
     async def endpoint(number: int) -> AsyncGenerator[str, None]:
@@ -122,6 +126,7 @@ async def test_solver_keeps_verifier_open_during_harness_run(harness_fails: bool
     with (
         patch.object(prime, "verifier_endpoint", endpoint),
         patch.object(prime, "run_terminus_2", harness),
+        patch.object(prime, "hand_staged_files_to_agent", hand_over),
     ):
         run = prime.prime_factorization_solver()(state, AsyncMock())
         if harness_fails:
@@ -130,7 +135,12 @@ async def test_solver_keeps_verifier_open_during_harness_run(harness_fails: bool
         else:
             assert await run is state
 
-    assert events == [("open", number), ("run", "fact_n52_4"), ("close", number)]
+    assert events == [
+        ("hand_over", ("/workspace/instance.txt",)),
+        ("open", number),
+        ("run", "fact_n52_4"),
+        ("close", number),
+    ]
 
 
 @pytest.mark.parametrize("success", [True, False], ids=["trajectory", "process-error"])
@@ -160,9 +170,10 @@ async def test_run_terminus_2_launches_in_sample_sandbox(success: bool) -> None:
         finally:
             bridge_open = False
 
-    async def execute(command, *, input, **kwargs):
+    async def execute(command, *, input, user, env, **kwargs):
         assert bridge_open
-        assert command[0] == "/opt/terminus-runtime/.venv/bin/python"
+        assert (user, env) == (AGENT_USER, AGENT_ENV)
+        assert command == ["/opt/terminus-runtime/.venv/bin/python", "-I", "-c", BOOTSTRAP]
         config = json.loads(input)["config"]
         assert config["id"] == "q4"
         assert config["prompt"] == "Factor 15."

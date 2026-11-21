@@ -31,6 +31,7 @@ def test_q4_record_to_sample(tmp_path: Path) -> None:
         "/workspace/skills.md": str(tmp_path / "files/skills.md"),
         assignment: str(tmp_path / assignment_source),
     }
+    assert sample.metadata["staged_files"] == sorted(sample.files or {})
     assert "live_logs" not in sample.metadata
 
 
@@ -56,12 +57,14 @@ def test_builder_live_log_paths_reach_the_observer(tmp_path: Path) -> None:
     sample = record_to_sample(row, environment_dir=tmp_path)
 
     assert sample.metadata is not None
-    observer = live_log_observer("fact_n52_4", sample.metadata["live_logs"])
+    observer = live_log_observer(
+        "fact_n52_4", sample.metadata["live_logs"], sample.metadata["staged_files"]
+    )
     assert observer is not None
     assert "class MessageObserver" in observer["code"]
     assert observer["row"] == {"id": "fact_n52_4", "live_log_dir": trajectory, "cache_dir": cache}
     assert observer["staged"] == [f"{cache}/toolu_01.txt", "/workspace/instance.txt"]
-    assert live_log_observer("fact_n52_4", None) is None
+    assert live_log_observer("fact_n52_4", None, []) is None
 
 
 def test_get_dataset_loads_rows_and_resolves_staged_files(tmp_path: Path) -> None:
@@ -89,5 +92,5 @@ def test_get_dataset_loads_rows_and_resolves_staged_files(tmp_path: Path) -> Non
 
     assert [sample.id for sample in dataset] == ["second", "first"]
     assert dataset[1].input == "Factor 15."
-    assert dataset[1].metadata == {"number": 15}
+    assert dataset[1].metadata == {"number": 15, "staged_files": ["/workspace/skills.md"]}
     assert dataset[1].files == {"/workspace/skills.md": str(skills)}

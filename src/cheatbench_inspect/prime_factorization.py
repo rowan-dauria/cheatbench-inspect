@@ -16,6 +16,12 @@ from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, 
 from inspect_evals_utils.metadata import load_eval_version
 
 from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
+from cheatbench_inspect.container import (
+    AGENT_ENV,
+    AGENT_USER,
+    BOOTSTRAP,
+    hand_staged_files_to_agent,
+)
 from cheatbench_inspect.judge import build_judge_prompt, render_trajectory
 from cheatbench_inspect.resources.prime_factorization.judge_schema import (
     EXTRA_CONTEXT,
@@ -60,13 +66,12 @@ def record_to_sample(record: dict[str, Any], *, environment_dir: Path) -> Sample
     for destination, source in record["files_abs"].items():
         files[destination] = str(environment_dir / source)
 
-    metadata: dict[str, Any] = {"number": int(record["number"])}
+    metadata: dict[str, Any] = {"number": int(record["number"]), "staged_files": sorted(files)}
     # The builder's rows name the live log mirror that skills.md tells the agent to read.
     if "live_log_dir" in record:
         metadata["live_logs"] = {
             "live_log_dir": record["live_log_dir"],
             "cache_dir": record["cache_dir"],
-            "staged": sorted(files),
         }
     return Sample(id=record["id"], input=record["input"], metadata=metadata, files=files)
 
@@ -140,10 +145,7 @@ def apply_terminus_result(state: TaskState, result: dict[str, Any]) -> None:
 # The bundled Python modules and episode parameters arrive on stdin, as in CheatBench.
 # Only the generated loopback URL needs to cross back out of the sandbox.
 _START_VERIFIER = """
-import json
-import sys
-
-config = json.load(sys.stdin)
+config = PAYLOAD
 transport = {}
 verifier = {}
 exec(compile(config["transport"], "grader_server.py", "exec"), transport)
@@ -170,14 +172,15 @@ async def verifier_endpoint(number: int) -> AsyncGenerator[str, None]:
     """Run this episode's MCP verifier in its sandbox and yield its loopback URL."""
     resources = Path(__file__).parent / "resources"
     config = {
+        "code": _START_VERIFIER,
         "transport": (resources / "sandbox/grader_server.py").read_text(),
         "verifier": (resources / "prime_factorization/verifier.py").read_text(),
         "number": number,
         "description": ToolDef(verify_factors(number)).description,
     }
     process = await sandbox().exec_remote(
-        ["python3", "-I", "-c", _START_VERIFIER],
-        ExecRemoteStreamingOptions(input=json.dumps(config)),
+        ["python3", "-I", "-c", BOOTSTRAP],
+        ExecRemoteStreamingOptions(input=json.dumps(config), user=AGENT_USER, env=AGENT_ENV),
     )
     try:
         stdout = ""
@@ -198,7 +201,9 @@ async def verifier_endpoint(number: int) -> AsyncGenerator[str, None]:
 
 
 # SOLVER
-def live_log_observer(sample_id: str, live_logs: dict[str, Any] | None) -> dict[str, Any] | None:
+def live_log_observer(
+    sample_id: str, live_logs: dict[str, Any] | None, staged: list[str]
+) -> dict[str, Any] | None:
     """The live log observer's code and arguments for prepare_harbor, if the row has one."""
     if live_logs is None:
         return None
@@ -209,7 +214,7 @@ def live_log_observer(sample_id: str, live_logs: dict[str, Any] | None) -> dict[
             "live_log_dir": live_logs["live_log_dir"],
             "cache_dir": live_logs["cache_dir"],
         },
-        "staged": live_logs["staged"],
+        "staged": staged,
     }
 
 
@@ -222,10 +227,16 @@ async def run_terminus_2(state: TaskState, *, mcp_servers: list[dict[str, str]])
             model=str(state.model),
             api_base=f"http://127.0.0.1:{bridge.port}/v1",
             mcp_servers=mcp_servers,
-            observer=live_log_observer(str(state.sample_id), state.metadata.get("live_logs")),
+            observer=live_log_observer(
+                str(state.sample_id),
+                state.metadata.get("live_logs"),
+                state.metadata.get("staged_files", []),
+            ),
         )
 
-        result = await sandbox().exec(command, input=stdin, timeout=4250)
+        result = await sandbox().exec(
+            command, input=stdin, timeout=4250, user=AGENT_USER, env=AGENT_ENV
+        )
         if not result.success:
             raise RuntimeError(result.stderr)
         apply_terminus_result(state, json.loads(result.stdout))
@@ -236,6 +247,7 @@ async def run_terminus_2(state: TaskState, *, mcp_servers: list[dict[str, str]])
 def prime_factorization_solver() -> Solver:
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         number = state.metadata["number"]
+        await hand_staged_files_to_agent(state.metadata["staged_files"])
         async with verifier_endpoint(number) as url:
             servers = [{"name": "verifier", "transport": "streamable-http", "url": url}]
             return await run_terminus_2(state, mcp_servers=servers)
