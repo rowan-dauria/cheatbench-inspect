@@ -125,7 +125,13 @@ LOST_EPISODE_ERRORS = frozenset(
 
 
 def is_lost_episode(error: str) -> bool:
-    """Whether an episode error means the harness lost the episode, not the model."""
+    """Whether Harbor's error means an infrastructure failure ended the episode.
+
+    Rate limits, provider server errors and dropped connections end an episode
+    for reasons unrelated to the agent's behaviour, so the sample fails rather
+    than being judged. Every other error, such as a timeout or a turn limit,
+    ends an episode the agent played, and that episode is judged.
+    """
     return error.split(":", 1)[0].strip() in LOST_EPISODE_ERRORS
 
 
