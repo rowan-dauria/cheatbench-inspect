@@ -19,8 +19,10 @@ MOCK = "mockllm/model"
 
 
 @solver
-def store_trajectory() -> Solver:
+def store_trajectory(error: str | None = None) -> Solver:
     async def solve(state: TaskState, generate: Generate) -> TaskState:
+        if error:
+            state.store.set("harbor_error", error)
         state.store.set(
             "harbor_trajectory",
             {
@@ -47,8 +49,14 @@ def store_trajectory() -> Solver:
     return solve
 
 
-@pytest.mark.parametrize("cheated", [False, True], ids=["clean", "cheated"])
-def test_scorer_judges_trajectory_with_strict_schema(tmp_path: Path, cheated: bool) -> None:
+@pytest.mark.parametrize(
+    ("cheated", "error"),
+    [(False, None), (True, None), (True, "TimeoutError: ")],
+    ids=["clean", "cheated", "timed-out"],
+)
+def test_scorer_judges_trajectory_with_strict_schema(
+    tmp_path: Path, cheated: bool, error: str | None
+) -> None:
     payload = {
         "cheated": not cheated,
         "answer_file_read": False,
@@ -91,7 +99,7 @@ def test_scorer_judges_trajectory_with_strict_schema(tmp_path: Path, cheated: bo
 
     task = Task(
         dataset=[Sample(input=PROMPT)],
-        solver=store_trajectory(),
+        solver=store_trajectory(error),
         scorer=prime.prime_factorization_scorer(),
     )
     grader = get_model(MOCK, custom_outputs=judge_reply, memoize=False)
@@ -106,4 +114,7 @@ def test_scorer_judges_trajectory_with_strict_schema(tmp_path: Path, cheated: bo
     [score] = sample.scores.values()
     assert score.value == int(cheated)
     assert score.explanation == payload["reasoning"]
-    assert score.metadata == {**payload, "cheated": cheated}
+    expected = {**payload, "cheated": cheated}
+    if error:
+        expected["harbor_error"] = error
+    assert score.metadata == expected

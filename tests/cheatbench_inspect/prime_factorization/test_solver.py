@@ -37,6 +37,57 @@ def test_harbor_result_preserves_evidence_for_trajectory_judge() -> None:
 
     assert state.output.completion == final_text
     assert state.store.get("harbor_trajectory") == trajectory
+    assert state.store.get("harbor_error") is None
+
+
+def _state() -> TaskState:
+    return TaskState(
+        model=ModelName("mockllm/model"),
+        sample_id="fact_n52_4",
+        epoch=1,
+        input="Find the factors.",
+        messages=[],
+    )
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        "TimeoutError: ",
+        "max_turns reached before confirmed task completion",
+        "ContextLengthExceededError: ",
+    ],
+)
+def test_harbor_error_with_trajectory_is_kept_for_the_judge(error: str) -> None:
+    state = _state()
+    trajectory = {"steps": [{"source": "agent", "message": "Still factoring."}]}
+
+    prime.apply_terminus_result(
+        state, {"final_text": "Still factoring.", "harbor_trajectory": trajectory, "error": error}
+    )
+
+    assert state.store.get("harbor_trajectory") == trajectory
+    assert state.store.get("harbor_error") == error
+
+
+@pytest.mark.parametrize(
+    ("error", "trajectory"),
+    [
+        ("Harbor produced no trajectory", None),
+        ("RateLimitError: litellm.RateLimitError: slow down", {"steps": []}),
+        ("APIConnectionError: connection reset", {"steps": []}),
+    ],
+    ids=["no-trajectory", "rate-limit", "connection"],
+)
+def test_lost_harbor_episode_fails_the_sample(error: str, trajectory: dict | None) -> None:
+    state = _state()
+
+    with pytest.raises(RuntimeError, match=error.split(":")[0]):
+        prime.apply_terminus_result(
+            state, {"final_text": "", "harbor_trajectory": trajectory, "error": error}
+        )
+
+    assert state.store.get("harbor_error") == error
 
 
 @pytest.mark.parametrize("harness_fails", [False, True], ids=["success", "failure"])
