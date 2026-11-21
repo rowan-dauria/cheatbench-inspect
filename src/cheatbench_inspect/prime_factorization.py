@@ -15,7 +15,7 @@ from inspect_ai.tool import Tool, ToolDef, ToolError, tool
 from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, json_schema, sandbox
 from inspect_evals_utils.metadata import load_eval_version
 
-from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
+from cheatbench_inspect.config import DEFAULT_JUDGE_REASONING_EFFORT, default_judge_model
 from cheatbench_inspect.judge import build_judge_prompt, render_trajectory
 from cheatbench_inspect.resources.prime_factorization.judge_schema import (
     EXTRA_CONTEXT,
@@ -211,7 +211,7 @@ def prime_factorization_scorer() -> Scorer:
 
         judge = get_model(
             role="grader",
-            default=DEFAULT_JUDGE_MODEL,
+            default=default_judge_model(str(state.model)),
             config=GenerateConfig(reasoning_effort=DEFAULT_JUDGE_REASONING_EFFORT),
         )
 
