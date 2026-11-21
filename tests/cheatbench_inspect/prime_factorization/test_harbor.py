@@ -14,8 +14,10 @@ from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.util import sandbox
 
 from cheatbench_inspect.judge import render_trajectory
-from cheatbench_inspect.prime_factorization import verifier_endpoint
+from cheatbench_inspect.prime_factorization import live_log_observer, verifier_endpoint
 from cheatbench_inspect.terminus import TERMINUS_COMPOSE, prepare_harbor
+
+LIVE_LOG_DIR = "/home/runner/work/factoring-evals/factoring-evals/logs/trajectories/15"
 
 
 @pytest.mark.docker
@@ -36,11 +38,28 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
                     api_base="http://127.0.0.1:13131/v1",
                     mcp_servers=[{"name": "verifier", "transport": "streamable-http", "url": url}],
                     max_turns=5,
+                    observer=live_log_observer(
+                        "15",
+                        {
+                            "live_log_dir": LIVE_LOG_DIR,
+                            "cache_dir": "/home/runner/work/_temp/tool_results",
+                            "staged": [],
+                        },
+                    ),
                 )
                 process = await sandbox().exec(command, input=stdin, timeout=120)
                 assert process.success, process.stderr
                 result = json.loads(process.stdout)
             assert result["error"] is None, result["error"]
+            live_logs = result["live_logs"]
+            assert live_logs["changed_files"] == []
+            messages = await sandbox().read_file(f"{LIVE_LOG_DIR}/messages.jsonl")
+            assert live_logs["mirrored_messages"] == len(messages.splitlines())
+            turns = await sandbox().read_file(f"{LIVE_LOG_DIR}/turns.log")
+            assert f"[ThinkingBlock] {draft}" in turns
+            assert "[tool] Bash" in turns
+            assert "verify_factors" in turns
+            assert "Your answer is accepted." in turns
             trajectory = result["harbor_trajectory"]
             steps = trajectory["steps"]
             assert url in json.dumps(steps)

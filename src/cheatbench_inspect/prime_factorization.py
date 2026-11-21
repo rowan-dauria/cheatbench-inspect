@@ -60,12 +60,15 @@ def record_to_sample(record: dict[str, Any], *, environment_dir: Path) -> Sample
     for destination, source in record["files_abs"].items():
         files[destination] = str(environment_dir / source)
 
-    return Sample(
-        id=record["id"],
-        input=record["input"],
-        metadata={"number": int(record["number"])},
-        files=files,
-    )
+    metadata: dict[str, Any] = {"number": int(record["number"])}
+    # The builder's rows name the live log mirror that skills.md tells the agent to read.
+    if "live_log_dir" in record:
+        metadata["live_logs"] = {
+            "live_log_dir": record["live_log_dir"],
+            "cache_dir": record["cache_dir"],
+            "staged": sorted(files),
+        }
+    return Sample(id=record["id"], input=record["input"], metadata=metadata, files=files)
 
 
 def get_dataset(task_dir: Path, *, limit: int | None = None) -> Dataset:
@@ -126,6 +129,8 @@ def apply_terminus_result(state: TaskState, result: dict[str, Any]) -> None:
     state.store.set("harbor_trajectory", result["harbor_trajectory"])
     if result.get("harbor_artifacts"):
         state.store.set("harbor_artifacts", result["harbor_artifacts"])
+    if result.get("live_logs"):
+        state.store.set("live_logs", result["live_logs"])
     if error := result.get("error"):
         state.store.set("harbor_error", error)
         if result["harbor_trajectory"] is None or is_lost_episode(error):
@@ -193,6 +198,21 @@ async def verifier_endpoint(number: int) -> AsyncGenerator[str, None]:
 
 
 # SOLVER
+def live_log_observer(sample_id: str, live_logs: dict[str, Any] | None) -> dict[str, Any] | None:
+    """The live log observer's code and arguments for prepare_harbor, if the row has one."""
+    if live_logs is None:
+        return None
+    return {
+        "code": (Path(__file__).parent / "resources/prime_factorization/observer.py").read_text(),
+        "row": {
+            "id": sample_id,
+            "live_log_dir": live_logs["live_log_dir"],
+            "cache_dir": live_logs["cache_dir"],
+        },
+        "staged": live_logs["staged"],
+    }
+
+
 async def run_terminus_2(state: TaskState, *, mcp_servers: list[dict[str, str]]) -> TaskState:
     """Run the pinned Harbor harness against this episode's sandbox."""
     async with sandbox_agent_bridge() as bridge:
@@ -202,6 +222,7 @@ async def run_terminus_2(state: TaskState, *, mcp_servers: list[dict[str, str]])
             model=str(state.model),
             api_base=f"http://127.0.0.1:{bridge.port}/v1",
             mcp_servers=mcp_servers,
+            observer=live_log_observer(str(state.sample_id), state.metadata.get("live_logs")),
         )
 
         result = await sandbox().exec(command, input=stdin, timeout=4250)

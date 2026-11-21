@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 _RESOURCES = Path(__file__).parent / "resources/terminus"
 TERMINUS_COMPOSE = _RESOURCES.parent / "sandbox/compose-terminus.yaml"
@@ -16,7 +17,14 @@ with contextlib.redirect_stdout(sys.stderr):
     extension, runner = {}, {}
     exec(compile(payload["extension"], "image_extension.py", "exec"), extension)
     exec(compile(payload["runner"], "episode.py", "exec"), runner)
-    result = asyncio.run(runner["episode"](payload["config"], extension["ImageTerminus2"]))
+    observer = None
+    if payload["observer"]:
+        task = {}
+        exec(compile(payload["observer"], "observer.py", "exec"), task)
+        observer = task["MessageObserver"]
+    result = asyncio.run(
+        runner["episode"](payload["config"], extension["ImageTerminus2"], observer)
+    )
 print(json.dumps(result))
 """
 
@@ -29,8 +37,13 @@ def prepare_harbor(
     api_base: str,
     mcp_servers: list[dict[str, str]],
     max_turns: int | None = None,
+    observer: dict[str, Any] | None = None,
 ) -> tuple[list[str], str]:
-    """Return the sandbox command and the JSON document to send on its stdin."""
+    """Return the sandbox command and the JSON document to send on its stdin.
+
+    `observer` carries the task's live log observer: its `code`, which defines
+    `MessageObserver`, and the `row` and `staged` paths it is constructed with.
+    """
     payload = {
         "config": {
             "id": sample_id,
@@ -39,8 +52,10 @@ def prepare_harbor(
             "api_base": api_base,
             "mcp_servers": mcp_servers,
             "max_turns": max_turns,
+            "observer": {k: v for k, v in observer.items() if k != "code"} if observer else None,
         },
         "extension": (_RESOURCES / "image_extension.py").read_text(),
         "runner": (_RESOURCES / "episode.py").read_text(),
+        "observer": observer["code"] if observer else None,
     }
     return ["/opt/terminus-runtime/.venv/bin/python", "-I", "-c", _START], json.dumps(payload)
