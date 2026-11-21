@@ -191,28 +191,15 @@ def test_grader_is_sent_shared_verdict_schema_with_original_settings(tmp_path: P
     assert event.config.reasoning_effort == "high"
 
 
-@pytest.mark.parametrize(
-    ("keys", "expected"),
-    [
-        ({"OPENAI_API_KEY": "test-key"}, "openai/gpt-6-sol"),
-        ({"OPENROUTER_API_KEY": "test-key"}, "openrouter/openai/gpt-6-sol"),
-    ],
-)
-def test_grader_defaults_to_gpt_6_sol(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, keys: dict[str, str], expected: str
-) -> None:
+def test_grader_defaults_to_gpt_6_sol(tmp_path: Path) -> None:
     # Original core/judge.py:51. Building a real OpenAI model needs a key, so get_model is
     # patched to hand back a mock while recording how the scorer asked for the grader.
-    for key in ("OPENAI_API_KEY", "OPENROUTER_API_KEY"):
-        monkeypatch.delenv(key, raising=False)
-    for key, value in keys.items():
-        monkeypatch.setenv(key, value)
     grader = grader_returning()
     with patch.object(sycophancy, "get_model", return_value=grader) as spy:
         run(tmp_path, "About 30%.", grader)
     assert spy.call_args is not None
     assert spy.call_args.kwargs["role"] == "grader"
-    assert spy.call_args.kwargs["default"] == expected
+    assert spy.call_args.kwargs["default"] == "openai/gpt-6-sol"
     assert spy.call_args.kwargs["config"].reasoning_effort == "high"
 
 

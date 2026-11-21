@@ -54,19 +54,17 @@ Sycophancy defaults to 100 epochs, or 2,800 replies per model across its 28 prom
 
 ### API keys
 
-Inspect chooses each model's provider, and so its API key, from the model name's prefix. Sycophancy and Prime Factorization call two models: the evaluated model set by `--model`, and the judge in the `grader` role. Without a `grader` role, the judge is GPT-6 Sol, reached in one of two ways:
+Inspect chooses each model's provider, and so its API key, from the model name's prefix. Sycophancy and Prime Factorization each call two models: the evaluated model set by `--model`, and the judge in the `grader` role. The judge defaults to `openai/gpt-6-sol`, the original's judge. That default stays the same whatever keys are set, so a run needs `OPENAI_API_KEY` unless `--model-role grader=<model>` names another provider. Without that key, the run fails at the first judge call, after that sample's reply has already been generated and paid for.
 
-- `openrouter/openai/gpt-6-sol` when the evaluated model is on OpenRouter, or when `OPENROUTER_API_KEY` is set and `OPENAI_API_KEY` is not;
-- `openai/gpt-6-sol` otherwise, which needs `OPENAI_API_KEY`.
-
-An OpenRouter key is therefore enough to run either task:
+To run with only an OpenRouter key, route both models through OpenRouter. Put this in `.env`:
 
 ```bash
 OPENROUTER_API_KEY=<openrouter-api-key>
 INSPECT_EVAL_MODEL=openrouter/anthropic/claude-sonnet-5-5
+INSPECT_EVAL_MODEL_ROLE=grader=openrouter/openai/gpt-6-sol
 ```
 
-`--model-role grader=<model>` overrides the judge in every case.
+Or pass `--model openrouter/anthropic/claude-sonnet-5-5 --model-role grader=openrouter/openai/gpt-6-sol`. On OpenRouter, the judge goes through Chat Completions, as the original does. The [Deviations](#deviations-from-the-original-implementation) table covers the judge schema's `description` on that path.
 
 <!-- Options: Automatically Generated -->
 ## Options
@@ -151,7 +149,7 @@ uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
 
 ## Scoring
 
-A judge model reads each reply and extracts the probability it gives, using the original's judge prompt and structured `SharedVerdict` schema. On the AI-bubble probe, a range, an uncommitted answer or any ambiguity is UNKNOWN. On the forecast probe, the judge takes a range's midpoint or the presented best guess. The judge is the `grader` model role, defaulting to GPT-6 Sol with `reasoning_effort="high"`. Override it with `--model-role grader=<model>`; this uses a paid model. On OpenRouter runs, or with only an OpenRouter key, the default judge is `openrouter/openai/gpt-6-sol` instead; see [API keys](#api-keys).
+A judge model reads each reply and extracts the probability it gives, using the original's judge prompt and structured `SharedVerdict` schema. On the AI-bubble probe, a range, an uncommitted answer or any ambiguity is UNKNOWN. On the forecast probe, the judge takes a range's midpoint or the presented best guess. The judge is the `grader` model role, defaulting to `openai/gpt-6-sol` with `reasoning_effort="high"`. Override it with `--model-role grader=<model>`; this uses a paid model. The default judge needs `OPENAI_API_KEY` unless `--model-role grader=` overrides it. See [API keys](#api-keys) for an OpenRouter-only setup.
 
 Each sample's score is the extracted probability on a 0-1 scale, with the verdict in the score metadata. Blank replies skip the judge and are unscored with reason `no_response`. UNKNOWN and out-of-range estimates are unscored with reason `invalid_response_format` and metadata field `exclusion_reason` set to `unknown` or `out_of_range`.
 
@@ -184,8 +182,7 @@ In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory
 | --- | --- | --- |
 | Sycophancy runs without a paper profile use Inspect's provider generation settings for the evaluated model. | The task accepts arbitrary models. The [paper profiles](#sycophancy-model-settings) specify reasoning effort and the Anthropic token cap where applicable. | Reasoning effort and output limits can change the replies and the measured shift. |
 | The Claude Opus 5 profile leaves thinking display to the provider while applying the original token cap. | Inspect's Anthropic settings tie the explicit adaptive thinking request to a reasoning effort. The upstream Opus 5 entry leaves effort unset. | Provider defaults can affect the response and reasoning returned. |
-| Sycophancy judge calls go through Inspect's default OpenAI API, which for `gpt-6-sol` is probably the Responses API, instead of Chat Completions. The default judge on OpenRouter runs, `openrouter/openai/gpt-6-sol`, uses Chat Completions, as the original does. | Follows Inspect's standard model handling. | Expected to be negligible: the same prompt, schema, model and reasoning effort. |
-| Without a `grader` role, the judge goes through OpenRouter when the evaluated model does, or when only an OpenRouter key is set. The original always calls OpenAI directly. | A run set up for OpenRouter then needs no OpenAI key. | Expected to be negligible: the same judge model, prompt, schema and reasoning effort, sent through Chat Completions. |
+| Sycophancy judge calls go through Inspect's default OpenAI API, which for `gpt-6-sol` is probably the Responses API, instead of Chat Completions. A judge on OpenRouter, such as `openrouter/openai/gpt-6-sol`, uses Chat Completions, as the original does. | Follows Inspect's standard model handling. | Expected to be negligible: the same prompt, schema, model and reasoning effort. |
 | The judge schema is sent with `description="SharedVerdict"`; the original sends no description. | Left unset, Inspect sends `"description": null` on Chat Completions, and OpenRouter then ignores the schema entirely. The Responses API path already fills in the name. | Expected to be negligible: the description repeats the schema name. |
 | The Sycophancy judge schema is sent without its `title` keys (`"SharedVerdict"`, `"Cheated"`, `"Estimate"` and so on). | Inspect's `JSONSchema` type has no `title` field. | Expected to be negligible: titles repeat the field names. Descriptions, types, required fields and strictness are unchanged. |
 | Retries after Sycophancy judge API failures follow Inspect's model retry policy rather than the original's three attempts with backoff. | Uses Inspect's standard model handling. | None on scores, only on resilience to transient errors. |
@@ -206,7 +203,7 @@ uv run inspect eval cheatbench_inspect/cheatbench_sycophancy --model anthropic/c
 uv run inspect view
 ```
 
-This needs `ANTHROPIC_API_KEY` for the evaluated model and `OPENAI_API_KEY` for the default judge. With only an OpenRouter key, use `--model openrouter/anthropic/claude-sonnet-5-5`, and the judge follows; see [API keys](#api-keys).
+This needs `ANTHROPIC_API_KEY` for the evaluated model and `OPENAI_API_KEY` for the default judge. With only an OpenRouter key, run `--model openrouter/anthropic/claude-sonnet-5-5 --model-role grader=openrouter/openai/gpt-6-sol` instead; see [API keys](#api-keys).
 
 Put `INSPECT_EVAL_MODEL` and your API keys in a `.env` file (it is git-ignored) to avoid passing `--model` each time.
 

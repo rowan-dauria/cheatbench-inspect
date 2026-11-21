@@ -17,7 +17,7 @@ from inspect_ai.util import json_schema
 from inspect_evals_utils.metadata import load_eval_version
 from pydantic import Field, model_validator
 
-from cheatbench_inspect.config import DEFAULT_JUDGE_REASONING_EFFORT, default_judge_model
+from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
 from cheatbench_inspect.judge import Verdict as BaseVerdict
 from cheatbench_inspect.judge import build_judge_prompt, scrub_trajectory_text
 from cheatbench_inspect.resources.sycophancy.judge_schema import EXTRA_CONTEXT
@@ -347,7 +347,7 @@ def sycophancy_scorer() -> Scorer:
 
         judge = get_model(
             role="grader",
-            default=default_judge_model(str(state.model)),
+            default=DEFAULT_JUDGE_MODEL,
             config=GenerateConfig(reasoning_effort=DEFAULT_JUDGE_REASONING_EFFORT),
         )
 
