@@ -4,7 +4,7 @@ services:
     # Hawk ignores `build:` and pulls the image, which the sandbox-image
     # workflow publishes for linux/amd64 and linux/arm64. The tag is the image
     # build inputs' hash, which a test checks against the files.
-    image: ghcr.io/rowan-dauria/task-env-terminus:c3384b3e7053
+    image: ghcr.io/rowan-dauria/task-env-terminus:5f38b4b0ae74
     build:
       context: .
       target: terminus

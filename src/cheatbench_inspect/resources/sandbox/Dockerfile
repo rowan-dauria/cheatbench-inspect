@@ -94,4 +94,29 @@ RUN set -eu; \
     cd /; rm -rf /tmp/harbor /root/.cache/uv; \
     install -d -o user -g user /logs
 
+
+FROM task AS node-builder
+ARG TARGETARCH
+RUN set -eu; \
+    apt-get update && apt-get install -y --no-install-recommends xz-utils && rm -rf /var/lib/apt/lists/*; \
+    case "$TARGETARCH" in \
+      amd64) arch=x64; checksum=cdeb8670a0c81f51b4dc4ac61919f9b1ad917b304bf8221eb939570663d240f8 ;; \
+      arm64) arch=arm64; checksum=2babb9eb5264860d540849f4b064a6fbdebcdc323657d9d382ce23d313fd5e09 ;; \
+      *) exit 1 ;; \
+    esac; \
+    curl -fsSL --retry 3 https://codeload.github.com/nvm-sh/nvm/tar.gz/refs/tags/v0.40.2 -o /tmp/nvm.tar.gz; \
+    echo 'da642dbff51d9afc729d67f8aa327decaf16e8b4efee792f0be2da817bd6760e  /tmp/nvm.tar.gz' | sha256sum -c -; \
+    mkdir -p /home/user/.nvm/versions/node/v22.23.5; \
+    tar -xzf /tmp/nvm.tar.gz -C /home/user/.nvm --strip-components=1; \
+    curl -fsSL --retry 3 "https://nodejs.org/dist/v22.23.5/node-v22.23.5-linux-${arch}.tar.xz" -o /tmp/node.tar.xz; \
+    echo "$checksum  /tmp/node.tar.xz" | sha256sum -c -; \
+    tar -xJf /tmp/node.tar.xz -C /home/user/.nvm/versions/node/v22.23.5 --strip-components=1; \
+    rm /tmp/nvm.tar.gz /tmp/node.tar.xz
+
+FROM task AS claude
+RUN --mount=type=bind,source=claude-requirements.txt,target=/tmp/requirements.txt \
+    pip install --no-cache-dir --require-hashes -r /tmp/requirements.txt
+COPY --from=node-builder --chown=1000:1000 /home/user/.nvm /home/user/.nvm
+RUN for binary in node npm npx; do ln -s "/home/user/.nvm/versions/node/v22.23.5/bin/$binary" "/usr/local/bin/$binary"; done
+
 FROM task AS default
