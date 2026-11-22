@@ -1,0 +1,36 @@
+# Sycophancy on Hawk with DeepSeek V4 Pro, using the paper's settings.
+#   hawk eval-set run configs/hawk/sycophancy-deepseek-v4-pro.yaml
+#
+# The evaluated model runs at high reasoning effort through OpenRouter, as in the
+# pinned deepseek-v4-pro-litellm entry. The judge is GPT-5.6 Sol at high effort,
+# the paper's judge for every model except Claude Opus 5.5 and Grok 4.7. Epochs
+# stay at the task's default of 100, the published sampling protocol.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L180-L201
+# https://arxiv.org/html/2609.36308v1 (Appendix B.10)
+#
+# Hawk's LLM proxy serves both models under their OpenRouter public names. Inspect's
+# openrouter provider sends everything after its own prefix as the model id, hence
+# the doubled `openrouter/`.
+name: cheatbench-sycophancy-deepseek-v4-pro
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@f7fe59a093d93ae040a989865f8541d4b29c02ba
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_sycophancy
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/deepseek/deepseek-v4-pro
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-5.6-sol
+        args:
+          config:
+            reasoning_effort: high
