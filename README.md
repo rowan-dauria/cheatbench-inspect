@@ -92,8 +92,8 @@ See `uv run inspect eval --help` for all available options.
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI version, required for claude-sdk. (default: `None`)
-- `harness_model` (str | None): Claude CLI model ID, required for claude-sdk. (default: `None`)
+- `harness_version` (str | None): Claude CLI or Codex version, required for claude-sdk and codex. (default: `None`)
+- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-sdk and codex. (default: `None`)
 
 <!-- /Parameters: Automatically Generated -->
 
@@ -158,6 +158,33 @@ The sandbox image is built from [`resources/sandbox/Dockerfile`](src/cheatbench_
 
 Use `harness="claude-sdk"` with `harness_version` set to the Claude Code version and `harness_model` set to the original's `configs/models.yaml` model id for that entry. See the Hawk configs for [Claude Sonnet 5](configs/hawk/prime-factorization-claude-sonnet-5.yaml) and [GLM 5.3](configs/hawk/prime-factorization-glm-5.3.yaml).
 
+### Running Codex models
+
+Use `openrouter/openai/<model>` with `-M responses_api=true`, `-T harness=codex`, and the version and model slug below. Set `reasoning_effort=high`, `verbosity=low`, `parallel_tool_calls=false` and the listed `reasoning_summary` in the generation config.
+
+| Original entry | Codex version | `harness_model` | `reasoning_summary` |
+| --- | --- | --- | --- |
+| gpt-6-sol | 0.156.1 | gpt-6-sol | detailed |
+| gpt-5.6-sol | 0.154.0 | gpt-5.6-sol | detailed |
+| gpt-5.6-terra | 0.154.0 | gpt-5.6-terra | detailed |
+| gpt-5.6-luna | 0.154.0 | gpt-5.6-luna | none |
+| gpt-5.6-sol-chat | 0.154.0 | gpt-5.6-sol | none |
+| gpt-6-astra | 0.154.0 | gpt-6-astra | detailed |
+| gpt-5 | 0.154.0 | gpt-5 | detailed |
+| gpt-6.1-sol | 0.159.1 | gpt-6.1-sol | detailed |
+
+For example:
+
+```bash
+uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
+  --model openrouter/openai/gpt-5.6-luna -M responses_api=true \
+  -T harness=codex -T harness_version=0.154.0 -T harness_model=gpt-5.6-luna \
+  -G reasoning_effort=high -G reasoning_summary=none -G verbosity=low \
+  -G parallel_tool_calls=false --model-role grader=openrouter/openai/gpt-6-sol
+```
+
+See the [Hawk config](configs/hawk/prime-factorization-gpt-5.6-luna.yaml). The Codex sandbox uses the `task-env-codex` image.
+
 ### Running on Hawk
 
 [`configs/hawk/`](configs/hawk/) holds Hawk eval-set configs for the paper's settings, each pinned to a commit of this repository. Hawk's LLM proxy supplies model access, so a run needs no API keys:
@@ -196,6 +223,7 @@ In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory
 
 ## Changelog
 
+- **3-B** adds the `codex` harness for Prime Factorization, supporting the original Codex versions and models listed above. Codex reasoning replay uses a host filter and an in-sandbox proxy. The Claude reasoning marker is renamed so the eval name no longer reaches the sandbox. New lost-episode patterns cover the bridge's OpenAI-dialect transport errors. A Hawk config runs GPT-5.6 Luna.
 - **3-A** uses the original's error patterns over the full error text to classify lost episodes; scores can change for runs with infrastructure failures. Prime adds `harness`, `harness_version` and `harness_model` parameters and a `claude-sdk` harness, which runs Claude models and GLM 5.3 through a port of the original's Claude Agent SDK runner. The score metadata key `harbor_error` is now `harness_error`. Terminus-2 reaches the bridge's Chat Completions endpoint for every Inspect provider, fixing `anthropic/*` models. A sample with no harness trajectory now errors with a clear message at scoring time. Hawk configs retry lost episodes with `retry_attempts: 1`.
 - **2-A** adopts 100 replies per Sycophancy prompt and defaults Prime Factorization to 10 questions with one episode each.
 
@@ -203,6 +231,13 @@ In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory
 
 | What changed | Why | Expected effect on scores |
 | --- | --- | --- |
+| Codex uses local compaction instead of OpenAI remote compaction. | The bridge does not expose remote compaction. | When compaction occurs, the judge sees a summary as an extra step and Codex retains less earlier context; scores may change. |
+| Codex reaches the bridge through a `[model_providers]` block with `wire_api = "responses"` instead of the original's `openai_base_url`. | With `openai_base_url`, Codex first tries seven WebSocket upgrades, which Inspect's bridge does not serve, and only then falls back to HTTP. The provider block is not named `OpenAI`, which also selects local compaction (row above). | None expected: only the transport changes. |
+| Codex is installed from its release package with inspect-swe's installer instead of npm. | The sandbox installs the pinned binary. | None expected; the version is the same. |
+| The bridge merges developer messages and moves `additional_tools` to the top-level tool list; one namespace description changes from empty to `functions`. | Inspect translates the request. | Message boundaries and tool presentation may affect behavior and scores. |
+| `reasoning.context: all_turns` is not forwarded. | Inspect does not forward this field. | None expected: OpenRouter reported `all_turns` as the effective value in an earlier smoke test. |
+| `tool_choice: auto` is omitted. | Inspect uses the API default. | None expected; the default is auto. |
+| Session metadata and Codex request headers do not reach the provider. | Requests pass through the bridge. | None expected; these do not affect what the model receives. |
 | Sycophancy runs without a paper profile use Inspect's provider generation settings for the evaluated model. | The task accepts arbitrary models. The [paper profiles](#sycophancy-model-settings) specify reasoning effort and the Anthropic token cap where applicable. | Reasoning effort and output limits can change the replies and the measured shift. |
 | The Claude Opus 5 profile leaves thinking display to the provider while applying the original token cap. | Inspect's Anthropic settings tie the explicit adaptive thinking request to a reasoning effort. The upstream Opus 5 entry leaves effort unset. | Provider defaults can affect the response and reasoning returned. |
 | Sycophancy judge calls go through Inspect's default OpenAI API, which for `gpt-6-sol` is probably the Responses API, instead of Chat Completions. A judge on OpenRouter, such as `openrouter/openai/gpt-6-sol`, uses Chat Completions, as the original does. | Follows Inspect's standard model handling. | Expected to be negligible: the same prompt, schema, model and reasoning effort. |

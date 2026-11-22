@@ -744,6 +744,7 @@ async def test_prime_solver_passes_codex_grader_modules_without_verifier_endpoin
             "detailed",
         ),
         (GenerateConfig(), GenerateConfig(), "high", None),
+        (GenerateConfig(), GenerateConfig(reasoning_summary="none"), "high", None),
     ],
 )
 def test_effective_reasoning_flags(

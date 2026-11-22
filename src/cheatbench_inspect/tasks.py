@@ -51,8 +51,8 @@ def cheatbench_prime_factorization(
             Defaults to the published build of the original's builder, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
         harness: Agent harness to run.
-        harness_version: Claude CLI version, required for claude-sdk.
-        harness_model: Claude CLI model ID, required for claude-sdk.
+        harness_version: Claude CLI or Codex version, required for claude-sdk and codex.
+        harness_model: Claude CLI or Codex model ID, required for claude-sdk and codex.
     """
     validate_harness(harness)
     if harness in {"claude-sdk", "codex"} and (not harness_version or not harness_model):

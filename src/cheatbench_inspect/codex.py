@@ -187,7 +187,7 @@ def cli_flags(
 
     Keeps `-c model_reasoning_effort` (defaulting to ``high``) and emits
     `-c model_reasoning_summary` only when ``generate_config.reasoning_summary``
-    is set, mirroring the original's model-entry behavior while upstream
+    is set to a value other than ``none``, mirroring the original's model-entry behavior while upstream
     generation parameters remain governed by Inspect's ``GenerateConfig``
     (``forward_generation_config=False``).
     """
@@ -201,7 +201,7 @@ def cli_flags(
     if effort:
         flags += ["-c", f"model_reasoning_effort={effort}"]
     summary = generate_config.reasoning_summary if generate_config is not None else None
-    if summary:
+    if summary and summary != "none":
         if summary not in REASONING_SUMMARY_CHOICES:
             raise ValueError(
                 f"reasoning_summary={summary!r}; codex takes {list(REASONING_SUMMARY_CHOICES)}"
