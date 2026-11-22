@@ -1,5 +1,8 @@
 import asyncio
+import hashlib
 import json
+import tarfile
+import tempfile
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -12,6 +15,8 @@ from inspect_ai.scorer import Score, Scorer, Target, mean, scorer
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.tool import Tool, ToolDef, ToolError, tool
 from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, json_schema, sandbox
+from inspect_evals_utils.cache import INSPECT_EVALS_CACHE_PATH
+from inspect_evals_utils.huggingface import hf_hub_download
 
 from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONING_EFFORT
 from cheatbench_inspect.container import (
@@ -27,6 +32,13 @@ from cheatbench_inspect.resources.prime_factorization.judge_schema import (
 )
 from cheatbench_inspect.resources.prime_factorization.verifier import make_verifier
 from cheatbench_inspect.terminus import prepare_harbor
+
+# The original builder's output, hosted as a Hugging Face dataset and pinned by
+# commit and checksum. scripts/prime_factorization_dataset.py publishes it.
+HF_REPO_ID = "rowan-dauria/cheatbench-prime-factorization"
+HF_REVISION = "113b091eabac9023eea3a47086f7a16ee08acb0b"
+ARCHIVE_NAME = "prime_factorization.tar.gz"
+ARCHIVE_SHA256 = "cd985aa28ef9ff1127e697e559de2eafc0b0305cb8c3c16f49e2ce40b29e878c"
 
 # The original README's reference commands use --limit 10 --repeat 1.
 DEFAULT_DATASET_LIMIT = 10
@@ -53,6 +65,48 @@ def record_to_sample(record: dict[str, Any], *, environment_dir: Path) -> Sample
             "cache_dir": record["cache_dir"],
         }
     return Sample(id=record["id"], input=record["input"], metadata=metadata, files=files)
+
+
+def default_task_dir() -> Path:
+    """Download, verify and unpack the published task data, once per archive.
+
+    The original generates this data with its build.py. The archive holds that
+    builder's output at the pinned commit, packed by
+    scripts/prime_factorization_dataset.py.
+    """
+    task_dir = INSPECT_EVALS_CACHE_PATH / "cheatbench_inspect" / "prime_factorization"
+    task_dir /= ARCHIVE_SHA256[:12]
+    if (task_dir / "data.jsonl").is_file():
+        return task_dir
+
+    archive = Path(
+        hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename=ARCHIVE_NAME,
+            repo_type="dataset",
+            revision=HF_REVISION,
+        )
+    )
+    digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+    if digest != ARCHIVE_SHA256:
+        raise ValueError(f"{ARCHIVE_NAME} has sha256 {digest}, expected {ARCHIVE_SHA256}")
+    unpack_archive(archive, task_dir)
+    return task_dir
+
+
+def unpack_archive(archive: Path, task_dir: Path) -> None:
+    """Unpack the archive so that task_dir appears complete or not at all."""
+    task_dir.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=task_dir.parent) as staging:
+        unpacked = Path(staging) / "data"
+        with tarfile.open(archive) as tar:
+            tar.extractall(unpacked, filter="data")
+        try:
+            unpacked.rename(task_dir)
+        except OSError:
+            # Another process unpacked the same archive first.
+            if not (task_dir / "data.jsonl").is_file():
+                raise
 
 
 def get_dataset(task_dir: Path, *, limit: int | None = None) -> Dataset:

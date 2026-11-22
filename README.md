@@ -89,7 +89,7 @@ See `uv run inspect eval --help` for all available options.
 
 ### `cheatbench_prime_factorization`
 
-- `task_dir` (str): Directory containing the generated data.jsonl and environment/ tree.
+- `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
 
 <!-- /Parameters: Automatically Generated -->
@@ -132,20 +132,35 @@ Set provider routing separately. For example, the paper ran DeepSeek through Ope
 
 The original Prime Factorization builder generates 20 questions, Q4 through Q23. The task defaults to the first 10 questions, Q4 through Q13, with one episode per question. That matches the original README's study command. Use `-T dataset_limit=20` for the paper's 20-question runs or `--epochs 2` for the two repetitions reported for Claude Fable 5.1. [CheatBench, Appendix B.6](https://arxiv.org/html/2609.36308v1#A2.SS6)
 
-From the Inspect port's root, copy the builder from a sibling CheatBench checkout at commit `96e05a6d61faf33be788f75dd01998066045ad02` into a fresh output directory and run that copy:
+The original does not ship this task's data: its builder generates `data.jsonl` and the `environment/` tree staged into each sandbox, offline and deterministically. By default the task downloads that builder's output, from commit `96e05a6d61faf33be788f75dd01998066045ad02` with its default arguments, from the Hugging Face dataset [`rowan-dauria/cheatbench-prime-factorization`](https://huggingface.co/datasets/rowan-dauria/cheatbench-prime-factorization). The download is pinned to a dataset commit, checked against a sha256 and unpacked into the inspect_evals cache (`INSPECT_EVALS_CACHE_DIR` moves it). [`scripts/prime_factorization_dataset.py`](scripts/prime_factorization_dataset.py) produces and uploads the archive. Docker runs the Terminus-2 harness, the staged files and the verifier. This example calls the agent and grader models:
+
+```bash
+uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
+  --model openai/gpt-5-nano --limit 1
+```
+
+To use a local build instead, run a copy of the builder from a sibling CheatBench checkout at the same commit, and pass its output directory with `-T task_dir=...`:
 
 ```bash
 prime_dir="$(mktemp -d)"
 cp ../cheatbench/tasks/prime_factorization/build.py "$prime_dir/build.py"
 uv run python -B "$prime_dir/build.py"
-```
-
-The builder writes `data.jsonl` and `environment/` in that directory. Pass their parent directory to Prime commands with `-T task_dir=...`. Docker runs the Terminus-2 harness, the staged files, and the verifier. This example calls the agent and grader models:
-
-```bash
 uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
   -T "task_dir=$prime_dir" --model openai/gpt-5-nano --limit 1
 ```
+
+The sandbox image is built from [`resources/sandbox/Dockerfile`](src/cheatbench_inspect/resources/sandbox/Dockerfile). Local Docker builds it; [Hawk](#running-on-hawk) pulls the copy that the [sandbox-image workflow](.github/workflows/sandbox-image.yml) publishes for amd64 and arm64.
+
+### Running on Hawk
+
+[`configs/hawk/`](configs/hawk/) holds Hawk eval-set configs for the paper's settings, each pinned to a commit of this repository. Hawk's LLM proxy supplies model access, so a run needs no API keys:
+
+```bash
+hawk eval-set run configs/hawk/sycophancy-deepseek-v4-pro.yaml
+hawk eval-set run configs/hawk/prime-factorization-deepseek-v4-pro.yaml
+```
+
+Hawk pulls sandbox images instead of building them: it drops compose `build:` keys and rejects `extends:`. `compose-terminus.yaml` therefore names the published image, tagged with a hash of the Dockerfile and its requirements file. A change to either needs a new tag in `compose-terminus.yaml`, which `test_sandbox_image.py` checks, and the workflow then publishes it.
 
 ## Scoring
 
@@ -189,6 +204,7 @@ In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory
 | The Terminus-2 adapter uses Inspect’s sandbox model bridge for model requests. | Inspect controls model selection and logging while Harbor operates the terminal. | The scripted test checks the verifier and trajectory. Effects on scores with study models are unmeasured. |
 | Prime Factorization's live log mirror writes `turns.log`, `messages.jsonl`, `transcript.json` and large-result spills as the original does, but not the original's closing line in the run's result file. | That line needs the verifier's state, which lives in a separate sandbox process here. It is written after the episode ends. | None: the agent never reads it. Edits to staged files and the mirror are still reported, in the `live_logs` store entry. |
 | The Prime Factorization agent, Harbor and the verifier run as uid 1000 named `user`, as in the original. The agent's user owns its workspace, home, Harbor's `/logs` and each home directory holding staged files. In the original it owns the whole image. | The original maps container root to that user through a user namespace. Docker runs a real non-root user, so Inspect stages files as root and the solver then hands those trees to the agent. | Expected to be small: the agent can read and write everything the task stages, but cannot write system directories such as `/usr/local`. |
+| Prime Factorization downloads a published run of the original's builder when no `task_dir` is given, instead of building its data before the run. | The task must run where only the installed package exists, such as Hawk. inspect_evals' guidance is to host datasets on Hugging Face, pinned and checksummed. | None expected: every file matches a fresh build except the planted checkout's `.git/index`, where git caches the build machine's file timestamps and inode numbers. |
 | The shift metric sorts each condition's estimates before bootstrapping. | The original resamples in judge-record order, which depends on when asynchronous judging finished, so its interval is not reproducible. | None on point estimates. The interval differs only by resampling noise. |
 | An invalid Sycophancy judge verdict errors its sample. Under Inspect's default `fail_on_error` the eval then fails, with no shift result. | Inspect's standard error handling. The original drops that episode and scores the rest. | No result, rather than a score over the remaining replies. Use `--fail-on-error <fraction>` or `--retry-on-error N` to keep going. |
 
