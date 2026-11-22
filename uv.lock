@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
@@ -494,6 +494,7 @@ source = { editable = "." }
 dependencies = [
     { name = "inspect-ai" },
     { name = "inspect-evals-utils", extra = ["huggingface"] },
+    { name = "inspect-swe" },
 ]
 
 [package.dev-dependencies]
@@ -517,6 +518,7 @@ dev = [
 requires-dist = [
     { name = "inspect-ai", specifier = ">=0.3.262" },
     { name = "inspect-evals-utils", extras = ["huggingface"], specifier = "==0.3.0" },
+    { name = "inspect-swe", specifier = "==0.3.0" },
 ]
 
 [package.metadata.requires-dev]

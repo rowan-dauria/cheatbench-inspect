@@ -14,6 +14,7 @@ requires-python = ">=3.12"
 dependencies = [
     "inspect_ai>=0.3.262",
     "inspect-evals-utils[huggingface]==0.3.0",
+    "inspect-swe==0.3.0",
 ]
 
 [project.urls]

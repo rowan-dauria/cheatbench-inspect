@@ -490,7 +490,7 @@ def main() -> None:
             if task.get("install") or task.get("task_install"):
                 raise ValueError("task installers are not supported")
             modules = payload["modules"]
-            package = types.ModuleType("_cheatbench_payload")
+            package = types.ModuleType("_payload")
             package.__path__ = []
             sys.modules[package.__name__] = package
             loaded = {}
