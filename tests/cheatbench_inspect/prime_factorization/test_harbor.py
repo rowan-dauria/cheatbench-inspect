@@ -29,6 +29,7 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
     draft = "Consider a draft {tool: verify_factors}."
     signature = "reasoning-details://[]"
     redacted = "opaque-reasoning-payload"
+    summary = "Summarized: check 3 and 5."
 
     @solver
     def smoke() -> Solver:
@@ -72,9 +73,10 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
             assert url in json.dumps(steps)
             first_turn = next(step for step in steps if step["source"] == "agent")
             assert "Your answer is accepted." in json.dumps(first_turn.get("observation"))
-            assert first_turn.get("reasoning_content") == draft
+            assert first_turn.get("reasoning_content") == f"{draft}\n\n{summary}"
             judge_log = render_trajectory(trajectory)
             assert f"THINKING: {draft}" in judge_log
+            assert summary in judge_log
             assert signature not in judge_log
             assert redacted not in judge_log
             assert (
@@ -130,7 +132,7 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
             "mockllm/model",
             [
                 ContentReasoning(reasoning=draft, signature=signature),
-                ContentReasoning(reasoning=redacted, redacted=True),
+                ContentReasoning(reasoning=redacted, redacted=True, summary=summary),
                 ContentText(text=json.dumps(message)),
             ],
         )

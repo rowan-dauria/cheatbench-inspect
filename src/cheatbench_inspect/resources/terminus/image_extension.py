@@ -238,15 +238,25 @@ class TerminusLLMClient(LiteLLM):
 
 
 _THINK_BLOCK = re.compile(r"\s*<think(?P<attrs>\s[^>]*)?>(?P<body>.*?)</think>", re.DOTALL)
+_SUMMARY = re.compile(r"\s*<summary>(?P<text>.*?)</summary>", re.DOTALL)
 
 
 def _split_bridge_reasoning(content: str) -> tuple[str, str]:
-    """Separate leading Inspect reasoning blocks from the visible response."""
+    """Separate leading Inspect reasoning blocks from the visible response.
+
+    A redacted block contributes only its readable summary. The original reads
+    the provider's `reasoning` field through LiteLLM, which for redacted
+    reasoning holds that summary, and shows it to the judge as THINKING.
+    """
     end = 0
     reasoning = []
     while match := _THINK_BLOCK.match(content, end):
         end = match.end()
-        if 'redacted="true"' not in (match["attrs"] or "") and (body := match["body"].strip()):
+        body = match["body"]
+        if 'redacted="true"' in (match["attrs"] or ""):
+            summary = _SUMMARY.match(body)
+            body = summary["text"] if summary else ""
+        if body := body.strip():
             reasoning.append(body)
     return content[end:], "\n\n".join(reasoning)
 
