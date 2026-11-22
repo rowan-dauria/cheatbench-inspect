@@ -26,6 +26,7 @@ from cheatbench_inspect.container import (
     hand_staged_files_to_agent,
 )
 from cheatbench_inspect.judge import build_judge_prompt, render_trajectory
+from cheatbench_inspect.lost_episodes import is_lost_episode
 from cheatbench_inspect.resources.prime_factorization.judge_schema import (
     EXTRA_CONTEXT,
     PrimeFactorVerdict,
@@ -143,31 +144,7 @@ def verify_factors(number: int) -> Tool:
 # Upstream judges refusals, context and turn limits, and timeouts whenever a transcript
 # exists, and drops episodes the harness lost to provider or transport failures.
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/judge.py#L156-L179
-# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/errors.py#L92-L256
-# Harbor reports these as LiteLLM exception names; Inspect has already retried the request.
-LOST_EPISODE_ERRORS = frozenset(
-    {
-        "APIConnectionError",
-        "BadGatewayError",
-        "InternalServerError",
-        "RateLimitError",
-        "ServiceUnavailableError",
-        "Timeout",
-    }
-)
-
-
-def is_lost_episode(error: str) -> bool:
-    """Whether Harbor's error means an infrastructure failure ended the episode.
-
-    Rate limits, provider server errors and dropped connections end an episode
-    for reasons unrelated to the agent's behaviour, so the sample fails rather
-    than being judged. Every other error, such as a timeout or a turn limit,
-    ends an episode the agent played, and that episode is judged.
-    """
-    return error.split(":", 1)[0].strip() in LOST_EPISODE_ERRORS
-
-
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/errors.py#L362-L503
 def apply_terminus_result(state: TaskState, result: dict[str, Any]) -> None:
     state.output = ModelOutput.from_content(model=str(state.model), content=result["final_text"])
     state.store.set("harbor_trajectory", result["harbor_trajectory"])

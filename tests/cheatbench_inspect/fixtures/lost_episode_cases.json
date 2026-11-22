@@ -1,0 +1,482 @@
+[
+  {
+    "id": "invalid_api_input_no_endpoints",
+    "text": "BadRequestError: litellm.BadRequestError: OpenAIException - No endpoints found that support image input",
+    "reason": "invalid_api_input"
+  },
+  {
+    "id": "invalid_api_input_no_vision",
+    "text": "This model does not support vision",
+    "reason": "invalid_api_input"
+  },
+  {
+    "id": "invalid_api_input_no_image",
+    "text": "This model does not support image input",
+    "reason": "invalid_api_input"
+  },
+  {
+    "id": "invalid_api_input_image_not_supported",
+    "text": "image input is not supported for this route",
+    "reason": "invalid_api_input"
+  },
+  {
+    "id": "invalid_api_input_deserialize",
+    "text": "Failed to deserialize the JSON body into the target type: messages[2].content",
+    "reason": "invalid_api_input"
+  },
+  {
+    "id": "invalid_api_input_unknown_variant",
+    "text": "unknown variant `image_url`, expected `text`",
+    "reason": "invalid_api_input"
+  },
+  {
+    "id": "request_too_large_code",
+    "text": "ContextLengthExceededError: litellm.BadRequestError: OpenAIException - request_too_large",
+    "reason": "request_too_large"
+  },
+  {
+    "id": "request_too_large_phrase",
+    "text": "BadRequestError: Request exceeds the maximum size allowed",
+    "reason": "request_too_large"
+  },
+  {
+    "id": "rate_limit_space",
+    "text": "API Error: 429 rate limit exceeded",
+    "reason": "rate_limit"
+  },
+  {
+    "id": "rate_limit_litellm_class",
+    "text": "RateLimitError: litellm.RateLimitError: RateLimitError: OpenAIException - Please slow down",
+    "reason": "rate_limit"
+  },
+  {
+    "id": "rate_limit_hyphen",
+    "text": "Provider returned rate-limit error",
+    "reason": "rate_limit"
+  },
+  {
+    "id": "rate_limit_too_many_requests",
+    "text": "HTTP 429 Too Many Requests",
+    "reason": "rate_limit"
+  },
+  {
+    "id": "usage_limit_specified",
+    "text": "You have reached your specified API usage limits. Try again later.",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "usage_limit_hit",
+    "text": "You've hit your usage limit for this billing cycle.",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "usage_limit_unpaid_invoice",
+    "text": "You have an unpaid invoice on this account.",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "usage_limit_quota_exceeded",
+    "text": "Quota exceeded. Please check your billing plan.",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "usage_limit_budget_exceeded_cli",
+    "text": "API Error: 400 {\"error\":{\"message\":\"litellm.BudgetExceededError: Budget has been exceeded! Current cost: 2000.0038, Max budget: 2000.0\",\"type\":\"budget_exceeded\",\"code\":\"400\"}}",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "usage_limit_budget_exceeded_harbor",
+    "text": "BadRequestError: litellm.BadRequestError: OpenAIException - Budget has been exceeded!",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "api_internal_server_500",
+    "text": "API Error: 500 Internal server error",
+    "reason": "api_internal_server"
+  },
+  {
+    "id": "api_internal_server_retriable",
+    "text": "RetriableError: [internal] Error processing request",
+    "reason": "api_internal_server"
+  },
+  {
+    "id": "api_internal_server_mid_response",
+    "text": "API Error: Server error mid-response",
+    "reason": "api_internal_server"
+  },
+  {
+    "id": "overloaded_api_error",
+    "text": "API Error: Overloaded",
+    "reason": "overloaded"
+  },
+  {
+    "id": "overloaded_service_unavailable",
+    "text": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - Service unavailable",
+    "reason": "overloaded"
+  },
+  {
+    "id": "overloaded_at_capacity",
+    "text": "Selected model is at capacity. Please try a different model.",
+    "reason": "overloaded"
+  },
+  {
+    "id": "overloaded_repeated_529",
+    "text": "Repeated 529 Overloaded errors after retries",
+    "reason": "overloaded"
+  },
+  {
+    "id": "connection_closed_litellm_disconnected",
+    "text": "InternalServerError: litellm.InternalServerError: AnthropicException - Server disconnected. Handle with litellm.InternalServerError.",
+    "reason": "connection_closed"
+  },
+  {
+    "id": "connection_closed_incomplete_read",
+    "text": "gateway failed: IncompleteRead: IncompleteRead(0 bytes read)",
+    "reason": "connection_closed"
+  },
+  {
+    "id": "connection_closed_mid_response",
+    "text": "API Error: Connection closed mid-response",
+    "reason": "connection_closed"
+  },
+  {
+    "id": "connection_lost_mid_response",
+    "text": "API Error: Connection lost mid-response",
+    "reason": "connection_closed"
+  },
+  {
+    "id": "connection_closed_stream",
+    "text": "API Error: stream closed before completion",
+    "reason": "connection_closed"
+  },
+  {
+    "id": "max_turns_reached_phrase",
+    "text": "Error: Reached maximum number of turns (150)",
+    "reason": "max_turns"
+  },
+  {
+    "id": "max_turns_exact",
+    "text": "max_turns reached before confirmed task completion",
+    "reason": "max_turns"
+  },
+  {
+    "id": "max_turns_exact_not_anchored",
+    "text": "prefix: max_turns reached before confirmed task completion",
+    "reason": null
+  },
+  {
+    "id": "max_turns_session_exceeded",
+    "text": "Maximum session turns exceeded",
+    "reason": "max_turns"
+  },
+  {
+    "id": "max_turns_constant",
+    "text": "Error code: MAX_TURNS_EXCEEDED",
+    "reason": "max_turns"
+  },
+  {
+    "id": "response_stalled_mid_stream",
+    "text": "API Error: Response stalled mid-stream",
+    "reason": "response_stalled"
+  },
+  {
+    "id": "output_token_exceeded",
+    "text": "response exceeded 64000 output token maximum",
+    "reason": "output_token_exceeded"
+  },
+  {
+    "id": "context_window_input_tokens",
+    "text": "input token count exceeds the maximum number of tokens",
+    "reason": "context_window_exceeded"
+  },
+  {
+    "id": "context_window_prompt_too_long",
+    "text": "Error: prompt is too long: 214431 tokens > 200000 maximum",
+    "reason": "context_window_exceeded"
+  },
+  {
+    "id": "auth_not_logged_in",
+    "text": "Not logged in",
+    "reason": "auth"
+  },
+  {
+    "id": "model_not_found",
+    "text": "Cannot use this model",
+    "reason": "model_not_found"
+  },
+  {
+    "id": "proxy_5xx_cloudflare_url",
+    "text": "https://developers.cloudflare.com/support/troubleshooting/cloudflare-errors/cloudflare-5xx-errors/",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_error_502_path",
+    "text": "See /error-502/ for details",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_cloudflare_json",
+    "text": "{\"cloudflare_error\": true, \"status\": 502}",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_api_error_503",
+    "text": "API Error: 503 upstream failed",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_http_504",
+    "text": "HTTP 504 upstream failed",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_502_bad_gateway",
+    "text": "502 Bad Gateway",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_api_error_524",
+    "text": "API Error: 524 origin timed out",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_http_522",
+    "text": "HTTP 522 connection timed out",
+    "reason": "network"
+  },
+  {
+    "id": "proxy_5xx_524_status_code",
+    "text": "APIError: litellm.APIError: APIError: OpenAIException - 524 status code (no body)",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_bad_gateway_phrase",
+    "text": "Bad Gateway",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_gateway_timeout",
+    "text": "Timeout: litellm.Timeout: Timeout Error: OpenAIException - Gateway Timeout",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "proxy_5xx_gateway_time_out_hyphen",
+    "text": "504 Gateway Time-out",
+    "reason": "proxy_5xx"
+  },
+  {
+    "id": "safety_refusal_measures",
+    "text": "Request hit safety measures that flagged the prompt",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_cyber_program",
+    "text": "Requires Cyber Verification Program access",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_cyber_risk",
+    "text": "Prompt flagged for possible cybersecurity risk",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_trusted_access",
+    "text": "Trusted Access for Cyber required",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_chatgpt_cyber",
+    "text": "See chatgpt.com/cyber for access",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_content_filtering",
+    "text": "Output blocked by content filtering policy",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_usage_policy",
+    "text": "API Error: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup).",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_aup_url",
+    "text": "Blocked under https://www.anthropic.com/legal/aup",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_cyber_safeguards",
+    "text": "Request triggered cyber-related safeguards",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_no_fallback",
+    "text": "{\"subtype\":\"model_refusal_no_fallback\"}",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_content_filter_error",
+    "text": "ContentFilterError: request blocked",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "safety_refusal_content_filter_json",
+    "text": "{\"reason\": \"content-filter\"}",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "unknown_api_error",
+    "text": "API Error: unexpected response format",
+    "reason": "unknown_api_error"
+  },
+  {
+    "id": "network_ssl_error_syscall",
+    "text": "OpenSSL SSL_read: SSL_ERROR_SYSCALL, errno 104",
+    "reason": "network"
+  },
+  {
+    "id": "network_ssl_connect",
+    "text": "OpenSSL SSL_connect: connection reset",
+    "reason": "network"
+  },
+  {
+    "id": "network_could_not_resolve",
+    "text": "Could not resolve host: api.example.com",
+    "reason": "network"
+  },
+  {
+    "id": "network_connection_refused",
+    "text": "OSError: [Errno 111] Connection refused",
+    "reason": "network"
+  },
+  {
+    "id": "network_connection_timed_out",
+    "text": "TCP Connection timed out after 30s",
+    "reason": "network"
+  },
+  {
+    "id": "network_request_timed_out",
+    "text": "Timeout: litellm.Timeout: APITimeoutError - Request timed out.",
+    "reason": "network"
+  },
+  {
+    "id": "network_curl_error",
+    "text": "curl: (60) SSL certificate problem",
+    "reason": "network"
+  },
+  {
+    "id": "timeout_runner",
+    "text": "timeout after 3600s",
+    "reason": "timeout"
+  },
+  {
+    "id": "container_exit_positive",
+    "text": "container exited 137",
+    "reason": "container_exit"
+  },
+  {
+    "id": "container_exit_negative",
+    "text": "container exited -9",
+    "reason": "container_exit"
+  },
+  {
+    "id": "no_record",
+    "text": "container produced no record on stdout",
+    "reason": "no_record"
+  },
+  {
+    "id": "unparseable_record",
+    "text": "unparseable container stdout: Expecting value",
+    "reason": "unparseable_record"
+  },
+  {
+    "id": "furthest_match_context_after_rate_limit",
+    "text": "API Error: 429 rate limit\n...retrying...\nError: prompt is too long: 214431 tokens > 200000 maximum",
+    "reason": "context_window_exceeded"
+  },
+  {
+    "id": "furthest_match_rate_limit_after_context",
+    "text": "Error: prompt is too long: 214431 tokens > 200000 maximum\nAPI Error: 429 rate limit",
+    "reason": "rate_limit"
+  },
+  {
+    "id": "furthest_match_quota_after_rate_limit_class",
+    "text": "RateLimitError: litellm.RateLimitError: OpenAIException - Quota exceeded.",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "furthest_match_refusal_beats_earlier_api_error",
+    "text": "API Error: Output blocked by content filtering policy",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "furthest_match_budget_beats_earlier_api_error",
+    "text": "API Error: Budget has been exceeded",
+    "reason": "usage_limit"
+  },
+  {
+    "id": "furthest_match_500_beats_earlier_api_error",
+    "text": "API Error: 500 Internal server error",
+    "reason": "api_internal_server"
+  },
+  {
+    "id": "refusal_guard_soft_divert_falls_back_to_api_error",
+    "text": "{\"subtype\":\"model_refusal_fallback\"} API Error: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup).",
+    "reason": "unknown_api_error"
+  },
+  {
+    "id": "refusal_guard_soft_divert_alone_is_none",
+    "text": "{\"subtype\":\"model_refusal_fallback\"} Output blocked by content filtering policy",
+    "reason": null
+  },
+  {
+    "id": "refusal_guard_hard_stop_overrides_soft_divert",
+    "text": "{\"subtype\":\"model_refusal_fallback\"} {\"subtype\":\"model_refusal_no_fallback\"} Output blocked by content filtering policy",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "refusal_guard_is_case_sensitive",
+    "text": "{\"subtype\":\"MODEL_REFUSAL_FALLBACK\"} Output blocked by content filtering policy",
+    "reason": "safety_refusal"
+  },
+  {
+    "id": "unmatched_empty",
+    "text": "",
+    "reason": null
+  },
+  {
+    "id": "unmatched_whitespace",
+    "text": "   \n\t  ",
+    "reason": null
+  },
+  {
+    "id": "unmatched_plain_text",
+    "text": "the agent wrote a file and stopped",
+    "reason": null
+  },
+  {
+    "id": "unmatched_timeout_error_class",
+    "text": "TimeoutError: ",
+    "reason": null
+  },
+  {
+    "id": "unmatched_context_length_class",
+    "text": "ContextLengthExceededError: ",
+    "reason": null
+  },
+  {
+    "id": "unmatched_generic_bad_request",
+    "text": "BadRequestError: litellm.BadRequestError: OpenAIException - invalid parameter foo",
+    "reason": null
+  },
+  {
+    "id": "unmatched_auth_error",
+    "text": "AuthenticationError: litellm.AuthenticationError: AuthenticationError: OpenAIException - Incorrect API key provided",
+    "reason": null
+  },
+  {
+    "id": "unmatched_not_found",
+    "text": "NotFoundError: litellm.NotFoundError: OpenAIException - The model does not exist",
+    "reason": null
+  }
+]

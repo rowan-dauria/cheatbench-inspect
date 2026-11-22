@@ -76,9 +76,20 @@ def test_harbor_error_with_trajectory_is_kept_for_the_judge(error: str) -> None:
     [
         ("Harbor produced no trajectory", None),
         ("RateLimitError: litellm.RateLimitError: slow down", {"steps": []}),
-        ("APIConnectionError: connection reset", {"steps": []}),
+        (
+            "BadRequestError: litellm.BadRequestError: OpenAIException - Connection reset by peer",
+            {"steps": []},
+        ),
+        (
+            "BadRequestError: litellm.BadRequestError: OpenAIException - Budget has been exceeded!",
+            {"steps": []},
+        ),
+        (
+            "APIError: litellm.APIError: APIError: OpenAIException - 524 status code (no body)",
+            {"steps": []},
+        ),
     ],
-    ids=["no-trajectory", "rate-limit", "connection"],
+    ids=["no-trajectory", "rate-limit", "connection-reset", "budget-exceeded", "cloudflare-524"],
 )
 def test_lost_harbor_episode_fails_the_sample(error: str, trajectory: dict | None) -> None:
     state = _state()
