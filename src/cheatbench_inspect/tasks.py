@@ -30,18 +30,20 @@ def cheatbench_sycophancy(
 
 @task
 def cheatbench_prime_factorization(
-    task_dir: str, dataset_limit: int = prime.DEFAULT_DATASET_LIMIT
+    task_dir: str | None = None, dataset_limit: int = prime.DEFAULT_DATASET_LIMIT
 ) -> Task:
     """Run Prime Factorization with the Terminus-2 harness.
 
     Args:
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
+            Defaults to the published build of the original's builder, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
     """
     if dataset_limit < 1:
         raise ValueError("dataset_limit must be positive.")
+    data_dir = Path(task_dir) if task_dir is not None else prime.default_task_dir()
     return Task(
-        dataset=prime.get_dataset(Path(task_dir), limit=dataset_limit),
+        dataset=prime.get_dataset(data_dir, limit=dataset_limit),
         scorer=prime.prime_factorization_scorer(),
         solver=prime.prime_factorization_solver(),
         sandbox=("docker", str(TERMINUS_COMPOSE)),

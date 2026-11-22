@@ -1,8 +1,0 @@
-services:
-  default:
-    extends:
-      file: compose.yaml
-      service: default
-    build:
-      context: .
-      target: terminus
