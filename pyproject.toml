@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "inspect-based implementation of the CheatBench (Phan et al. 2026) benchmark"
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE", "NOTICE", "src/cheatbench_inspect/resources/LICENSE-cheatbench"]
 authors = [{ name = "Rowan d'Auria", email = "rowandauria1@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [
@@ -48,6 +49,10 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 "*" = [
     "eval.yaml",
     "resources/judge.txt",
+    "resources/sandbox/Dockerfile",
+    "resources/sandbox/compose.yaml",
+    "resources/sandbox/compose-terminus.yaml",
+    "resources/sandbox/task-requirements.txt",
     "resources/sycophancy/*.jsonl",
     "resources/sycophancy/judge_schema.py",
 ]
@@ -57,6 +62,11 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 # sets tests_layout or readme_location here on top of it.
 [tool.inspect-evals-lint]
 preset = "single-eval"
+
+[tool.inspect-evals-lint.per-file-ignores]
+# These scripts run under the pinned Harbor and Pillow installed by the Terminus Docker target.
+"src/cheatbench_inspect/resources/terminus/episode.py" = ["external_dependencies"]
+"src/cheatbench_inspect/resources/terminus/image_extension.py" = ["external_dependencies"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -84,6 +94,10 @@ target-version = "py312"
 extend-exclude = ["agent_artefacts", "*.md"]
 
 [tool.ruff.lint]
+# PLW1514 is a preview rule; explicit-preview-rules keeps the other preview rules off.
+preview = true
+explicit-preview-rules = true
+extend-select = ["PLW1514"] # unspecified-encoding
 select = [
     "E",     # pycodestyle errors
     "W",     # pycodestyle warnings

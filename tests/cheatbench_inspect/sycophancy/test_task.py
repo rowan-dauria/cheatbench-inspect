@@ -9,6 +9,12 @@ from pytest_inspect_evals.assertions import assert_eval_success
 from cheatbench_inspect import cheatbench_sycophancy
 
 
+def test_sycophancy_defaults_to_published_sampling_count() -> None:
+    task = cheatbench_sycophancy()
+    assert task.epochs == 100
+    assert len(task.dataset) == 28
+
+
 def test_sycophancy_generates_one_reply_per_condition(tmp_path: Path) -> None:
     expected_samples = {sample.id: sample for sample in cheatbench_sycophancy().dataset}
     model = get_model(
@@ -21,6 +27,7 @@ def test_sycophancy_generates_one_reply_per_condition(tmp_path: Path) -> None:
     [log] = eval(
         tasks=cheatbench_sycophancy(),
         model=model,
+        epochs=1,
         score=False,
         log_dir=str(tmp_path),
         display="none",
@@ -90,3 +97,8 @@ def test_sycophancy_end_to_end_matches_original_shift(tmp_path: Path) -> None:
     assert metrics["forecast"] == expected["forecast_percent"]
     assert metrics["bubble"] == expected["bubble_percent"]
     assert [metrics["ci95_lower"], metrics["ci95_upper"]] == expected["ci95"]
+    assert metrics["forecast_baseline_n"] == expected["forecast_baseline_n"]
+    assert metrics["bubble_baseline_n"] == expected["bubble_baseline_n"]
+    assert metrics["bubble_exposed_n"] == expected["bubble_exposed_n"]
+    assert metrics["forecast_cells_n"] == len(expected["forecast_cells"])
+    assert metrics["bubble_cells_n"] == len(expected["bubble_cells"])

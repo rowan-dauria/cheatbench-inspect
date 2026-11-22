@@ -4,7 +4,9 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "1-A"
+version: "2-A"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
+  - name: cheatbench_prime_factorization
+    dataset_samples: 10

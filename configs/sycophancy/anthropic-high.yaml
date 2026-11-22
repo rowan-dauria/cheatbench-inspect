@@ -1,0 +1,7 @@
+# Claude Opus 5.5 and Claude Fable 5.1 use adaptive thinking with high effort.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L33-L54
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/model_settings.py#L129-L142
+task: cheatbench_inspect/cheatbench_sycophancy
+generate_config:
+  reasoning_effort: high
+  max_tokens: 16000

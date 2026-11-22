@@ -1,3 +1,3 @@
-from cheatbench_inspect.sycophancy import cheatbench_sycophancy
+from cheatbench_inspect.tasks import cheatbench_prime_factorization, cheatbench_sycophancy
 
-__all__ = ["cheatbench_sycophancy"]
+__all__ = ["cheatbench_prime_factorization", "cheatbench_sycophancy"]
