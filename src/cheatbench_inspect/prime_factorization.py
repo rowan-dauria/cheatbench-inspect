@@ -205,11 +205,13 @@ async def verifier_endpoint(number: int) -> AsyncGenerator[str, None]:
 def live_log_observer(
     sample_id: str, live_logs: dict[str, Any] | None, staged: list[str]
 ) -> dict[str, Any] | None:
-    """The live log observer's code and arguments for prepare_harbor, if the row has one."""
+    """The live log observer's code and arguments for the harness, if the row has one."""
     if live_logs is None:
         return None
     return {
-        "code": (Path(__file__).parent / "resources/prime_factorization/observer.py").read_text(),
+        "code": (Path(__file__).parent / "resources/prime_factorization/observer.py").read_text(
+            encoding="utf-8"
+        ),
         "row": {
             "id": sample_id,
             "live_log_dir": live_logs["live_log_dir"],
@@ -219,19 +221,31 @@ def live_log_observer(
     }
 
 
+def codex_grader_modules() -> dict[str, str]:
+    """Return the in-sandbox HTTP MCP verifier modules for Codex episodes."""
+    resources = Path(__file__).parent / "resources"
+    return {
+        "grader_server": (resources / "sandbox/grader_server.py").read_text(encoding="utf-8"),
+        "verifier": (resources / "prime_factorization/verifier.py").read_text(encoding="utf-8"),
+        "grader": (resources / "prime_factorization/http_verifier.py").read_text(encoding="utf-8"),
+    }
+
+
 @solver
 def prime_factorization_solver(
     harness: str = "terminus-2",
     harness_version: str | None = None,
     harness_model: str | None = None,
 ) -> Solver:
+    """Solve Prime Factorization with the selected harness and verifier transport."""
+
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         number = state.metadata["number"]
         await hand_staged_files_to_agent(state.metadata["staged_files"])
 
         @asynccontextmanager
         async def servers_for_harness() -> AsyncGenerator[list[dict[str, str]], None]:
-            if harness == "claude-sdk":
+            if harness in {"claude-sdk", "codex"}:
                 yield []
             else:
                 async with verifier_endpoint(number) as url:
@@ -247,8 +261,9 @@ def prime_factorization_solver(
                     state.metadata.get("live_logs"),
                     state.metadata.get("staged_files", []),
                 ),
+                grader_modules=codex_grader_modules() if harness == "codex" else None,
             )
-            if harness == "claude-sdk":
+            if harness in {"claude-sdk", "codex"}:
                 result = await run_harness(
                     harness,
                     state,

@@ -18,6 +18,7 @@ class HarnessPolicy:
     web_search: bool = False
     web_fetch: bool = False
     mcp_only: bool = False
+    grader_modules: dict[str, str] | None = None
 
 
 @dataclass
@@ -56,7 +57,17 @@ async def _claude_sdk(
     )
 
 
-_HARNESSES = {"terminus-2": _terminus_2, "claude-sdk": _claude_sdk}
+async def _codex(state: TaskState, policy: HarnessPolicy, options: dict[str, str]) -> HarnessResult:
+    from cheatbench_inspect.codex import run_codex
+
+    return await run_codex(
+        state, policy, cli_version=options["cli_version"], cli_model=options["cli_model"]
+    )
+
+
+_HARNESSES = {"terminus-2": _terminus_2, "claude-sdk": _claude_sdk, "codex": _codex}
+_CLI_HARNESSES = {"claude-sdk", "codex"}
+_CLI_OPTIONS = {"cli_version", "cli_model"}
 
 
 def validate_harness(name: str) -> None:
@@ -68,10 +79,15 @@ async def run_harness(
     name: str, state: TaskState, policy: HarnessPolicy, options: dict[str, str] | None = None
 ) -> HarnessResult:
     validate_harness(name)
-    if name == "claude-sdk":
+    if name in _CLI_HARNESSES:
         if not options or not options.get("cli_version") or not options.get("cli_model"):
-            raise ValueError("claude-sdk requires cli_version and cli_model")
-        return await _claude_sdk(state, policy, options)
+            raise ValueError(f"{name} requires cli_version and cli_model")
+        unknown = sorted(set(options) - _CLI_OPTIONS)
+        if unknown:
+            raise ValueError(f"Unknown options for {name}: {', '.join(unknown)}")
+        if name == "claude-sdk":
+            return await _claude_sdk(state, policy, options)
+        return await _codex(state, policy, options)
     if options:
         raise ValueError("terminus-2 does not accept harness options")
     return await _terminus_2(state, policy)

@@ -1,0 +1,11 @@
+services:
+  default:
+    # Placeholder tag targeting the Dockerfile `task` stage for local builds.
+    # Sub-step 4b will add a Dockerfile `codex` stage, publish the image, and
+    # pin its tag.
+    image: ghcr.io/rowan-dauria/task-env-codex:local-dev
+    build:
+      context: .
+      target: task
+    init: true
+    command: ["tail", "-f", "/dev/null"]

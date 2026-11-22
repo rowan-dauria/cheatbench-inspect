@@ -29,6 +29,13 @@ def cheatbench_sycophancy(
     )
 
 
+_HARNESS_COMPOSE = {
+    "terminus-2": TERMINUS_COMPOSE,
+    "claude-sdk": TERMINUS_COMPOSE.with_name("claude-compose.yaml"),
+    "codex": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
+}
+
+
 @task
 def cheatbench_prime_factorization(
     task_dir: str | None = None,
@@ -37,7 +44,7 @@ def cheatbench_prime_factorization(
     harness_version: str | None = None,
     harness_model: str | None = None,
 ) -> Task:
-    """Run Prime Factorization with the Terminus-2 harness.
+    """Run Prime Factorization with the selected agent harness.
 
     Args:
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
@@ -48,8 +55,8 @@ def cheatbench_prime_factorization(
         harness_model: Claude CLI model ID, required for claude-sdk.
     """
     validate_harness(harness)
-    if harness == "claude-sdk" and (not harness_version or not harness_model):
-        raise ValueError("claude-sdk requires harness_version and harness_model")
+    if harness in {"claude-sdk", "codex"} and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
     if dataset_limit < 1:
@@ -59,14 +66,7 @@ def cheatbench_prime_factorization(
         dataset=prime.get_dataset(data_dir, limit=dataset_limit),
         scorer=prime.prime_factorization_scorer(),
         solver=prime.prime_factorization_solver(harness, harness_version, harness_model),
-        sandbox=(
-            "docker",
-            str(
-                TERMINUS_COMPOSE
-                if harness == "terminus-2"
-                else TERMINUS_COMPOSE.with_name("claude-compose.yaml")
-            ),
-        ),
+        sandbox=("docker", str(_HARNESS_COMPOSE[harness])),
         epochs=prime.DEFAULT_EPOCHS,
         version=load_eval_version(__file__),
     )

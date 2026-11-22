@@ -12,10 +12,10 @@ original are noted at each site:
 - Post-exit ``\x1eRHMSG`` stderr replay (``codex_runner.py:87-96, 1014-1015``)
   is removed.
 - ``config_toml`` emits a ``[model_providers.bridge]`` block with
-  ``wire_api = "responses"`` and ``name = "OpenAI"`` in place of bare
-  ``openai_base_url`` (``codex_runner.py:605-606``) so Codex speaks HTTP
-  Responses directly without WebSocket upgrade fallback while matching the
-  built-in OpenAI provider's ``is_openai()`` checks.
+  ``wire_api = "responses"`` and a neutral non-OpenAI ``name = "Bridge"`` in
+  place of bare ``openai_base_url`` (``codex_runner.py:605-606``) so Codex
+  speaks HTTP Responses directly without WebSocket upgrade fallback and
+  compacts locally rather than calling OpenAI's remote compaction endpoint.
 - The in-process HTTP MCP grader reuses ``grader_server.GraderServer`` loaded
   from the stdin payload rather than duplicating the server class.
 - ``main()`` reads JSON from ``sys.stdin`` (delivered via the bootstrap),
@@ -69,7 +69,7 @@ _DELIVERABLE_MAX_BYTES = 64 * 1024 * 1024
 # Default provider block settings used when `base_url` is supplied without an
 # explicit `provider` override (departure from codex_runner.py:605-606).
 DEFAULT_PROVIDER_ID = "bridge"
-DEFAULT_PROVIDER_NAME = "OpenAI"
+DEFAULT_PROVIDER_NAME = "Bridge"
 DEFAULT_PROVIDER_ENV_KEY = "OPENAI_API_KEY"
 DEFAULT_PROVIDER_WIRE_API = "responses"
 
@@ -184,9 +184,10 @@ def config_toml(
 
     Departure from ``codex_runner.py:605-606``: when ``base_url`` is given
     without an explicit ``provider`` dict, emits a ``[model_providers.bridge]``
-    block with ``wire_api = "responses"`` and ``name = "OpenAI"`` instead of
-    bare ``openai_base_url`` so Codex skips WebSocket upgrade attempts while
-    retaining ``is_openai()`` provider behaviour.
+    block with ``wire_api = "responses"`` and ``name = "Bridge"`` (a neutral
+    non-OpenAI provider name) instead of bare ``openai_base_url`` so Codex skips
+    WebSocket upgrade attempts and compacts locally when an episode reaches the
+    compaction threshold.
 
     The top-level keys come first: in TOML everything after a ``[table]``
     header belongs to that table, so ``model_provider`` written below the mcp

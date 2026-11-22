@@ -404,7 +404,7 @@ def test_clean_episode_via_bootstrap(tmp_path: Path) -> None:
     cfg = report["config"]
     assert cfg["model_provider"] == "bridge"
     assert cfg["model_providers"]["bridge"] == {
-        "name": "OpenAI",
+        "name": "Bridge",
         "base_url": "http://127.0.0.1:19999/v1",
         "env_key": "OPENAI_API_KEY",
         "wire_api": "responses",
@@ -547,13 +547,14 @@ def test_golden_parity_against_original_runner() -> None:
 
         # Documented provider-block departure (codex_runner.py:605-606): bare
         # `openai_base_url = ...` is replaced by `[model_providers.bridge]`
-        # with `name = "OpenAI"` and `wire_api = "responses"`.
+        # with non-OpenAI `name = "Bridge"` (for local compaction) and
+        # `wire_api = "responses"`.
         base_url = kwargs["base_url"]
         orig_line = f"openai_base_url = {json.dumps(base_url)}\n"
         bridge_block = (
             'model_provider = "bridge"\n'
             "\n[model_providers.bridge]\n"
-            'name = "OpenAI"\n'
+            'name = "Bridge"\n'
             f"base_url = {json.dumps(base_url)}\n"
             'env_key = "OPENAI_API_KEY"\n'
             'wire_api = "responses"\n'

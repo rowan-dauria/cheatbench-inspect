@@ -40,3 +40,4 @@ def test_wheel_contains_runtime_resources(tmp_path: Path) -> None:
     assert "cheatbench_inspect/resources/codex/episode.py" in shipped
     assert "cheatbench_inspect/resources/codex/proxy.py" in shipped
     assert "cheatbench_inspect/resources/prime_factorization/http_verifier.py" in shipped
+    assert "cheatbench_inspect/resources/sandbox/codex-compose.yaml" in shipped
