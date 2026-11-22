@@ -92,6 +92,8 @@ See `uv run inspect eval --help` for all available options.
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
+- `harness_version` (str | None): Claude CLI version, required for claude-sdk. (default: `None`)
+- `harness_model` (str | None): Claude CLI model ID, required for claude-sdk. (default: `None`)
 
 <!-- /Parameters: Automatically Generated -->
 

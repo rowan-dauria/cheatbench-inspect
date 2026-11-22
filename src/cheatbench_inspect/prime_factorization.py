@@ -220,12 +220,24 @@ def live_log_observer(
 
 
 @solver
-def prime_factorization_solver(harness: str = "terminus-2") -> Solver:
+def prime_factorization_solver(
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+) -> Solver:
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         number = state.metadata["number"]
         await hand_staged_files_to_agent(state.metadata["staged_files"])
-        async with verifier_endpoint(number) as url:
-            servers = [{"name": "verifier", "transport": "streamable-http", "url": url}]
+
+        @asynccontextmanager
+        async def servers_for_harness() -> AsyncGenerator[list[dict[str, str]], None]:
+            if harness == "claude-sdk":
+                yield []
+            else:
+                async with verifier_endpoint(number) as url:
+                    yield [{"name": "verifier", "transport": "streamable-http", "url": url}]
+
+        async with servers_for_harness() as servers:
             policy = HarnessPolicy(
                 mcp_servers=servers,
                 max_turns=MAX_TURNS,
@@ -236,7 +248,16 @@ def prime_factorization_solver(harness: str = "terminus-2") -> Solver:
                     state.metadata.get("staged_files", []),
                 ),
             )
-            apply_harness_result(state, await run_harness(harness, state, policy))
+            if harness == "claude-sdk":
+                result = await run_harness(
+                    harness,
+                    state,
+                    policy,
+                    {"cli_version": harness_version or "", "cli_model": harness_model or ""},
+                )
+            else:
+                result = await run_harness(harness, state, policy)
+            apply_harness_result(state, result)
             return state
 
     return solve

@@ -105,3 +105,37 @@ async def run_claude_sdk(
     record = json.loads(result.stdout.splitlines()[-1])
     record["stderr_tail"] = result.stderr[-_STDERR_SCAN_BYTES:]
     return record
+
+
+def classify_claude_failure(record: dict[str, Any], stderr_tail: str) -> tuple[str | None, bool]:
+    """Apply the original trial's failure precedence to the native record."""
+    import re
+
+    from cheatbench_inspect.lost_episodes import REASON_LOST, classify, is_harness_timeout
+
+    error = record.get("error")
+    if error:
+        if isinstance(record.get("install"), dict) and record["install"].get("status") == "failed":
+            return error, False
+        if error.startswith(
+            "max_turns reached before confirmed task completion"
+        ) or is_harness_timeout(error):
+            return error, False
+        reason = classify(error, stderr_tail)
+        if (
+            reason in (None, "unknown_api_error")
+            and re.search(
+                r"Command failed with exit code 1|Fatal error in message reader",
+                error + "\n" + stderr_tail,
+                re.IGNORECASE,
+            )
+            and classify(record.get("final_text")) == "proxy_5xx"
+        ):
+            reason = "proxy_5xx"
+        return error, REASON_LOST.get(reason or "", False)
+    if not (record.get("final_text") or "").strip():
+        lines = [line for line in stderr_tail.splitlines() if line.strip()][-20:]
+        reason = classify("\n".join(lines))
+        if REASON_LOST.get(reason or "", False):
+            return f"claude-sdk exited 0 after: {lines[-1].strip()}", True
+    return None, False

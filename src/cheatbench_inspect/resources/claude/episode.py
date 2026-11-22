@@ -519,7 +519,7 @@ def main() -> None:
             }
         if observer is not None:
             try:
-                observer.finish()
+                record["live_logs"] = observer.finish()
             except Exception as exc:
                 record["error"] = (
                     f"{record.get('error') or ''} observer finish failed: {exc}".strip()

@@ -27,6 +27,7 @@ class HarnessResult:
     error: str | None
     artifacts: Any
     live_logs: Any
+    lost: bool | None = None
 
 
 async def _terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResult:
@@ -35,7 +36,27 @@ async def _terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResult:
     return await run_terminus_2(state, policy)
 
 
-_HARNESSES = {"terminus-2": _terminus_2}
+async def _claude_sdk(
+    state: TaskState, policy: HarnessPolicy, options: dict[str, str]
+) -> HarnessResult:
+    from cheatbench_inspect.claude_sdk import classify_claude_failure, run_claude_sdk
+    from cheatbench_inspect.claude_trajectory import to_trajectory
+
+    record = await run_claude_sdk(
+        state, policy, cli_version=options["cli_version"], cli_model=options["cli_model"]
+    )
+    error, lost = classify_claude_failure(record, record.get("stderr_tail", ""))
+    trajectory = None
+    if any(m.get("_type") == "AssistantMessage" for m in record.get("messages", [])):
+        trajectory = to_trajectory(
+            record, cli_version=options["cli_version"], cli_model=options["cli_model"]
+        )
+    return HarnessResult(
+        trajectory, record.get("final_text") or "", error, record, record.get("live_logs"), lost
+    )
+
+
+_HARNESSES = {"terminus-2": _terminus_2, "claude-sdk": _claude_sdk}
 
 
 def validate_harness(name: str) -> None:
@@ -43,9 +64,17 @@ def validate_harness(name: str) -> None:
         raise ValueError(f"Unknown harness {name!r}; known harnesses: {', '.join(_HARNESSES)}")
 
 
-async def run_harness(name: str, state: TaskState, policy: HarnessPolicy) -> HarnessResult:
+async def run_harness(
+    name: str, state: TaskState, policy: HarnessPolicy, options: dict[str, str] | None = None
+) -> HarnessResult:
     validate_harness(name)
-    return await _HARNESSES[name](state, policy)
+    if name == "claude-sdk":
+        if not options or not options.get("cli_version") or not options.get("cli_model"):
+            raise ValueError("claude-sdk requires cli_version and cli_model")
+        return await _claude_sdk(state, policy, options)
+    if options:
+        raise ValueError("terminus-2 does not accept harness options")
+    return await _terminus_2(state, policy)
 
 
 def apply_harness_result(state: TaskState, result: HarnessResult) -> None:
@@ -54,5 +83,9 @@ def apply_harness_result(state: TaskState, result: HarnessResult) -> None:
     state.store.set("harness_artifacts", result.artifacts)
     state.store.set("live_logs", result.live_logs)
     state.store.set("harness_error", result.error)
-    if result.trajectory is None or (result.error and is_lost_episode(result.error)):
+    if result.trajectory is None or (
+        result.lost
+        if result.lost is not None
+        else bool(result.error and is_lost_episode(result.error))
+    ):
         raise RuntimeError(result.error or "Harness produced no trajectory")
