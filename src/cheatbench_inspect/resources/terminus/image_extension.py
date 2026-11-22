@@ -237,7 +237,7 @@ class TerminusLLMClient(LiteLLM):
             )
 
 
-_THINK_BLOCK = re.compile(r"\s*<think(?P<attrs>(?:\s[^>]*)?)>(?P<body>.*?)</think>", re.DOTALL)
+_THINK_BLOCK = re.compile(r"\s*<think(?P<attrs>\s[^>]*)?>(?P<body>.*?)</think>", re.DOTALL)
 _ANY_THINK_BLOCK = re.compile(r"<think(?:\s[^>]*)?>.*?</think>\s*", re.DOTALL)
 _SUMMARY = re.compile(r"\s*<summary>(?P<text>.*?)</summary>", re.DOTALL)
 
@@ -257,7 +257,7 @@ def _split_bridge_reasoning(content: str) -> tuple[str, str]:
         # If the reasoning is marked as redacted, keep only the readable summary
         # inside its <summary> tags, or nothing if it has no summary. The rest
         # of a redacted block is the provider's encrypted reasoning.
-        if 'redacted="true"' in match["attrs"]:
+        if 'redacted="true"' in (match["attrs"] or ""):
             summary = _SUMMARY.match(body)
             body = summary["text"] if summary else ""
         if body := body.strip():
