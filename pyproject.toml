@@ -54,6 +54,7 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
     "eval.yaml",
     "resources/judge.txt",
     "resources/claude/*.py",
+    "resources/codex/*.py",
     "resources/sandbox/Dockerfile",
     "resources/sandbox/compose.yaml",
     "resources/sandbox/claude-compose.yaml",

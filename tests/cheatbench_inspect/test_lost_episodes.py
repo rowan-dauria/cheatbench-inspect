@@ -120,6 +120,43 @@ PORT_ONLY_CASES = [
         "BadRequestError: litellm.BadRequestError: OpenAIException - Connection error.",
         "network",
     ),
+    (
+        "codex_server_disconnected_as_openai_400",
+        (
+            'codex ended the turn with an error: {"error": {"message": '
+            '"Server disconnected without sending a response.", '
+            '"type": "invalid_request_error", "param": null, "code": null}}'
+        ),
+        "connection_closed",
+    ),
+    (
+        "codex_incomplete_chunked_read_as_openai_400",
+        (
+            'codex ended the turn with an error: {"error": {"message": '
+            '"peer closed connection without sending complete message body '
+            '(incomplete chunked read)", '
+            '"type": "invalid_request_error", "param": null, "code": null}}'
+        ),
+        "connection_closed",
+    ),
+    (
+        "codex_connection_reset_by_peer_as_openai_400",
+        (
+            'codex ended the turn with an error: {"error": {"message": '
+            '"Connection reset by peer", '
+            '"type": "invalid_request_error", "param": null, "code": null}}'
+        ),
+        "connection_closed",
+    ),
+    (
+        "codex_sdk_connection_error_as_openai_400",
+        (
+            'codex ended the turn with an error: {"error": {"message": '
+            '"Connection error.", '
+            '"type": "invalid_request_error", "param": null, "code": null}}'
+        ),
+        "network",
+    ),
 ]
 
 
@@ -148,3 +185,59 @@ def test_bare_bad_request_is_not_lost() -> None:
     message = "BadRequestError: litellm.BadRequestError: OpenAIException - invalid parameter"
     assert classify(message) is None
     assert is_lost_episode(message) is False
+    codex_bad_request = (
+        'codex ended the turn with an error: {"error": {"message": "invalid parameter", '
+        '"type": "invalid_request_error", "param": null, "code": null}}'
+    )
+    assert classify(codex_bad_request) is None
+    assert is_lost_episode(codex_bad_request) is False
+
+
+@pytest.mark.parametrize(
+    ("message", "expected_reason"),
+    [
+        (
+            (
+                'codex ended the turn with an error: {"error": {"message": '
+                "\"stream_idle_timeout '120' exceeded (streaming response stalled).\", "
+                '"type": "invalid_request_error", "param": null, "code": null}}'
+            ),
+            "response_stalled",
+        ),
+        (
+            (
+                'codex ended the turn with an error: {"error": {"message": '
+                "\"attempt_timeout '300' exceeded.\", "
+                '"type": "invalid_request_error", "param": null, "code": null}}'
+            ),
+            "network",
+        ),
+        (
+            (
+                'codex ended the turn with an error: {"error": {"message": '
+                '"Streaming response ended without delivering any chunks.", '
+                '"type": "invalid_request_error", "param": null, "code": null}}'
+            ),
+            "connection_closed",
+        ),
+        (
+            (
+                '{"type":"turn.failed","error":{"message":"{\\"error\\": {\\"message\\": '
+                '\\"Server disconnected without sending a response.\\", \\"type\\": '
+                '\\"invalid_request_error\\", \\"param\\": null, \\"code\\": null}}"}}'
+            ),
+            "connection_closed",
+        ),
+        (
+            (
+                '{"type":"turn.failed","error":{"message":"{\\"error\\": {\\"message\\": '
+                '\\"Connection error.\\", \\"type\\": \\"invalid_request_error\\", '
+                '\\"param\\": null, \\"code\\": null}}"}}'
+            ),
+            "network",
+        ),
+    ],
+)
+def test_captured_codex_bridge_errors_classify_as_lost(message: str, expected_reason: str) -> None:
+    assert classify(message) == expected_reason
+    assert is_lost_episode(message) is True

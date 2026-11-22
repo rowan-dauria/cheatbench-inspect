@@ -97,6 +97,125 @@ def test_other_record_shapes_are_not_mirrored(tmp_path: Path) -> None:
 
     observer.observe({"type": "session_meta", "payload": {"instructions": "hidden"}})
     observer.observe({"_type": "AssistantMessage", "content": [{"_type": "SystemBlock"}]})
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "message",
+                "role": "user",
+                "content": [{"type": "input_text", "text": "hidden prompt"}],
+            },
+        }
+    )
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "message",
+                "role": "developer",
+                "content": [{"type": "input_text", "text": "hidden dev"}],
+            },
+        }
+    )
+    observer.observe({"type": "response_item", "payload": {"type": "other_kind", "x": 1}})
 
     assert not (tmp_path / "trajectories/q4/turns.log").exists()
     assert observer.finish()["mirrored_messages"] == 0
+
+
+def test_codex_response_items_are_mirrored_with_encrypted_stripped_and_spills(
+    tmp_path: Path,
+) -> None:
+    observer = _observer(tmp_path)
+    big_output = "y" * 12289
+
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "reasoning",
+                "summary": [{"type": "summary_text", "text": "Checking factors."}],
+                "encrypted_content": "TOP_SECRET_CIPHERTEXT",
+            },
+        }
+    )
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "custom_tool_call",
+                "call_id": "call_exec_1",
+                "name": "exec",
+                "input": "console.log(15)",
+            },
+        }
+    )
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "custom_tool_call_output",
+                "call_id": "call_exec_1",
+                "output": big_output,
+            },
+        }
+    )
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "function_call",
+                "call_id": "fn-1",
+                "name": "shell",
+                "arguments": '{"cmd":"ls"}',
+            },
+        }
+    )
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "function_call_output",
+                "call_id": "fn-1",
+                "output": "ok",
+            },
+        }
+    )
+    observer.observe(
+        {
+            "type": "response_item",
+            "payload": {
+                "type": "message",
+                "role": "assistant",
+                "content": [{"type": "output_text", "text": "Done."}],
+            },
+        }
+    )
+
+    log_dir = tmp_path / "trajectories/q4"
+    raw_jsonl = (log_dir / "messages.jsonl").read_text(encoding="utf-8")
+    turns = (log_dir / "turns.log").read_text(encoding="utf-8")
+    assert "TOP_SECRET_CIPHERTEXT" not in raw_jsonl
+    assert "TOP_SECRET_CIPHERTEXT" not in turns
+    assert "encrypted_content" not in raw_jsonl
+
+    spill = tmp_path / "cache/live_call_exec_1.txt"
+    assert spill.read_text(encoding="utf-8") == big_output
+    messages = [json.loads(line) for line in raw_jsonl.splitlines()]
+    assert [m["payload"]["type"] for m in messages] == [
+        "reasoning",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "function_call",
+        "function_call_output",
+        "message",
+    ]
+    assert messages[2]["payload"]["output"] == (
+        f"[tool result 12,289 bytes exceeds the 12,288-byte inline limit; stored at {spill}]"
+    )
+    assert "[reasoning] " in turns
+    assert "[custom_tool_call] " in turns
+    assert "[custom_tool_call_output] [tool result 12,289 bytes" in turns
+    assert "[function_call_output] ok" in turns
+    assert "[message] Done." in turns
+    assert observer.finish() == {"changed_files": [], "mirrored_messages": 6}

@@ -187,6 +187,38 @@ PORT_ONLY_PATTERNS: tuple[tuple[str, str], ...] = (
     # Exact port message: "BadRequestError: litellm.BadRequestError: OpenAIException - Connection error."
     # Stands in for original reason: `network` (NetworkConnectionError, errors.py#L460-L466).
     (r"(?:litellm\.)?BadRequestError:.*OpenAIException - Connection error\.", "network"),
+    # Failure mode: upstream closed the connection without sending a response (httpx.RemoteProtocolError)
+    # forwarded by Inspect's sandbox bridge as HTTP 400 OpenAI-dialect JSON to Codex 0.154.0.
+    # Exact captured Codex error: 'codex ended the turn with an error: {"error": {"message": "Server disconnected without sending a response.", "type": "invalid_request_error", "param": null, "code": null}}'
+    # Stands in for original reason: `connection_closed` (ApiConnectionClosedError, errors.py#L384).
+    (
+        r'\\?"error\\?"\s*:\s*\{\s*\\?"message\\?"\s*:\s*\\?"[^"]*Server disconnected',
+        "connection_closed",
+    ),
+    # Failure mode: upstream closed a chunked HTTP response mid-body (httpx.RemoteProtocolError)
+    # forwarded by Inspect's sandbox bridge as HTTP 400 OpenAI-dialect JSON to Codex 0.154.0.
+    # Exact captured Codex error: 'codex ended the turn with an error: {"error": {"message": "peer closed connection without sending complete message body (incomplete chunked read)", "type": "invalid_request_error", "param": null, "code": null}}'
+    # Stands in for original reason: `connection_closed` (ApiConnectionClosedError, errors.py#L387-L389).
+    (
+        r'\\?"error\\?"\s*:\s*\{\s*\\?"message\\?"\s*:\s*\\?"[^"]*peer closed connection without sending complete message body',
+        "connection_closed",
+    ),
+    # Failure mode: TCP connection reset by peer forwarded by Inspect's sandbox bridge as
+    # HTTP 400 OpenAI-dialect JSON to Codex 0.154.0.
+    # Exact captured Codex error: 'codex ended the turn with an error: {"error": {"message": "Connection reset by peer", "type": "invalid_request_error", "param": null, "code": null}}'
+    # Stands in for original reason: `connection_closed` (ApiConnectionClosedError, errors.py#L388-L392).
+    (
+        r'\\?"error\\?"\s*:\s*\{\s*\\?"message\\?"\s*:\s*\\?"[^"]*Connection reset by peer',
+        "connection_closed",
+    ),
+    # Failure mode: OpenAI SDK APIConnectionError ("Connection error.") forwarded by Inspect's
+    # sandbox bridge as HTTP 400 OpenAI-dialect JSON to Codex 0.154.0.
+    # Exact captured Codex error: 'codex ended the turn with an error: {"error": {"message": "Connection error.", "type": "invalid_request_error", "param": null, "code": null}}'
+    # Stands in for original reason: `network` (NetworkConnectionError, errors.py#L460-L466).
+    (
+        r'\\?"error\\?"\s*:\s*\{\s*\\?"message\\?"\s*:\s*\\?"Connection error\.\\?"',
+        "network",
+    ),
 )
 
 _COMPILED_ALL: tuple[tuple[re.Pattern[str], str], ...] = tuple(

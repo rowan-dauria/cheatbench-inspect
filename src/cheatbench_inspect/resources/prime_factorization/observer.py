@@ -8,9 +8,9 @@ assignment's trajectory directory and invites it to read that file. This
 observer writes that mirror, `messages.jsonl` beside it, and spills of large
 tool results into the cache directory, as the original does.
 
-It runs inside the Terminus-2 episode process and receives the same Claude-style
-records the original's Terminus-2 bridge sends. Only that record shape is kept;
-the original's converters for other harnesses are omitted. The original's final
+It runs inside the episode process and receives Claude-style records (from the
+Claude SDK and Terminus-2) or Codex native ``response_item`` records. Other
+harnesses' converters are omitted until ported. The original's final
 `live_result_path` record needs the verifier's state from another process and is
 written after the episode, so the agent never reads it; it is omitted too.
 """
@@ -89,20 +89,43 @@ class MessageObserver:
 
     def observe(self, record):
         record = copy.deepcopy(record)
-        if record.get("_type") not in {"AssistantMessage", "UserMessage"}:
+        # Claude SDK's slim native messages (also used by Terminus-2).
+        if record.get("_type") in {"AssistantMessage", "UserMessage"}:
+            blocks = []
+            for block in record.get("content") or []:
+                if not isinstance(block, dict):
+                    continue
+                kind = block.get("_type")
+                if kind == "ToolResultBlock":
+                    block["content"] = self._spill(block.get("content"), block.get("tool_use_id"))
+                if kind in {"ToolUseBlock", "ToolResultBlock", "TextBlock", "ThinkingBlock"}:
+                    blocks.append(block)
+            if not blocks:
+                return
+            record = {"_type": record["_type"], "content": blocks}
+        # Codex native response items; session_meta/turn_context carry hidden
+        # setup instructions and are intentionally never mirrored.
+        # Restored verbatim from tasks/prime_factorization/grader.py:204-215.
+        elif record.get("type") == "response_item":
+            p = record.get("payload") or {}
+            kind = p.get("type")
+            if kind == "message" and p.get("role") != "assistant":
+                return
+            if kind not in {
+                "message",
+                "reasoning",
+                "function_call",
+                "custom_tool_call",
+                "function_call_output",
+                "custom_tool_call_output",
+            }:
+                return
+            p.pop("encrypted_content", None)
+            if kind.endswith("_call_output"):
+                p["output"] = self._spill(p.get("output"), p.get("call_id"))
+            record = {"type": "response_item", "payload": p}
+        else:
             return
-        blocks = []
-        for block in record.get("content") or []:
-            if not isinstance(block, dict):
-                continue
-            kind = block.get("_type")
-            if kind == "ToolResultBlock":
-                block["content"] = self._spill(block.get("content"), block.get("tool_use_id"))
-            if kind in {"ToolUseBlock", "ToolResultBlock", "TextBlock", "ThinkingBlock"}:
-                blocks.append(block)
-        if not blocks:
-            return
-        record = {"_type": record["_type"], "content": blocks}
         self.messages.append(record)
         self._write(
             self.log_dir / "messages.jsonl",
@@ -111,7 +134,7 @@ class MessageObserver:
         )
         # Render literal line breaks so a reader can window a multiline tool result.
         parts = []
-        for b in record["content"]:
+        for b in record.get("content") or []:
             kind = b.get("_type")
             if kind == "ToolUseBlock":
                 parts.append(
@@ -120,6 +143,9 @@ class MessageObserver:
             else:
                 value = b.get("text", b.get("thinking", b.get("content", "")))
                 parts.append(f"[{kind}] {_result_text(value)}")
+        if not parts:
+            p = record["payload"]
+            parts = [f"[{p['type']}] " + _result_text(p.get("output", p.get("content", p)))]
         # The original stamps turns in the container's local time.
         stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # noqa: DTZ005
         self._write(
