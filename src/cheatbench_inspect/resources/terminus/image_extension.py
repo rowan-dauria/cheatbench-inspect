@@ -393,12 +393,15 @@ class ImageTerminus2(Terminus2):
             self._llm._byte_overflow_pending = False
 
     async def _summarize(self, chat, original_instruction, session):
-        # Harbor copies summarization replies into user prompts: the summary into
-        # the questions prompt, the questions into the answers prompt, and the
-        # answers into the handoff. Through Inspect's bridge those replies start
-        # with <think> blocks; the original's replies carry reasoning in a
-        # separate field, so its prompts hold only the visible text. Assistant
-        # messages keep their blocks, which the bridge replays as reasoning.
+        # During context summarization, Harbor asks the model for a summary, then
+        # questions, then answers, and pastes each reply into the next prompt as
+        # ordinary text. Inspect puts the model's reasoning at the start of each
+        # reply in <think> tags, so the reasoning (and its encrypted copy) would be
+        # pasted into those prompts too. The original never has this problem,
+        # because its model client keeps reasoning separate from the reply text.
+        # Remove the <think> blocks from those prompts. Assistant messages keep
+        # them, so the bridge still sends the model API its own reasoning back
+        # with each request.
         call = self._llm.call
 
         async def call_without_reasoning(prompt, **kwargs):
