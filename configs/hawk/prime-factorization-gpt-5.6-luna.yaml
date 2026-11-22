@@ -6,7 +6,7 @@
 # Hawk exposes task retries via retry_attempts, not retry_on_error.
 name: prime-factorization-gpt-5-6-luna
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@6120e44ea1d613180f63381a421dac3a7887dde1
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ece15d9cdf687886026568958af47c1d143d6a23
     name: cheatbench_inspect
     items:
       - name: cheatbench_prime_factorization
