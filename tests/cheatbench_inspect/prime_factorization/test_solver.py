@@ -179,6 +179,7 @@ async def test_run_terminus_2_launches_in_sample_sandbox(success: bool) -> None:
         assert config["prompt"] == "Factor 15."
         assert config["model"] == "openai/gpt-4o"
         assert config["mcp_servers"] == servers
+        assert config["max_turns"] == 150
         assert config["api_base"].endswith(":13131/v1")
         return SimpleNamespace(
             success=success,

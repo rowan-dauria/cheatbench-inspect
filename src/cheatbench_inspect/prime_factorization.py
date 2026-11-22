@@ -31,6 +31,9 @@ from cheatbench_inspect.terminus import prepare_harbor
 # The original README's reference commands use --limit 10 --repeat 1.
 DEFAULT_DATASET_LIMIT = 10
 DEFAULT_EPOCHS = 1
+# The original runner's --max-turns default, which Terminus-2 enforces as Harbor iterations.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/run.py#L684-L685
+MAX_TURNS = 150
 
 
 # DATA LOADING
@@ -209,6 +212,7 @@ async def run_terminus_2(state: TaskState, *, mcp_servers: list[dict[str, str]])
             model=str(state.model),
             api_base=f"http://127.0.0.1:{bridge.port}/v1",
             mcp_servers=mcp_servers,
+            max_turns=MAX_TURNS,
             observer=live_log_observer(
                 str(state.sample_id),
                 state.metadata.get("live_logs"),
