@@ -7,7 +7,7 @@
 # Hawk exposes task retries via retry_attempts, not retry_on_error; see LOG.md.
 name: prime-factorization-glm-5-3
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@5c051050aa2eb168082fd83e620c94a0a8a7664b
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@9b4cb60b0a0cb67d7a084c1b80ae229ea869ae27
     name: cheatbench_inspect
     items:
       - name: cheatbench_prime_factorization
