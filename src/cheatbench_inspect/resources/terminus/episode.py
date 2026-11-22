@@ -154,7 +154,7 @@ async def episode(config, agent_class, observer_class=None):
             logs_dir=logs,
             model_name=config["model"],
             api_base=config["api_base"],
-            llm_kwargs={"api_key": "inspect", "timeout": 930},
+            llm_kwargs={"api_key": "inspect", "timeout": 930, "custom_llm_provider": "openai"},
             mcp_servers=[MCPServerConfig(**server) for server in config["mcp_servers"]],
             max_turns=config["max_turns"],
         )
@@ -163,7 +163,9 @@ async def episode(config, agent_class, observer_class=None):
         error = None
         try:
             await asyncio.wait_for(agent.setup(environment), 600)
-            await asyncio.wait_for(agent.run(config["prompt"], environment, context), 3600)
+            await asyncio.wait_for(
+                agent.run(config["prompt"], environment, context), config["timeout_s"]
+            )
         except Exception as exc:
             error = f"{type(exc).__name__}: {exc}"
         finally:

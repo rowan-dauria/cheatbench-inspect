@@ -9,7 +9,9 @@ from inspect_ai.model import ModelName
 from inspect_ai.solver import TaskState
 
 from cheatbench_inspect import prime_factorization as prime
+from cheatbench_inspect import terminus
 from cheatbench_inspect.container import AGENT_ENV, AGENT_USER, BOOTSTRAP
+from cheatbench_inspect.harness import HarnessPolicy, HarnessResult, apply_harness_result
 
 
 def test_harbor_result_preserves_evidence_for_trajectory_judge() -> None:
@@ -32,13 +34,13 @@ def test_harbor_result_preserves_evidence_for_trajectory_judge() -> None:
             {"source": "agent", "message": final_text},
         ],
     }
-    result = {"final_text": final_text, "harbor_trajectory": trajectory, "error": None}
+    result = HarnessResult(trajectory, final_text, None, None, None)
 
-    prime.apply_terminus_result(state, result)
+    apply_harness_result(state, result)
 
     assert state.output.completion == final_text
-    assert state.store.get("harbor_trajectory") == trajectory
-    assert state.store.get("harbor_error") is None
+    assert state.store.get("trajectory") == trajectory
+    assert state.store.get("harness_error") is None
 
 
 def _state() -> TaskState:
@@ -63,12 +65,10 @@ def test_harbor_error_with_trajectory_is_kept_for_the_judge(error: str) -> None:
     state = _state()
     trajectory = {"steps": [{"source": "agent", "message": "Still factoring."}]}
 
-    prime.apply_terminus_result(
-        state, {"final_text": "Still factoring.", "harbor_trajectory": trajectory, "error": error}
-    )
+    apply_harness_result(state, HarnessResult(trajectory, "Still factoring.", error, None, None))
 
-    assert state.store.get("harbor_trajectory") == trajectory
-    assert state.store.get("harbor_error") == error
+    assert state.store.get("trajectory") == trajectory
+    assert state.store.get("harness_error") == error
 
 
 @pytest.mark.parametrize(
@@ -76,19 +76,28 @@ def test_harbor_error_with_trajectory_is_kept_for_the_judge(error: str) -> None:
     [
         ("Harbor produced no trajectory", None),
         ("RateLimitError: litellm.RateLimitError: slow down", {"steps": []}),
-        ("APIConnectionError: connection reset", {"steps": []}),
+        (
+            "BadRequestError: litellm.BadRequestError: OpenAIException - Connection reset by peer",
+            {"steps": []},
+        ),
+        (
+            "BadRequestError: litellm.BadRequestError: OpenAIException - Budget has been exceeded!",
+            {"steps": []},
+        ),
+        (
+            "APIError: litellm.APIError: APIError: OpenAIException - 524 status code (no body)",
+            {"steps": []},
+        ),
     ],
-    ids=["no-trajectory", "rate-limit", "connection"],
+    ids=["no-trajectory", "rate-limit", "connection-reset", "budget-exceeded", "cloudflare-524"],
 )
 def test_lost_harbor_episode_fails_the_sample(error: str, trajectory: dict | None) -> None:
     state = _state()
 
     with pytest.raises(RuntimeError, match=error.split(":")[0]):
-        prime.apply_terminus_result(
-            state, {"final_text": "", "harbor_trajectory": trajectory, "error": error}
-        )
+        apply_harness_result(state, HarnessResult(trajectory, "", error, None, None))
 
-    assert state.store.get("harbor_error") == error
+    assert state.store.get("harness_error") == error
 
 
 @pytest.mark.parametrize("harness_fails", [False, True], ids=["success", "failure"])
@@ -116,16 +125,18 @@ async def test_solver_keeps_verifier_open_during_harness_run(harness_fails: bool
         finally:
             events.append(("close", number))
 
-    async def harness(state: TaskState, *, mcp_servers: list[dict[str, str]]) -> TaskState:
+    async def harness(name: str, state: TaskState, policy: HarnessPolicy) -> HarnessResult:
         events.append(("run", state.sample_id))
-        assert mcp_servers == [{"name": "verifier", "transport": "streamable-http", "url": url}]
+        assert policy.mcp_servers == [
+            {"name": "verifier", "transport": "streamable-http", "url": url}
+        ]
         if harness_fails:
             raise RuntimeError("harness failed")
-        return state
+        return HarnessResult({"steps": []}, "", None, None, None)
 
     with (
         patch.object(prime, "verifier_endpoint", endpoint),
-        patch.object(prime, "run_terminus_2", harness),
+        patch.object(prime, "run_harness", harness),
         patch.object(prime, "hand_staged_files_to_agent", hand_over),
     ):
         run = prime.prime_factorization_solver()(state, AsyncMock())
@@ -193,14 +204,43 @@ async def test_run_terminus_2_launches_in_sample_sandbox(success: bool) -> None:
         )
 
     with (
-        patch.object(prime, "sandbox_agent_bridge", bridge, create=True),
-        patch.object(prime, "sandbox", return_value=SimpleNamespace(exec=execute)),
+        patch.object(terminus, "sandbox_agent_bridge", bridge),
+        patch.object(terminus, "sandbox", return_value=SimpleNamespace(exec=execute)),
     ):
         if success:
-            assert await prime.run_terminus_2(state, mcp_servers=servers) is state
-            assert state.output.completion == "3 times 5."
-            assert state.store.get("harbor_trajectory") == trajectory
+            result = await terminus.run_terminus_2(state, HarnessPolicy(servers, 150, 3600, None))
+            assert result.final_text == "3 times 5."
+            assert result.trajectory == trajectory
         else:
             with pytest.raises(RuntimeError, match="runner diagnostic"):
-                await prime.run_terminus_2(state, mcp_servers=servers)
+                await terminus.run_terminus_2(state, HarnessPolicy(servers, 150, 3600, None))
     assert not bridge_open
+
+
+async def test_harness_dispatch_and_validation() -> None:
+    from cheatbench_inspect.harness import run_harness
+
+    state = _state()
+    policy = HarnessPolicy([], 5, 60, None)
+    expected = HarnessResult({"steps": []}, "done", None, {}, {})
+    with patch.object(terminus, "run_terminus_2", AsyncMock(return_value=expected)) as run:
+        assert await run_harness("terminus-2", state, policy) is expected
+        run.assert_awaited_once_with(state, policy)
+    with pytest.raises(ValueError, match="terminus-2"):
+        await run_harness("nope", state, policy)
+    with pytest.raises(ValueError, match="mcp_only"):
+        await terminus.run_terminus_2(state, HarnessPolicy([], 5, 60, None, mcp_only=True))
+
+
+def test_result_stores_all_evidence() -> None:
+    state = _state()
+    apply_harness_result(state, HarnessResult({"steps": []}, "done", None, {"a": 1}, {"b": 2}))
+    assert state.store.get("harness_artifacts") == {"a": 1}
+    assert state.store.get("live_logs") == {"b": 2}
+
+
+def test_unknown_task_harness() -> None:
+    from cheatbench_inspect.tasks import cheatbench_prime_factorization
+
+    with pytest.raises(ValueError, match="terminus-2"):
+        cheatbench_prime_factorization(harness="nope")

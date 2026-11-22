@@ -1,0 +1,180 @@
+{
+  "record": {
+    "messages": [
+      {
+        "_type": "SystemMessage",
+        "subtype": "init",
+        "data": {
+          "tools": [
+            "Bash"
+          ],
+          "mcp_servers": []
+        }
+      },
+      {
+        "_type": "AssistantMessage",
+        "content": [
+          {
+            "_type": "ThinkingBlock",
+            "thinking": " think "
+          },
+          {
+            "_type": "ThinkingBlock"
+          },
+          {
+            "_type": "RedactedThinkingBlock",
+            "data": "opaque"
+          },
+          {
+            "_type": "RedactedThinkingBlock",
+            "data": "openrouter.reasoning:eyJ0ZXh0IjogInByaXZhdGUgdGhvdWdodCIsICJ0eXBlIjogInJlYXNvbmluZy50ZXh0In0="
+          },
+          {
+            "_type": "TextBlock",
+            "text": " hello "
+          },
+          {
+            "_type": "ToolUseBlock",
+            "id": "a",
+            "name": "Bash",
+            "input": {
+              "command": "x"
+            }
+          },
+          {
+            "_type": "ToolUseBlock",
+            "id": "b",
+            "name": "Read",
+            "input": {}
+          }
+        ],
+        "usage": {
+          "input_tokens": 3,
+          "output_tokens": 2
+        }
+      },
+      {
+        "_type": "UserMessage",
+        "content": [
+          {
+            "_type": "ToolResultBlock",
+            "tool_use_id": "a",
+            "is_error": true,
+            "content": "failed"
+          },
+          {
+            "_type": "ToolResultBlock",
+            "tool_use_id": "b",
+            "content": [
+              {
+                "type": "image"
+              }
+            ]
+          },
+          {
+            "_type": "TextBlock",
+            "text": "continue"
+          }
+        ]
+      },
+      {
+        "_type": "ResultMessage",
+        "result": "done",
+        "usage": {
+          "input_tokens": 3,
+          "output_tokens": 2
+        },
+        "total_cost_usd": 0.1
+      }
+    ]
+  },
+  "trajectory": {
+    "schema_version": "ATIF-v1.8",
+    "agent": {
+      "name": "claude-sdk",
+      "version": "2.1.270",
+      "model_name": "claude-sonnet-5",
+      "extra": {
+        "tools": [
+          "Bash"
+        ],
+        "mcp_servers": []
+      }
+    },
+    "steps": [
+      {
+        "step_id": 1,
+        "source": "agent",
+        "model_name": "claude-sonnet-5",
+        "message": "hello",
+        "reasoning_content": "think\n\nprivate thought",
+        "tool_calls": [
+          {
+            "tool_call_id": "a",
+            "function_name": "Bash",
+            "arguments": {
+              "command": "x"
+            }
+          },
+          {
+            "tool_call_id": "b",
+            "function_name": "Read",
+            "arguments": {}
+          }
+        ],
+        "observation": {
+          "results": [
+            {
+              "source_call_id": "a",
+              "content": "failed",
+              "extra": {
+                "is_error": true
+              }
+            },
+            {
+              "source_call_id": "b",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "<image returned to the model, elided>"
+                }
+              ]
+            }
+          ]
+        },
+        "metrics": {
+          "prompt_tokens": 3,
+          "completion_tokens": 2,
+          "cached_tokens": 0
+        },
+        "llm_call_count": 1,
+        "extra": {
+          "thinking_blocks": 2,
+          "redacted_thinking_blocks": 2
+        }
+      },
+      {
+        "step_id": 2,
+        "source": "user",
+        "message": "continue"
+      }
+    ],
+    "final_metrics": {
+      "total_prompt_tokens": 3,
+      "total_completion_tokens": 2,
+      "total_cached_tokens": 0,
+      "total_cost_usd": 0.1,
+      "total_steps": 2,
+      "extra": {
+        "usage": {
+          "input_tokens": 3,
+          "output_tokens": 2
+        }
+      }
+    },
+    "extra": {
+      "final_text": "done"
+    }
+  },
+  "rendered": "[init] agent=claude-sdk version=2.1.270 model=claude-sonnet-5 tools=['Bash'] mcp_servers=[]\nTHINKING: think\n\nprivate thought\nASSISTANT: hello\n[0] TOOL_CALL Bash: command=x\n[1] TOOL_CALL Read: {}\n    -> RESULT[Bash] (ERROR): failed\n    -> RESULT[Read]: <image returned to the model, elided>\n    -> USER/SYSTEM[user]: continue\nFINAL MESSAGE: done"
+}

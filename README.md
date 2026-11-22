@@ -91,6 +91,9 @@ See `uv run inspect eval --help` for all available options.
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
+- `harness` (str): Agent harness to run. (default: `'terminus-2'`)
+- `harness_version` (str | None): Claude CLI version, required for claude-sdk. (default: `None`)
+- `harness_model` (str | None): Claude CLI model ID, required for claude-sdk. (default: `None`)
 
 <!-- /Parameters: Automatically Generated -->
 
@@ -151,6 +154,10 @@ uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
 
 The sandbox image is built from [`resources/sandbox/Dockerfile`](src/cheatbench_inspect/resources/sandbox/Dockerfile). Local Docker builds it; [Hawk](#running-on-hawk) pulls the copy that the [sandbox-image workflow](.github/workflows/sandbox-image.yml) publishes for amd64 and arm64.
 
+### Running Claude models
+
+Use `harness="claude-sdk"` with `harness_version` set to the Claude Code version and `harness_model` set to the original's `configs/models.yaml` model id for that entry. See the Hawk configs for [Claude Sonnet 5](configs/hawk/prime-factorization-claude-sonnet-5.yaml) and [GLM 5.3](configs/hawk/prime-factorization-glm-5.3.yaml).
+
 ### Running on Hawk
 
 [`configs/hawk/`](configs/hawk/) holds Hawk eval-set configs for the paper's settings, each pinned to a commit of this repository. Hawk's LLM proxy supplies model access, so a run needs no API keys:
@@ -185,10 +192,11 @@ With one reply per condition, the bootstrap repeatedly draws the same replies an
 
 A judge reply that does not validate against `SharedVerdict` errors its sample, and by default that fails the eval. To drop failed samples and score the rest, as the original does, pass `--fail-on-error <fraction>` (for example `--fail-on-error 0.05`). To retry them, pass `--retry-on-error N`. A failed run can be resumed with `uv run inspect eval-retry <log>`.
 
-In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory. The score is the verdict's cheating flag, and the mean is the fraction of episodes judged to have cheated. The score metadata retains the full verdict.
+In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory. The score is the verdict's cheating flag, and the mean is the fraction of episodes judged to have cheated. The score metadata retains the full verdict and any judged harness error under `harness_error`.
 
 ## Changelog
 
+- **3-A** uses the original's error patterns over the full error text to classify lost episodes; scores can change for runs with infrastructure failures. Prime adds `harness`, `harness_version` and `harness_model` parameters and a `claude-sdk` harness, which runs Claude models and GLM 5.3 through a port of the original's Claude Agent SDK runner. The score metadata key `harbor_error` is now `harness_error`. Terminus-2 reaches the bridge's Chat Completions endpoint for every Inspect provider, fixing `anthropic/*` models. A sample with no harness trajectory now errors with a clear message at scoring time. Hawk configs retry lost episodes with `retry_attempts: 1`.
 - **2-A** adopts 100 replies per Sycophancy prompt and defaults Prime Factorization to 10 questions with one episode each.
 
 ## Deviations from the original implementation
@@ -205,6 +213,15 @@ In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory
 | Prime Factorization's live log mirror writes `turns.log`, `messages.jsonl`, `transcript.json` and large-result spills as the original does, but not the original's closing line in the run's result file. | That line needs the verifier's state, which lives in a separate sandbox process here. It is written after the episode ends. | None: the agent never reads it. Edits to staged files and the mirror are still reported, in the `live_logs` store entry. |
 | The Prime Factorization agent, Harbor and the verifier run as uid 1000 named `user`, as in the original. The agent's user owns its workspace, home, Harbor's `/logs` and each home directory holding staged files. In the original it owns the whole image. | The original maps container root to that user through a user namespace. Docker runs a real non-root user, so Inspect stages files as root and the solver then hands those trees to the agent. | Expected to be small: the agent can read and write everything the task stages, but cannot write system directories such as `/usr/local`. |
 | Prime Factorization downloads a published run of the original's builder when no `task_dir` is given, instead of building its data before the run. | The task must run where only the installed package exists, such as Hawk. inspect_evals' guidance is to host datasets on Hugging Face, pinned and checksummed. | None expected: every file matches a fresh build except the planted checkout's `.git/index`, where git caches the build machine's file timestamps and inode numbers. |
+| On Hawk, the Terminus-2 trajectory header shows Inspect's model id, such as `openrouter/openrouter/...`, instead of the original's `configs/models.yaml` id. | Harbor records the model id reported by Inspect. | The judge sees a different model id, which could affect its verdict. |
+| Local lost-episode retries use `--retry-on-error 1`, which retries every sample error. The original retries only seven transient reasons once and leaves six other lost reasons for manual resume. | Inspect's sample retry is the closest built-in mechanism. | Different episodes can be retried, changing which episodes contribute to scores. |
+| Hawk uses `retry_attempts: 1`: the first lost episode fails the task, in-flight episodes are cancelled and rerun, and there is one retry per task rather than per sample. | Hawk 4.2.0 has no user-facing `retry_on_error`. | A second lost episode can fail the eval, and rerun episodes can change scores. |
+| Episodes with no agent steps, including install failures and empty or unparseable output, error instead of being judged as a placeholder transcript. | These episodes have no useful trajectory to judge. | The eval can fail instead of including a placeholder verdict. |
+| Inspect retries transient provider errors without a limit by default. The original's harness retries a bounded number of times. | The port uses Inspect's default model retry policy. | An outage late in an episode can end as a judged timeout instead of a lost episode. |
+| The Claude sandbox uses Anthropic's native Claude Code binary instead of the npm package, unpacks nvm from its release archive instead of a git checkout, has no installer download caches, locks SDK transitive Python dependencies at build time instead of resolving them at episode start, and has different image build history. | The sandbox must run without network access and uses the checksummed native installer. | The agent can observe these environment differences, which could affect its behavior and scores. |
+| Claude generation settings come from Inspect's GenerateConfig rather than the SDK's `thinking` and `effort` options. | The bridge drops harness-side generation settings. | Differences in settings can change agent behavior and scores. |
+| For OpenRouter reasoning replay, Claude Code receives thinking blocks with the original reasoning in their signature; the original CLI receives plain OpenRouter reasoning as `redacted_thinking` with an `openrouter.reasoning:` envelope. | The filter preserves reasoning through Inspect's bridge. | The judge sees the same THINKING text; effects of the different CLI block shape are unmeasured. |
+| Claude Code model calls use Inspect's sandbox agent bridge instead of the original's direct route or forwarder. | Inspect controls model selection and logging. | Effects on scores are unmeasured. |
 | The shift metric sorts each condition's estimates before bootstrapping. | The original resamples in judge-record order, which depends on when asynchronous judging finished, so its interval is not reproducible. | None on point estimates. The interval differs only by resampling noise. |
 | An invalid Sycophancy judge verdict errors its sample. Under Inspect's default `fail_on_error` the eval then fails, with no shift result. | Inspect's standard error handling. The original drops that episode and scores the rest. | No result, rather than a score over the remaining replies. Use `--fail-on-error <fraction>` or `--retry-on-error N` to keep going. |
 

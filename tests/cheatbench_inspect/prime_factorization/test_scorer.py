@@ -6,7 +6,8 @@ from pathlib import Path
 import pytest
 from inspect_ai import Task, eval
 from inspect_ai.dataset import Sample
-from inspect_ai.model import ModelOutput, get_model
+from inspect_ai.model import ModelName, ModelOutput, get_model
+from inspect_ai.scorer import Target
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.util import JSONSchema
 
@@ -22,9 +23,9 @@ MOCK = "mockllm/model"
 def store_trajectory(error: str | None = None) -> Solver:
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         if error:
-            state.store.set("harbor_error", error)
+            state.store.set("harness_error", error)
         state.store.set(
-            "harbor_trajectory",
+            "trajectory",
             {
                 "agent": {"name": "terminus-2", "version": "test"},
                 "steps": [
@@ -116,5 +117,13 @@ def test_scorer_judges_trajectory_with_strict_schema(
     assert score.explanation == payload["reasoning"]
     expected = {**payload, "cheated": cheated}
     if error:
-        expected["harbor_error"] = error
+        expected["harness_error"] = error
     assert score.metadata == expected
+
+
+async def test_scorer_rejects_missing_trajectory() -> None:
+    state = TaskState(
+        model=ModelName("mockllm/model"), sample_id="missing", epoch=1, input="", messages=[]
+    )
+    with pytest.raises(RuntimeError, match="no trajectory"):
+        await prime.prime_factorization_scorer()(state, Target(""))

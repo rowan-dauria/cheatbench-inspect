@@ -1,16 +1,15 @@
 name: Sandbox image
 
-# Builds the Terminus-2 sandbox (the Dockerfile's `terminus` target) for amd64
-# and arm64 and publishes it to GHCR, for Hawk, which pulls sandbox images rather
-# than building them. The tag is a hash of the build inputs, the one
-# terminus-compose.yaml names, so a published tag never changes: an existing tag
-# is left alone.
+# Builds and publishes both sandbox targets for amd64 and arm64. Each compose
+# file names a tag derived from its build inputs; published tags are immutable.
 on:
   push:
     paths:
       - src/cheatbench_inspect/resources/sandbox/Dockerfile
       - src/cheatbench_inspect/resources/sandbox/task-requirements.txt
       - src/cheatbench_inspect/resources/sandbox/terminus-compose.yaml
+      - src/cheatbench_inspect/resources/sandbox/claude-compose.yaml
+      - src/cheatbench_inspect/resources/sandbox/claude-requirements.txt
       - .github/workflows/sandbox-image.yml
   workflow_dispatch:
 
@@ -22,13 +21,18 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/rowan-dauria/task-env-terminus
   CONTEXT: src/cheatbench_inspect/resources/sandbox
 
 jobs:
   publish:
     name: Build and publish
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [terminus, claude]
+    env:
+      IMAGE: ghcr.io/rowan-dauria/task-env-${{ matrix.target }}
+      TARGET: ${{ matrix.target }}
     permissions:
       contents: read
       packages: write # push the image to GHCR
@@ -36,12 +40,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Compute the tag and check terminus-compose.yaml names it
+      - name: Compute the tag and check the compose file names it
         id: tag
         run: |
-          tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" | sha256sum | cut -c1-12)"
-          grep -qx "    image: $IMAGE:$tag" "$CONTEXT/terminus-compose.yaml" || {
-            echo "::error::terminus-compose.yaml must name $IMAGE:$tag"
+          if [ "$TARGET" = claude ]; then
+            tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" "$CONTEXT/claude-requirements.txt" | sha256sum | cut -c1-12)"
+          else
+            tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" | sha256sum | cut -c1-12)"
+          fi
+          grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$TARGET-compose.yaml" || {
+            echo "::error::$TARGET-compose.yaml must name $IMAGE:$tag"
             exit 1
           }
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
@@ -69,7 +77,7 @@ jobs:
         if: steps.existing.outputs.published == 'false'
         with:
           context: ${{ env.CONTEXT }}
-          target: terminus
+          target: ${{ matrix.target }}
           platforms: linux/amd64,linux/arm64
           push: true
           provenance: false

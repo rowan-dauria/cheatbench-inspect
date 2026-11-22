@@ -4,7 +4,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from cheatbench_inspect.container import BOOTSTRAP
+from inspect_ai.agent import sandbox_agent_bridge
+from inspect_ai.solver import TaskState
+from inspect_ai.util import sandbox
+
+from cheatbench_inspect.container import AGENT_ENV, AGENT_USER, BOOTSTRAP
+from cheatbench_inspect.harness import HarnessPolicy, HarnessResult
 
 _RESOURCES = Path(__file__).parent / "resources/terminus"
 TERMINUS_COMPOSE = _RESOURCES.parent / "sandbox/terminus-compose.yaml"
@@ -40,6 +45,7 @@ def prepare_harbor(
     mcp_servers: list[dict[str, str]],
     max_turns: int | None = None,
     observer: dict[str, Any] | None = None,
+    timeout_s: int = 3600,
 ) -> tuple[list[str], str]:
     """Return the sandbox command and the JSON document to send on its stdin.
 
@@ -55,6 +61,7 @@ def prepare_harbor(
             "api_base": api_base,
             "mcp_servers": mcp_servers,
             "max_turns": max_turns,
+            "timeout_s": timeout_s,
             "observer": {k: v for k, v in observer.items() if k != "code"} if observer else None,
         },
         "extension": (_RESOURCES / "image_extension.py").read_text(),
@@ -62,3 +69,33 @@ def prepare_harbor(
         "observer": observer["code"] if observer else None,
     }
     return ["/opt/terminus-runtime/.venv/bin/python", "-I", "-c", BOOTSTRAP], json.dumps(payload)
+
+
+async def run_terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResult:
+    """Run the pinned Harbor harness in the sample sandbox."""
+    if policy.mcp_only:
+        raise ValueError("Terminus-2 does not support mcp_only")
+    async with sandbox_agent_bridge() as bridge:
+        command, stdin = prepare_harbor(
+            sample_id=str(state.sample_id),
+            prompt=state.input_text,
+            model=str(state.model),
+            api_base=f"http://127.0.0.1:{bridge.port}/v1",
+            mcp_servers=policy.mcp_servers,
+            max_turns=policy.max_turns,
+            observer=policy.observer,
+            timeout_s=policy.timeout_s,
+        )
+        result = await sandbox().exec(
+            command, input=stdin, timeout=policy.timeout_s + 650, user=AGENT_USER, env=AGENT_ENV
+        )
+        if not result.success:
+            raise RuntimeError(result.stderr)
+        data = json.loads(result.stdout)
+        return HarnessResult(
+            trajectory=data["harbor_trajectory"],
+            final_text=data["final_text"],
+            error=data["error"],
+            artifacts=data.get("harbor_artifacts"),
+            live_logs=data.get("live_logs"),
+        )

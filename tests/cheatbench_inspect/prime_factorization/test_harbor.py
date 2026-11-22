@@ -25,7 +25,12 @@ STAGED = f"{REPO}/README.md"
 
 @pytest.mark.docker
 @pytest.mark.slow
-def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "model_name", ["anthropic/claude-test", "openrouter/deepseek/deepseek-v4-pro"]
+)
+def test_harbor_records_terminal_observation_and_verifier_url(
+    tmp_path: Path, model_name: str
+) -> None:
     draft = "Consider a draft {tool: verify_factors}."
     signature = "reasoning-details://[]"
     redacted = "opaque-reasoning-payload"
@@ -40,7 +45,7 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
                 command, stdin = prepare_harbor(
                     sample_id="15",
                     prompt=state.input_text,
-                    model="openai/gpt-4o",
+                    model=model_name,
                     api_base="http://127.0.0.1:13131/v1",
                     mcp_servers=[{"name": "verifier", "transport": "streamable-http", "url": url}],
                     max_turns=5,
@@ -69,6 +74,7 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
             assert "verify_factors" in turns
             assert "Your answer is accepted." in turns
             trajectory = result["harbor_trajectory"]
+            assert trajectory["agent"]["model_name"] == model_name
             steps = trajectory["steps"]
             assert url in json.dumps(steps)
             first_turn = next(step for step in steps if step["source"] == "agent")
