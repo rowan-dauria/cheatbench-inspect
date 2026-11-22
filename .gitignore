@@ -26,7 +26,6 @@ dist/
 .claude/settings.local.json
 AGENTS.local.md
 CLAUDE.md
-LOG.md
 STATUS.md
 
 # Eval / run output
