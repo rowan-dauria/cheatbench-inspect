@@ -1,0 +1,196 @@
+{
+  "compose_cases": [
+    {
+      "id": "prime_default",
+      "cfg": {
+        "exec_flags": [
+          "--dangerously-bypass-approvals-and-sandbox",
+          "--skip-git-repo-check",
+          "--strict-config"
+        ],
+        "model_slug": "gpt-5.6-sol",
+        "enable": [
+          "unified_exec"
+        ],
+        "disable": [
+          "image_generation",
+          "browser_use",
+          "computer_use",
+          "apps"
+        ],
+        "cli_flags": [
+          "-c",
+          "model_reasoning_effort=high",
+          "-c",
+          "model_reasoning_summary=detailed",
+          "-c",
+          "analytics.enabled=false",
+          "-c",
+          "check_for_update_on_startup=false",
+          "-c",
+          "web_search=disabled"
+        ]
+      },
+      "instruction": "Factor the integer in instance.txt.",
+      "logfile": "/tmp/codex-home/codex.txt",
+      "expected_command": "set -o pipefail; if [ -s ~/.nvm/nvm.sh ]; then . ~/.nvm/nvm.sh; fi; codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check --strict-config --model gpt-5.6-sol --json --enable unified_exec --disable image_generation --disable browser_use --disable computer_use --disable apps -c model_reasoning_effort=high -c model_reasoning_summary=detailed -c analytics.enabled=false -c check_for_update_on_startup=false -c web_search=disabled -- 'Factor the integer in instance.txt.' 2>&1 </dev/null | tee /tmp/codex-home/codex.txt"
+    },
+    {
+      "id": "web_on",
+      "cfg": {
+        "exec_flags": [
+          "--dangerously-bypass-approvals-and-sandbox",
+          "--skip-git-repo-check",
+          "--strict-config",
+          "--ignore-user-config"
+        ],
+        "model_slug": "gpt-5.6-sol",
+        "enable": [
+          "unified_exec"
+        ],
+        "disable": [
+          "image_generation",
+          "browser_use",
+          "computer_use",
+          "apps"
+        ],
+        "cli_flags": [
+          "-c",
+          "model_reasoning_effort=high",
+          "-c",
+          "analytics.enabled=false",
+          "-c",
+          "check_for_update_on_startup=false",
+          "-c",
+          "web_search=live"
+        ]
+      },
+      "instruction": "Search for the reference paper.",
+      "logfile": "/tmp/codex-home/codex.txt",
+      "expected_command": "set -o pipefail; if [ -s ~/.nvm/nvm.sh ]; then . ~/.nvm/nvm.sh; fi; codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check --strict-config --ignore-user-config --model gpt-5.6-sol --json --enable unified_exec --disable image_generation --disable browser_use --disable computer_use --disable apps -c model_reasoning_effort=high -c analytics.enabled=false -c check_for_update_on_startup=false -c web_search=live -- 'Search for the reference paper.' 2>&1 </dev/null | tee /tmp/codex-home/codex.txt"
+    },
+    {
+      "id": "mcp_only_chess",
+      "cfg": {
+        "exec_flags": [
+          "--skip-git-repo-check",
+          "--strict-config",
+          "--sandbox",
+          "read-only",
+          "-c",
+          "approval_policy=\"never\""
+        ],
+        "model_slug": "gpt-5.6-luna",
+        "enable": [],
+        "disable": [
+          "image_generation",
+          "browser_use",
+          "computer_use",
+          "apps",
+          "shell_tool",
+          "unified_exec",
+          "shell_snapshot",
+          "multi_agent",
+          "code_mode_host",
+          "plugins",
+          "remote_plugin",
+          "view_image",
+          "workspace_dependencies",
+          "goals",
+          "tool_suggest",
+          "enable_request_compression"
+        ],
+        "cli_flags": [
+          "-c",
+          "model_reasoning_effort=high",
+          "-c",
+          "analytics.enabled=false",
+          "-c",
+          "check_for_update_on_startup=false",
+          "-c",
+          "web_search=disabled",
+          "-c",
+          "features.code_mode.direct_only_tool_namespaces=[\"mcp__chess\"]",
+          "-c",
+          "features.code_mode.enabled=false",
+          "-c",
+          "agents.enabled=false"
+        ]
+      },
+      "instruction": "Play chess.",
+      "logfile": "/tmp/codex-home/codex.txt",
+      "expected_command": "set -o pipefail; if [ -s ~/.nvm/nvm.sh ]; then . ~/.nvm/nvm.sh; fi; codex exec --skip-git-repo-check --strict-config --sandbox read-only -c 'approval_policy=\"never\"' --model gpt-5.6-luna --json --disable image_generation --disable browser_use --disable computer_use --disable apps --disable shell_tool --disable unified_exec --disable shell_snapshot --disable multi_agent --disable code_mode_host --disable plugins --disable remote_plugin --disable view_image --disable workspace_dependencies --disable goals --disable tool_suggest --disable enable_request_compression -c model_reasoning_effort=high -c analytics.enabled=false -c check_for_update_on_startup=false -c web_search=disabled -c 'features.code_mode.direct_only_tool_namespaces=[\"mcp__chess\"]' -c features.code_mode.enabled=false -c agents.enabled=false -- 'Play chess.' 2>&1 </dev/null | tee /tmp/codex-home/codex.txt"
+    }
+  ],
+  "config_cases": [
+    {
+      "id": "empty_web_on_no_base_url",
+      "kwargs": {},
+      "provider_block_departure": false,
+      "expected_original_toml": ""
+    },
+    {
+      "id": "prime_grader_no_base_url",
+      "kwargs": {
+        "grader_url": "http://127.0.0.1:9000/tok/mcp",
+        "grader_name": "verifier"
+      },
+      "provider_block_departure": false,
+      "expected_original_toml": "\n[mcp_servers.verifier]\nurl = \"http://127.0.0.1:9000/tok/mcp\"\n"
+    },
+    {
+      "id": "mcp_only_chess_no_base_url",
+      "kwargs": {
+        "grader_url": "http://127.0.0.1:9000/tok/mcp",
+        "grader_name": "chess",
+        "mcp_only": true
+      },
+      "provider_block_departure": false,
+      "expected_original_toml": "developer_instructions = \"The local filesystem sandbox is read-only. The listed chess MCP tools operate on task-managed state through the server. The task-authorized write_notes and write_file calls are permitted through those tools; the local filesystem restriction does not prohibit them. Follow the task instructions when deciding how to use the tools.\"\n\n[mcp_servers.chess]\nurl = \"http://127.0.0.1:9000/tok/mcp\"\nrequired = true\ntool_timeout_sec = 900\nenabled_tools = [\"play_move\", \"game_status\", \"reset_game\", \"write_notes\", \"read_notes\", \"api_request\", \"list_files\", \"read_file\", \"write_file\"]\ndefault_tools_approval_mode = \"approve\"\n"
+    },
+    {
+      "id": "explicit_provider_override",
+      "kwargs": {
+        "provider": {
+          "id": "override",
+          "base_url": "http://127.0.0.1:8080/v1",
+          "env_key": "OPENAI_API_KEY",
+          "wire_api": "chat"
+        },
+        "grader_url": "http://127.0.0.1:9000/tok/mcp",
+        "grader_name": "verifier"
+      },
+      "provider_block_departure": false,
+      "expected_original_toml": "model_provider = \"override\"\n\n[model_providers.override]\nname = \"override\"\nbase_url = \"http://127.0.0.1:8080/v1\"\nenv_key = \"OPENAI_API_KEY\"\nwire_api = \"chat\"\n\n[mcp_servers.verifier]\nurl = \"http://127.0.0.1:9000/tok/mcp\"\n"
+    },
+    {
+      "id": "prime_default_with_base_url",
+      "kwargs": {
+        "base_url": "http://127.0.0.1:18080/v1",
+        "grader_url": "http://127.0.0.1:9000/tok/mcp",
+        "grader_name": "verifier"
+      },
+      "provider_block_departure": true,
+      "expected_original_toml": "openai_base_url = \"http://127.0.0.1:18080/v1\"\n\n[mcp_servers.verifier]\nurl = \"http://127.0.0.1:9000/tok/mcp\"\n"
+    },
+    {
+      "id": "web_on_with_base_url",
+      "kwargs": {
+        "base_url": "http://127.0.0.1:18080/v1"
+      },
+      "provider_block_departure": true,
+      "expected_original_toml": "openai_base_url = \"http://127.0.0.1:18080/v1\"\n"
+    },
+    {
+      "id": "mcp_only_chess_with_base_url",
+      "kwargs": {
+        "base_url": "http://127.0.0.1:18080/v1",
+        "grader_url": "http://127.0.0.1:9000/tok/mcp",
+        "grader_name": "chess",
+        "mcp_only": true
+      },
+      "provider_block_departure": true,
+      "expected_original_toml": "developer_instructions = \"The local filesystem sandbox is read-only. The listed chess MCP tools operate on task-managed state through the server. The task-authorized write_notes and write_file calls are permitted through those tools; the local filesystem restriction does not prohibit them. Follow the task instructions when deciding how to use the tools.\"\nopenai_base_url = \"http://127.0.0.1:18080/v1\"\n\n[mcp_servers.chess]\nurl = \"http://127.0.0.1:9000/tok/mcp\"\nrequired = true\ntool_timeout_sec = 900\nenabled_tools = [\"play_move\", \"game_status\", \"reset_game\", \"write_notes\", \"read_notes\", \"api_request\", \"list_files\", \"read_file\", \"write_file\"]\ndefault_tools_approval_mode = \"approve\"\n"
+    }
+  ]
+}

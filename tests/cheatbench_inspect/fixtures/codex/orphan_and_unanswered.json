@@ -1,0 +1,276 @@
+{
+  "input_record": {
+    "id": "orphan-killed",
+    "model": "openai/gpt-5.6-luna",
+    "session_id": "sess-orphan-1",
+    "messages": [
+      {
+        "timestamp": "2026-11-22T20:00:00.000Z",
+        "ordinal": 0,
+        "type": "session_meta",
+        "payload": {
+          "session_id": "sess-orphan-1",
+          "id": "sess-orphan-1",
+          "timestamp": "2026-11-22T20:00:00.000Z",
+          "cwd": "/workspace",
+          "source": "exec",
+          "thread_source": "user",
+          "model_provider": "bridge",
+          "base_instructions": {
+            "text": "You are Codex, an agent based on GPT-5."
+          },
+          "history_mode": "paginated",
+          "context_window": {
+            "window_id": "win-sess-orphan-1"
+          },
+          "originator": "codex_exec",
+          "cli_version": "0.154.0"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:00.100Z",
+        "ordinal": 1,
+        "type": "turn_context",
+        "payload": {
+          "turn_id": "turn-orphan-1",
+          "root_turn_id": "turn-orphan-1",
+          "cwd": "/workspace",
+          "workspace_roots": [
+            "/workspace"
+          ],
+          "current_date": "2026-11-22",
+          "timezone": "Etc/UTC",
+          "approval_policy": "never",
+          "approvals_reviewer": "user",
+          "sandbox_policy": {
+            "type": "danger-full-access"
+          },
+          "permission_profile": {
+            "type": "disabled"
+          },
+          "model": "gpt-5.6-luna",
+          "personality": "pragmatic",
+          "collaboration_mode": {
+            "mode": "default",
+            "settings": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "high",
+              "developer_instructions": null
+            }
+          },
+          "summary": "auto"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:00.200Z",
+        "ordinal": 2,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "call_id": "call_from_earlier_tail",
+          "output": "orphan result text"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:00.250Z",
+        "ordinal": 3,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "call_id": null,
+          "output": null
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:01.000Z",
+        "ordinal": 4,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "call_id": "call_answered",
+          "name": "exec",
+          "input": "text(\"ok\");"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:01.100Z",
+        "ordinal": 5,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "call_id": "call_answered",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "ok\n"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:01.200Z",
+        "ordinal": 6,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": null
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:02.000Z",
+        "ordinal": 7,
+        "type": "response_item",
+        "payload": {
+          "type": "reasoning",
+          "summary": [
+            {
+              "type": "summary_text",
+              "text": "Starting slow command."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:02.050Z",
+        "ordinal": 8,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "call_id": "call_killed_mid_tool",
+          "name": "exec",
+          "input": "await tools.exec_command({cmd:\"sleep 9999\"});"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T20:00:02.100Z",
+        "ordinal": 9,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "total_token_usage": {
+              "input_tokens": 250,
+              "output_tokens": 30
+            },
+            "last_token_usage": null
+          }
+        }
+      }
+    ]
+  },
+  "cli_version": "0.154.0",
+  "cli_model": "openai/gpt-5.6-luna",
+  "expected_trajectory": {
+    "schema_version": "ATIF-v1.8",
+    "session_id": "sess-orphan-1",
+    "agent": {
+      "name": "codex",
+      "version": "0.154.0",
+      "model_name": "gpt-5.6-luna",
+      "extra": {
+        "originator": "codex_exec",
+        "cwd": "/workspace"
+      }
+    },
+    "steps": [
+      {
+        "step_id": 1,
+        "timestamp": "2026-11-22T20:00:00.200Z",
+        "source": "agent",
+        "message": "",
+        "observation": {
+          "results": [
+            {
+              "content": "orphan result text"
+            }
+          ]
+        }
+      },
+      {
+        "step_id": 2,
+        "timestamp": "2026-11-22T20:00:00.250Z",
+        "source": "agent",
+        "message": "",
+        "observation": {
+          "results": [
+            {}
+          ]
+        }
+      },
+      {
+        "step_id": 3,
+        "timestamp": "2026-11-22T20:00:01.000Z",
+        "source": "agent",
+        "model_name": "gpt-5.6-luna",
+        "message": "",
+        "tool_calls": [
+          {
+            "tool_call_id": "call_answered",
+            "function_name": "exec",
+            "arguments": {
+              "input": "text(\"ok\");"
+            }
+          }
+        ],
+        "observation": {
+          "results": [
+            {
+              "source_call_id": "call_answered",
+              "content": "ok\n"
+            }
+          ]
+        },
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_1",
+          "codex_turn_id": "turn-orphan-1",
+          "tool_call_details": {
+            "call_answered": {
+              "raw_arguments": "text(\"ok\");",
+              "item_type": "custom_tool_call"
+            }
+          }
+        }
+      },
+      {
+        "step_id": 4,
+        "timestamp": "2026-11-22T20:00:02.050Z",
+        "source": "agent",
+        "model_name": "gpt-5.6-luna",
+        "message": "",
+        "reasoning_content": "Starting slow command.",
+        "tool_calls": [
+          {
+            "tool_call_id": "call_killed_mid_tool",
+            "function_name": "exec",
+            "arguments": {
+              "input": "await tools.exec_command({cmd:\"sleep 9999\"});"
+            }
+          }
+        ],
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_2",
+          "codex_turn_id": "turn-orphan-1",
+          "tool_call_details": {
+            "call_killed_mid_tool": {
+              "raw_arguments": "await tools.exec_command({cmd:\"sleep 9999\"});",
+              "item_type": "custom_tool_call"
+            }
+          }
+        }
+      }
+    ],
+    "final_metrics": {
+      "total_prompt_tokens": 250,
+      "total_completion_tokens": 30,
+      "total_steps": 4,
+      "extra": {
+        "reasoning_output_tokens": null,
+        "total_tokens": null,
+        "last_token_usage": null
+      }
+    }
+  },
+  "expected_rendered": "[init] agent=codex version=0.154.0 model=gpt-5.6-luna originator=codex_exec cwd=/workspace\n    -> RESULT[tool]: orphan result text\n    -> RESULT[tool]: None\n[0] TOOL_CALL exec: input=text(\"ok\");\n    -> RESULT[exec]: ok\n\nTHINKING: Starting slow command.\n[1] TOOL_CALL exec: input=await tools.exec_command({cmd:\"sleep 9999\"});"
+}

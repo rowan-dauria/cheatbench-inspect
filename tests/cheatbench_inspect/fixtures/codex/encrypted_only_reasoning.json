@@ -1,0 +1,289 @@
+{
+  "input_record": {
+    "id": "enc-only",
+    "model": "openai/gpt-5.6-luna",
+    "session_id": "01a2051d-d602-7442-821f-9395fc0aa379",
+    "final_text": "smoke-ok-4721",
+    "messages": [
+      {
+        "timestamp": "2026-11-22T21:16:11.138Z",
+        "ordinal": 0,
+        "type": "session_meta",
+        "payload": {
+          "session_id": "01a2051d-d602-7442-821f-9395fc0aa379",
+          "id": "01a2051d-d602-7442-821f-9395fc0aa379",
+          "timestamp": "2026-11-22T21:16:11.138Z",
+          "cwd": "/workspace",
+          "source": "exec",
+          "thread_source": "user",
+          "model_provider": "bridge",
+          "base_instructions": {
+            "text": "You are Codex, an agent based on GPT-5."
+          },
+          "history_mode": "paginated",
+          "context_window": {
+            "window_id": "win-01a2051d-d602-7442-821f-9395fc0aa379"
+          },
+          "originator": "codex_exec",
+          "cli_version": "0.154.0"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:11.172Z",
+        "ordinal": 1,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_started",
+          "turn_id": "turn-enc-1"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:11.195Z",
+        "ordinal": 2,
+        "type": "turn_context",
+        "payload": {
+          "turn_id": "turn-enc-1",
+          "root_turn_id": "turn-enc-1",
+          "cwd": "/workspace",
+          "workspace_roots": [
+            "/workspace"
+          ],
+          "current_date": "2026-11-22",
+          "timezone": "Etc/UTC",
+          "approval_policy": "never",
+          "approvals_reviewer": "user",
+          "sandbox_policy": {
+            "type": "danger-full-access"
+          },
+          "permission_profile": {
+            "type": "disabled"
+          },
+          "model": "openai/gpt-5.6-luna",
+          "personality": "pragmatic",
+          "collaboration_mode": {
+            "mode": "default",
+            "settings": {
+              "model": "openai/gpt-5.6-luna",
+              "reasoning_effort": "high",
+              "developer_instructions": null
+            }
+          },
+          "summary": "auto"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:11.205Z",
+        "ordinal": 3,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "Echo smoke-ok-4721."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:12.345Z",
+        "ordinal": 4,
+        "type": "response_item",
+        "payload": {
+          "type": "reasoning",
+          "id": "rs_enc_only_1",
+          "summary": [],
+          "content": null,
+          "encrypted_content": "gAAAAABrAxRY_ENCRYPTED_ONLY_BLOB_NEVER_RENDERED=="
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:12.348Z",
+        "ordinal": 5,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Running the command now."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:12.350Z",
+        "ordinal": 6,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "total_token_usage": {
+              "input_tokens": 0,
+              "cached_input_tokens": 0,
+              "output_tokens": 20
+            },
+            "last_token_usage": {
+              "input_tokens": 0,
+              "cached_input_tokens": 0,
+              "output_tokens": 20
+            }
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:13.001Z",
+        "ordinal": 7,
+        "type": "response_item",
+        "payload": {
+          "type": "reasoning",
+          "id": "rs_sum_kept",
+          "summary": [
+            {
+              "type": "summary_text",
+              "text": "Summary before encrypted block."
+            }
+          ],
+          "content": null,
+          "encrypted_content": "gAAAAABrKeep1=="
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:13.002Z",
+        "ordinal": 8,
+        "type": "response_item",
+        "payload": {
+          "type": "reasoning",
+          "id": "rs_enc_after_sum",
+          "summary": [],
+          "content": null,
+          "encrypted_content": "gAAAAABrEmptyAfterSummary=="
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:13.005Z",
+        "ordinal": 9,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "smoke-ok-4721"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:13.010Z",
+        "ordinal": 10,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "total_token_usage": {
+              "input_tokens": 500,
+              "cached_input_tokens": 0,
+              "output_tokens": 35,
+              "reasoning_output_tokens": 10,
+              "total_tokens": 535
+            },
+            "last_token_usage": {
+              "input_tokens": 500,
+              "cached_input_tokens": 0,
+              "output_tokens": 15,
+              "reasoning_output_tokens": 10,
+              "total_tokens": 515
+            }
+          }
+        }
+      }
+    ]
+  },
+  "cli_version": "0.154.0",
+  "cli_model": "openai/gpt-5.6-luna",
+  "expected_trajectory": {
+    "schema_version": "ATIF-v1.8",
+    "session_id": "01a2051d-d602-7442-821f-9395fc0aa379",
+    "agent": {
+      "name": "codex",
+      "version": "0.154.0",
+      "model_name": "openai/gpt-5.6-luna",
+      "extra": {
+        "originator": "codex_exec",
+        "cwd": "/workspace"
+      }
+    },
+    "steps": [
+      {
+        "step_id": 1,
+        "timestamp": "2026-11-22T21:16:11.205Z",
+        "source": "user",
+        "message": "Echo smoke-ok-4721."
+      },
+      {
+        "step_id": 2,
+        "timestamp": "2026-11-22T21:16:12.348Z",
+        "source": "agent",
+        "model_name": "openai/gpt-5.6-luna",
+        "message": "Running the command now.",
+        "metrics": {
+          "completion_tokens": 20,
+          "extra": {
+            "reasoning_output_tokens": null,
+            "total_tokens": null
+          }
+        },
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_1",
+          "codex_turn_id": "turn-enc-1"
+        }
+      },
+      {
+        "step_id": 3,
+        "timestamp": "2026-11-22T21:16:13.005Z",
+        "source": "agent",
+        "model_name": "openai/gpt-5.6-luna",
+        "message": "smoke-ok-4721",
+        "reasoning_content": "Summary before encrypted block.",
+        "metrics": {
+          "prompt_tokens": 500,
+          "completion_tokens": 15,
+          "extra": {
+            "reasoning_output_tokens": 10,
+            "total_tokens": 515
+          }
+        },
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_2",
+          "codex_turn_id": "turn-enc-1"
+        }
+      }
+    ],
+    "final_metrics": {
+      "total_prompt_tokens": 500,
+      "total_completion_tokens": 35,
+      "total_steps": 3,
+      "extra": {
+        "reasoning_output_tokens": 10,
+        "total_tokens": 535,
+        "last_token_usage": {
+          "input_tokens": 500,
+          "cached_input_tokens": 0,
+          "output_tokens": 15,
+          "reasoning_output_tokens": 10,
+          "total_tokens": 515
+        }
+      }
+    },
+    "extra": {
+      "final_text": "smoke-ok-4721"
+    }
+  },
+  "expected_rendered": "[init] agent=codex version=0.154.0 model=openai/gpt-5.6-luna originator=codex_exec cwd=/workspace\n    -> USER/SYSTEM[user]: Echo smoke-ok-4721.\nASSISTANT: Running the command now.\nTHINKING: Summary before encrypted block.\nASSISTANT: smoke-ok-4721\nFINAL MESSAGE: smoke-ok-4721"
+}

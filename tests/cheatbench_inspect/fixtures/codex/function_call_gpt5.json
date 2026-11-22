@@ -1,0 +1,403 @@
+{
+  "input_record": {
+    "id": "fc-gpt5",
+    "model": "openai/gpt-5.6-sol",
+    "cost_usd": 0.015,
+    "messages": [
+      {
+        "timestamp": "2026-11-22T18:00:00.000Z",
+        "ordinal": 0,
+        "type": "session_meta",
+        "payload": {
+          "session_id": "sess-fc-1",
+          "id": "sess-fc-1",
+          "timestamp": "2026-11-22T18:00:00.000Z",
+          "cwd": "/workspace",
+          "source": "exec",
+          "thread_source": "user",
+          "model_provider": "bridge",
+          "base_instructions": {
+            "text": "You are Codex, an agent based on GPT-5."
+          },
+          "history_mode": "paginated",
+          "context_window": {
+            "window_id": "win-sess-fc-1"
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:00.050Z",
+        "ordinal": 1,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "last_token_usage": {
+              "input_tokens": 1,
+              "output_tokens": 1
+            }
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:00.100Z",
+        "ordinal": 2,
+        "type": "turn_context",
+        "payload": {
+          "turn_id": "turn-fc-ctx",
+          "root_turn_id": "turn-fc-ctx",
+          "cwd": "/workspace",
+          "workspace_roots": [
+            "/workspace"
+          ],
+          "current_date": "2026-11-22",
+          "timezone": "Etc/UTC",
+          "approval_policy": "never",
+          "approvals_reviewer": "user",
+          "sandbox_policy": {
+            "type": "danger-full-access"
+          },
+          "permission_profile": {
+            "type": "disabled"
+          },
+          "model": "gpt-5.6-sol",
+          "personality": "pragmatic",
+          "collaboration_mode": {
+            "mode": "default",
+            "settings": {
+              "model": "gpt-5.6-sol",
+              "reasoning_effort": "high",
+              "developer_instructions": null
+            }
+          },
+          "summary": "auto"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:00.200Z",
+        "ordinal": 3,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "Inspect the directory."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.000Z",
+        "ordinal": 4,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "call_id": "fc_1",
+          "name": "shell",
+          "arguments": "{\"workdir\": \"/workspace\", \"command\": \"ls -la\"}",
+          "status": "completed"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.100Z",
+        "ordinal": 5,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "call_id": "fc_1",
+          "output": "{\"output\": \"total 4\\n-rw-r--r-- 1 user user 12 data.txt\\n\", \"metadata\": {\"exit_code\": 0, \"duration_seconds\": 0.1}}"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.200Z",
+        "ordinal": 6,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "call_id": "fc_2",
+          "name": "verify_factors",
+          "arguments": "[3, 5]"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.250Z",
+        "ordinal": 7,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "call_id": "fc_2",
+          "output": "{\"correct\": true, \"score\": 1}"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.300Z",
+        "ordinal": 8,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "call_id": "fc_3",
+          "name": "noop",
+          "arguments": null
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.350Z",
+        "ordinal": 9,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "call_id": "fc_3",
+          "output": "{}"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.400Z",
+        "ordinal": 10,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "call_id": "fc_4",
+          "name": "plain_tool",
+          "arguments": "{\"k\": \"v\"}"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.450Z",
+        "ordinal": 11,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "call_id": "fc_4",
+          "output": "plain stdout"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.500Z",
+        "ordinal": 12,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "call_id": "fc_5",
+          "name": "scalar_tool",
+          "arguments": "{\"n\": 1}"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.550Z",
+        "ordinal": 13,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "call_id": "fc_5",
+          "output": "42"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:01.600Z",
+        "ordinal": 14,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "total_token_usage": {
+              "input_tokens": 400,
+              "cached_input_tokens": 50,
+              "output_tokens": 60,
+              "reasoning_output_tokens": 10,
+              "total_tokens": 460
+            },
+            "last_token_usage": {
+              "input_tokens": 400,
+              "cached_input_tokens": 50,
+              "output_tokens": 60,
+              "reasoning_output_tokens": 10,
+              "total_tokens": 460
+            }
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T18:00:02.000Z",
+        "ordinal": 15,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "<answer>15</answer>"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "cli_version": "0.152.0",
+  "cli_model": "openai/gpt-5.6-sol",
+  "expected_trajectory": {
+    "schema_version": "ATIF-v1.8",
+    "session_id": "sess-fc-1",
+    "agent": {
+      "name": "codex",
+      "version": "0.152.0",
+      "model_name": "gpt-5.6-sol",
+      "extra": {
+        "cwd": "/workspace"
+      }
+    },
+    "steps": [
+      {
+        "step_id": 1,
+        "timestamp": "2026-11-22T18:00:00.200Z",
+        "source": "user",
+        "message": "Inspect the directory."
+      },
+      {
+        "step_id": 2,
+        "timestamp": "2026-11-22T18:00:01.000Z",
+        "source": "agent",
+        "model_name": "gpt-5.6-sol",
+        "message": "",
+        "tool_calls": [
+          {
+            "tool_call_id": "fc_1",
+            "function_name": "shell",
+            "arguments": {
+              "workdir": "/workspace",
+              "command": "ls -la"
+            }
+          },
+          {
+            "tool_call_id": "fc_2",
+            "function_name": "verify_factors",
+            "arguments": {
+              "value": [
+                3,
+                5
+              ]
+            }
+          },
+          {
+            "tool_call_id": "fc_3",
+            "function_name": "noop",
+            "arguments": {}
+          },
+          {
+            "tool_call_id": "fc_4",
+            "function_name": "plain_tool",
+            "arguments": {
+              "k": "v"
+            }
+          },
+          {
+            "tool_call_id": "fc_5",
+            "function_name": "scalar_tool",
+            "arguments": {
+              "n": 1
+            }
+          }
+        ],
+        "observation": {
+          "results": [
+            {
+              "source_call_id": "fc_1",
+              "content": "total 4\n-rw-r--r-- 1 user user 12 data.txt\n"
+            },
+            {
+              "source_call_id": "fc_2",
+              "content": "{\"correct\": true, \"score\": 1}"
+            },
+            {
+              "source_call_id": "fc_3"
+            },
+            {
+              "source_call_id": "fc_4",
+              "content": "plain stdout"
+            },
+            {
+              "source_call_id": "fc_5",
+              "content": "42"
+            }
+          ]
+        },
+        "metrics": {
+          "prompt_tokens": 400,
+          "completion_tokens": 60,
+          "cached_tokens": 50,
+          "extra": {
+            "reasoning_output_tokens": 10,
+            "total_tokens": 460
+          }
+        },
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_1",
+          "codex_turn_id": "turn-fc-ctx",
+          "tool_call_details": {
+            "fc_1": {
+              "metadata": {
+                "exit_code": 0,
+                "duration_seconds": 0.1
+              },
+              "raw_arguments": "{\"workdir\": \"/workspace\", \"command\": \"ls -la\"}",
+              "item_type": "function_call",
+              "status": "completed"
+            },
+            "fc_2": {
+              "raw_arguments": "[3, 5]",
+              "item_type": "function_call"
+            },
+            "fc_3": {
+              "item_type": "function_call"
+            },
+            "fc_4": {
+              "raw_arguments": "{\"k\": \"v\"}",
+              "item_type": "function_call"
+            },
+            "fc_5": {
+              "raw_arguments": "{\"n\": 1}",
+              "item_type": "function_call"
+            }
+          }
+        }
+      },
+      {
+        "step_id": 3,
+        "timestamp": "2026-11-22T18:00:02.000Z",
+        "source": "agent",
+        "model_name": "gpt-5.6-sol",
+        "message": "<answer>15</answer>",
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_2",
+          "codex_turn_id": "turn-fc-ctx"
+        }
+      }
+    ],
+    "final_metrics": {
+      "total_prompt_tokens": 400,
+      "total_completion_tokens": 60,
+      "total_cached_tokens": 50,
+      "total_cost_usd": 0.015,
+      "total_steps": 3,
+      "extra": {
+        "reasoning_output_tokens": 10,
+        "total_tokens": 460,
+        "last_token_usage": {
+          "input_tokens": 400,
+          "cached_input_tokens": 50,
+          "output_tokens": 60,
+          "reasoning_output_tokens": 10,
+          "total_tokens": 460
+        }
+      }
+    },
+    "extra": {
+      "final_text": "<answer>15</answer>"
+    }
+  },
+  "expected_rendered": "[init] agent=codex version=0.152.0 model=gpt-5.6-sol cwd=/workspace\n    -> USER/SYSTEM[user]: Inspect the directory.\n[0] TOOL_CALL shell: command=ls -la  workdir=/workspace\n[1] TOOL_CALL verify_factors: value=[3, 5]\n[2] TOOL_CALL noop: {}\n[3] TOOL_CALL plain_tool: k=v\n[4] TOOL_CALL scalar_tool: n=1\n    -> RESULT[shell]: total 4\n-rw-r--r-- 1 user user 12 data.txt\n\n    -> RESULT[verify_factors]: {\"correct\": true, \"score\": 1}\n    -> RESULT[noop]: None\n    -> RESULT[plain_tool]: plain stdout\n    -> RESULT[scalar_tool]: 42\nASSISTANT: <answer>15</answer>\nFINAL MESSAGE: <answer>15</answer>"
+}

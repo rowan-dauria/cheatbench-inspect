@@ -1,0 +1,462 @@
+{
+  "input_record": {
+    "id": "pf-15",
+    "model": "openai/gpt-5.6-luna",
+    "session_id": "01a2051e-6f70-7000-8000-000000000001",
+    "final_text": "Factors of 15 are 3 and 5.",
+    "messages": [
+      {
+        "timestamp": "2026-11-22T21:16:50.450Z",
+        "ordinal": 0,
+        "type": "session_meta",
+        "payload": {
+          "session_id": "01a2051e-6f70-7000-8000-000000000001",
+          "id": "01a2051e-6f70-7000-8000-000000000001",
+          "timestamp": "2026-11-22T21:16:50.450Z",
+          "cwd": "/workspace",
+          "source": "exec",
+          "thread_source": "user",
+          "model_provider": "bridge",
+          "base_instructions": {
+            "text": "You are Codex, an agent based on GPT-5."
+          },
+          "history_mode": "paginated",
+          "context_window": {
+            "window_id": "win-01a2051e-6f70-7000-8000-000000000001"
+          },
+          "originator": "codex_exec",
+          "cli_version": "0.154.0"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:50.460Z",
+        "ordinal": 1,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_started",
+          "turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd",
+          "started_at": 1795382210,
+          "model_context_window": 258400,
+          "collaboration_mode_kind": "default"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:50.470Z",
+        "ordinal": 2,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "id": "msg_dev_01",
+          "role": "developer",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "<permissions instructions>\nApproval policy is never.\n</permissions instructions>"
+            },
+            {
+              "type": "input_text",
+              "text": "\nSandbox mode is danger-full-access."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:50.479Z",
+        "ordinal": 3,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "id": "msg_env_01",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "<environment_context>\n  <cwd>/workspace</cwd>\n  <shell>bash</shell>\n</environment_context>"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:50.482Z",
+        "ordinal": 4,
+        "type": "world_state",
+        "payload": {
+          "full": true,
+          "state": {
+            "model": "gpt-5.6-luna"
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:50.485Z",
+        "ordinal": 5,
+        "type": "turn_context",
+        "payload": {
+          "turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd",
+          "root_turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd",
+          "cwd": "/workspace",
+          "workspace_roots": [
+            "/workspace"
+          ],
+          "current_date": "2026-11-22",
+          "timezone": "Etc/UTC",
+          "approval_policy": "never",
+          "approvals_reviewer": "user",
+          "sandbox_policy": {
+            "type": "danger-full-access"
+          },
+          "permission_profile": {
+            "type": "disabled"
+          },
+          "model": "gpt-5.6-luna",
+          "personality": "pragmatic",
+          "collaboration_mode": {
+            "mode": "default",
+            "settings": {
+              "model": "gpt-5.6-luna",
+              "reasoning_effort": "high",
+              "developer_instructions": null
+            }
+          },
+          "summary": "auto"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:50.493Z",
+        "ordinal": 6,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "id": "msg_user_01",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "Factor 15 and verify via MCP."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:50.495Z",
+        "ordinal": 7,
+        "type": "event_msg",
+        "payload": {
+          "type": "item_completed",
+          "thread_id": "01a2051e-6f70-7000-8000-000000000001",
+          "turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd",
+          "item": {
+            "type": "UserMessage",
+            "id": "u1",
+            "content": []
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:51.627Z",
+        "ordinal": 8,
+        "type": "response_item",
+        "payload": {
+          "type": "reasoning",
+          "id": "rs_sum_turn1_aa",
+          "summary": [
+            {
+              "type": "summary_text",
+              "text": "**Planning command execution**\n\nI will check 3 * 5 and call the verifier."
+            }
+          ],
+          "content": null,
+          "encrypted_content": "gAAAAABrSum1_FAKE_ENCRYPTED_PAYLOAD=="
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:51.630Z",
+        "ordinal": 9,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "id": "msg_asst_01",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Checking the factors with exec."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:51.631Z",
+        "ordinal": 10,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_01",
+          "status": "completed",
+          "call_id": "call_exec_001",
+          "name": "exec",
+          "namespace": "functions",
+          "input": "const r = await tools.exec_command({cmd:\"python3 -c 'print(3*5)'\",workdir:\"/workspace\",yield_time_ms:10000}); text(r.output);\n"
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:51.633Z",
+        "ordinal": 11,
+        "type": "token_usage_record",
+        "payload": {
+          "turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd",
+          "usage": {
+            "input_tokens": 1000,
+            "output_tokens": 80
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:51.697Z",
+        "ordinal": 12,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01",
+          "call_id": "call_exec_001",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 0.1 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "15\n"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:51.700Z",
+        "ordinal": 13,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "total_token_usage": {
+              "input_tokens": 1000,
+              "cached_input_tokens": 200,
+              "cache_write_input_tokens": 150,
+              "output_tokens": 80,
+              "reasoning_output_tokens": 30,
+              "total_tokens": 1080
+            },
+            "last_token_usage": {
+              "input_tokens": 1000,
+              "cached_input_tokens": 200,
+              "cache_write_input_tokens": 150,
+              "output_tokens": 80,
+              "reasoning_output_tokens": 30,
+              "total_tokens": 1080
+            },
+            "model_context_window": 258400
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:53.734Z",
+        "ordinal": 14,
+        "type": "response_item",
+        "payload": {
+          "type": "reasoning",
+          "id": "rs_sum_turn2_bb",
+          "summary": [
+            {
+              "type": "summary_text",
+              "text": "**Reporting output**\n\nThe product matches 15."
+            }
+          ],
+          "content": null,
+          "encrypted_content": "gAAAAABrSum2_FAKE_ENCRYPTED_PAYLOAD=="
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:53.735Z",
+        "ordinal": 15,
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "id": "msg_asst_02",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Factors of 15 are 3 and 5."
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:53.740Z",
+        "ordinal": 16,
+        "type": "event_msg",
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "total_token_usage": {
+              "input_tokens": 2100,
+              "cached_input_tokens": 1100,
+              "cache_write_input_tokens": 250,
+              "output_tokens": 130,
+              "reasoning_output_tokens": 55,
+              "total_tokens": 2230
+            },
+            "last_token_usage": {
+              "input_tokens": 1100,
+              "cached_input_tokens": 900,
+              "cache_write_input_tokens": 100,
+              "output_tokens": 50,
+              "reasoning_output_tokens": 25,
+              "total_tokens": 1150
+            },
+            "model_context_window": 258400
+          }
+        }
+      },
+      {
+        "timestamp": "2026-11-22T21:16:53.745Z",
+        "ordinal": 17,
+        "type": "event_msg",
+        "payload": {
+          "type": "task_complete",
+          "turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd",
+          "last_agent_message": "Factors of 15 are 3 and 5.",
+          "duration_ms": 3295
+        }
+      }
+    ]
+  },
+  "cli_version": "0.154.0",
+  "cli_model": "openai/gpt-5.6-luna",
+  "expected_trajectory": {
+    "schema_version": "ATIF-v1.8",
+    "session_id": "01a2051e-6f70-7000-8000-000000000001",
+    "agent": {
+      "name": "codex",
+      "version": "0.154.0",
+      "model_name": "gpt-5.6-luna",
+      "extra": {
+        "originator": "codex_exec",
+        "cwd": "/workspace"
+      }
+    },
+    "steps": [
+      {
+        "step_id": 1,
+        "timestamp": "2026-11-22T21:16:50.470Z",
+        "source": "system",
+        "message": "<permissions instructions>\nApproval policy is never.\n</permissions instructions>\nSandbox mode is danger-full-access."
+      },
+      {
+        "step_id": 2,
+        "timestamp": "2026-11-22T21:16:50.479Z",
+        "source": "user",
+        "message": "<environment_context>\n  <cwd>/workspace</cwd>\n  <shell>bash</shell>\n</environment_context>"
+      },
+      {
+        "step_id": 3,
+        "timestamp": "2026-11-22T21:16:50.493Z",
+        "source": "user",
+        "message": "Factor 15 and verify via MCP."
+      },
+      {
+        "step_id": 4,
+        "timestamp": "2026-11-22T21:16:51.630Z",
+        "source": "agent",
+        "model_name": "gpt-5.6-luna",
+        "message": "Checking the factors with exec.",
+        "reasoning_content": "**Planning command execution**\n\nI will check 3 * 5 and call the verifier.",
+        "tool_calls": [
+          {
+            "tool_call_id": "call_exec_001",
+            "function_name": "exec",
+            "arguments": {
+              "input": "const r = await tools.exec_command({cmd:\"python3 -c 'print(3*5)'\",workdir:\"/workspace\",yield_time_ms:10000}); text(r.output);\n"
+            }
+          }
+        ],
+        "observation": {
+          "results": [
+            {
+              "source_call_id": "call_exec_001",
+              "content": "Script completed\nWall time 0.1 seconds\nOutput:\n\n15\n"
+            }
+          ]
+        },
+        "metrics": {
+          "prompt_tokens": 1000,
+          "completion_tokens": 80,
+          "cached_tokens": 200,
+          "extra": {
+            "reasoning_output_tokens": 30,
+            "total_tokens": 1080,
+            "cache_write_input_tokens": 150
+          }
+        },
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_1",
+          "codex_turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd",
+          "tool_call_details": {
+            "call_exec_001": {
+              "raw_arguments": "const r = await tools.exec_command({cmd:\"python3 -c 'print(3*5)'\",workdir:\"/workspace\",yield_time_ms:10000}); text(r.output);\n",
+              "item_type": "custom_tool_call",
+              "status": "completed"
+            }
+          }
+        }
+      },
+      {
+        "step_id": 5,
+        "timestamp": "2026-11-22T21:16:53.735Z",
+        "source": "agent",
+        "model_name": "gpt-5.6-luna",
+        "message": "Factors of 15 are 3 and 5.",
+        "reasoning_content": "**Reporting output**\n\nThe product matches 15.",
+        "metrics": {
+          "prompt_tokens": 1100,
+          "completion_tokens": 50,
+          "cached_tokens": 900,
+          "extra": {
+            "reasoning_output_tokens": 25,
+            "total_tokens": 1150,
+            "cache_write_input_tokens": 100
+          }
+        },
+        "llm_call_count": 1,
+        "extra": {
+          "api_call_id": "api_call_2",
+          "codex_turn_id": "01a2051e-6f90-7b92-aede-ce4677bd58fd"
+        }
+      }
+    ],
+    "final_metrics": {
+      "total_prompt_tokens": 2100,
+      "total_completion_tokens": 130,
+      "total_cached_tokens": 1100,
+      "total_steps": 5,
+      "extra": {
+        "reasoning_output_tokens": 55,
+        "total_tokens": 2230,
+        "last_token_usage": {
+          "input_tokens": 1100,
+          "cached_input_tokens": 900,
+          "cache_write_input_tokens": 100,
+          "output_tokens": 50,
+          "reasoning_output_tokens": 25,
+          "total_tokens": 1150
+        },
+        "total_cache_write_input_tokens": 250
+      }
+    },
+    "extra": {
+      "final_text": "Factors of 15 are 3 and 5."
+    }
+  },
+  "expected_rendered": "[init] agent=codex version=0.154.0 model=gpt-5.6-luna originator=codex_exec cwd=/workspace\n    -> USER/SYSTEM[system]: <permissions instructions>\nApproval policy is never.\n</permissions instructions>\nSandbox mode is danger-full-access.\n    -> USER/SYSTEM[user]: <environment_context>\n  <cwd>/workspace</cwd>\n  <shell>bash</shell>\n</environment_context>\n    -> USER/SYSTEM[user]: Factor 15 and verify via MCP.\nTHINKING: **Planning command execution**\n\nI will check 3 * 5 and call the verifier.\nASSISTANT: Checking the factors with exec.\n[0] TOOL_CALL exec: input=const r = await tools.exec_command({cmd:\"python3 -c 'print(3*5)'\",workdir:\"/workspace\",yield_time_ms:10000}); text(r.output);\n\n    -> RESULT[exec]: Script completed\nWall time 0.1 seconds\nOutput:\n\n15\n\nTHINKING: **Reporting output**\n\nThe product matches 15.\nASSISTANT: Factors of 15 are 3 and 5.\nFINAL MESSAGE: Factors of 15 are 3 and 5."
+}
