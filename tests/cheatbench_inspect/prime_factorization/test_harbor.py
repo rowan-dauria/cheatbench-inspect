@@ -147,3 +147,78 @@ def test_harbor_records_terminal_observation_and_verifier_url(tmp_path: Path) ->
     assert log.status == "success", log.error
     assert log.samples
     assert log.samples[0].error is None
+
+
+HANDOFF_CHECK = """
+import asyncio, json, sys
+from harbor.agents.terminus_2.terminus_2 import Terminus2
+extension = {}
+exec(compile(sys.stdin.read(), "image_extension.py", "exec"), extension)
+think = '<think signature="reasoning-details://x" redacted="true">\\n<summary>s</summary>\\nblob\\n</think>'
+prompts = []
+
+class LLM:
+    async def call(self, prompt, **kwargs):
+        prompts.append(prompt)
+
+class Chat:
+    _messages = [{"role": "user", "content": "Task."}]
+    messages = property(lambda self: self._messages)
+
+async def harbor_summarize(self, chat, instruction, session):
+    # The calls and history Harbor builds around summarization replies.
+    await self._llm.call(prompt="Summary from Previous Agent:\\n" + think + "Did X.")
+    chat._messages = [
+        chat._messages[0],
+        {"role": "user", "content": "Summary:\\n" + think + "Did X."},
+        {"role": "assistant", "content": think + "Questions?"},
+    ]
+    return "Here are the answers.\\n\\n" + think + "Answers.", ["ref"]
+
+Terminus2._summarize = harbor_summarize
+agent = object.__new__(extension["ImageTerminus2"])
+agent._llm = LLM()
+chat = Chat()
+handoff, refs = asyncio.run(agent._summarize(chat, "Task.", None))
+print(json.dumps({"handoff": handoff, "refs": refs, "prompts": prompts,
+                  "messages": chat.messages, "restored": "call" not in vars(agent._llm)
+                  or agent._llm.call.__name__ == "call"}))
+"""
+
+
+@pytest.mark.docker
+@pytest.mark.slow
+def test_summarization_prompts_drop_bridge_reasoning(tmp_path: Path) -> None:
+    extension = (
+        Path(__file__).parents[3] / "src/cheatbench_inspect/resources/terminus/image_extension.py"
+    )
+
+    @solver
+    def check() -> Solver:
+        async def solve(state: TaskState, generate: Generate) -> TaskState:
+            process = await sandbox().exec(
+                ["/opt/terminus-runtime/.venv/bin/python", "-I", "-c", HANDOFF_CHECK],
+                input=extension.read_text(),
+                timeout=120,
+            )
+            assert process.success, process.stderr
+            result = json.loads(process.stdout.splitlines()[-1])
+            assert result["prompts"] == ["Summary from Previous Agent:\nDid X."]
+            assert result["handoff"] == "Here are the answers.\n\nAnswers."
+            assert result["refs"] == ["ref"]
+            user, assistant = result["messages"][1:]
+            assert user["content"] == "Summary:\nDid X."
+            # The bridge replays an assistant message's block as signed reasoning.
+            assert assistant["content"].startswith("<think")
+            assert result["restored"]
+            return state
+
+        return solve
+
+    task = Task(
+        dataset=[Sample(input="")], solver=check(), sandbox=("docker", str(TERMINUS_COMPOSE))
+    )
+    [log] = eval(task, model=get_model("mockllm/model"), log_dir=str(tmp_path))
+    assert log.status == "success", log.error
+    assert log.samples
+    assert log.samples[0].error is None

@@ -238,6 +238,7 @@ class TerminusLLMClient(LiteLLM):
 
 
 _THINK_BLOCK = re.compile(r"\s*<think(?P<attrs>\s[^>]*)?>(?P<body>.*?)</think>", re.DOTALL)
+_ANY_THINK_BLOCK = re.compile(r"<think(?:\s[^>]*)?>.*?</think>\s*", re.DOTALL)
 _SUMMARY = re.compile(r"\s*<summary>(?P<text>.*?)</summary>", re.DOTALL)
 
 
@@ -259,6 +260,11 @@ def _split_bridge_reasoning(content: str) -> tuple[str, str]:
         if body := body.strip():
             reasoning.append(body)
     return content[end:], "\n\n".join(reasoning)
+
+
+def _without_bridge_reasoning(text):
+    """Remove Inspect reasoning blocks that Harbor copied into a prompt's text."""
+    return _ANY_THINK_BLOCK.sub("", text) if isinstance(text, str) else text
 
 
 class ImageChat(Chat):
@@ -382,6 +388,28 @@ class ImageTerminus2(Terminus2):
             return await super()._query_llm(*args, **kwargs)
         finally:
             self._llm._byte_overflow_pending = False
+
+    async def _summarize(self, chat, original_instruction, session):
+        # Harbor copies summarization replies into user prompts: the summary into
+        # the questions prompt, the questions into the answers prompt, and the
+        # answers into the handoff. Through Inspect's bridge those replies start
+        # with <think> blocks; the original's replies carry reasoning in a
+        # separate field, so its prompts hold only the visible text. Assistant
+        # messages keep their blocks, which the bridge replays as reasoning.
+        call = self._llm.call
+
+        async def call_without_reasoning(prompt, **kwargs):
+            return await call(prompt=_without_bridge_reasoning(prompt), **kwargs)
+
+        self._llm.call = call_without_reasoning
+        try:
+            handoff, refs = await super()._summarize(chat, original_instruction, session)
+        finally:
+            self._llm.call = call
+        for message in chat.messages:
+            if message.get("role") == "user":
+                message["content"] = _without_bridge_reasoning(message["content"])
+        return _without_bridge_reasoning(handoff), refs
 
     def _unwind_messages_to_free_tokens(self, chat, target_free_tokens=4000):
         if not getattr(self._llm, "_byte_overflow_pending", False):
