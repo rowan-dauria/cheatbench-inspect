@@ -4,10 +4,11 @@
 # The agent runs in Terminus-2, the port's only harness. The paper ran DeepSeek V4
 # Pro in DeepSeek Harness, so this run tests the port rather than reproducing the
 # paper's row. The other settings follow the original README's study command: Q4-Q13
-# with one episode each (the task's defaults), and the GPT-6 Sol judge at high effort
-# (the task's default grader, which Hawk's proxy serves natively). The agent model
-# runs at high reasoning effort through OpenRouter, as in the pinned
-# deepseek-v4-pro-litellm entry.
+# with one episode each (the task's defaults), and the GPT-6 Sol judge at high effort.
+# Both models go through OpenRouter. The agent model runs at high reasoning effort, as
+# in the pinned deepseek-v4-pro-litellm entry. The judge uses Chat Completions, as the
+# original's does, because Hawk's proxy refuses this account its direct OpenAI route
+# ("403 - Shared provider credentials are not available to this user").
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/prime_factorization/README.md
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L180-L201
 #
@@ -30,9 +31,9 @@ models:
 model_roles:
   grader:
     package: openai
-    name: openai
+    name: openrouter
     items:
-      - name: gpt-6-sol
+      - name: openrouter/openai/gpt-6-sol
         args:
           config:
             reasoning_effort: high
