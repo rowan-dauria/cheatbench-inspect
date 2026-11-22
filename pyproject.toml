@@ -14,7 +14,10 @@ requires-python = ">=3.12"
 dependencies = [
     "inspect_ai>=0.3.262",
     "inspect-evals-utils[huggingface]==0.3.0",
-    "inspect-swe==0.3.0",
+    # Hawk's runner pins an inspect-ai version compatible with inspect-swe 0.2.72.
+    "inspect-swe==0.2.72",
+    # inspect-ai imports acp.helpers, which was removed in 1.0.
+    "agent-client-protocol<1",
 ]
 
 [project.urls]
