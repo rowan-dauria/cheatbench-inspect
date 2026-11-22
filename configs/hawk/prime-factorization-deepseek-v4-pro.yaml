@@ -12,7 +12,7 @@
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L180-L201
 #
 # With no task_dir, the task downloads the original builder's output from Hugging
-# Face. The sandbox is the published multi-arch image that compose-terminus.yaml names.
+# Face. The sandbox is the published multi-arch image that terminus-compose.yaml names.
 name: cheatbench-prime-factorization-deepseek-v4-pro
 tasks:
   - package: git+https://github.com/rowan-dauria/cheatbench-inspect@6cf41c2cd808036479210991f02ba2970618abfc

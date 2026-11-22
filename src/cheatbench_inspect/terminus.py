@@ -7,7 +7,7 @@ from typing import Any
 from cheatbench_inspect.container import BOOTSTRAP
 
 _RESOURCES = Path(__file__).parent / "resources/terminus"
-TERMINUS_COMPOSE = _RESOURCES.parent / "sandbox/compose-terminus.yaml"
+TERMINUS_COMPOSE = _RESOURCES.parent / "sandbox/terminus-compose.yaml"
 
 # The episode receives trusted code on stdin. Harbor may print diagnostics during
 # imports and inference, so reserve stdout for the completed result.

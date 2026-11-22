@@ -160,7 +160,7 @@ hawk eval-set run configs/hawk/sycophancy-deepseek-v4-pro.yaml
 hawk eval-set run configs/hawk/prime-factorization-deepseek-v4-pro.yaml
 ```
 
-Hawk pulls sandbox images instead of building them: it drops compose `build:` keys and rejects `extends:`. `compose-terminus.yaml` therefore names the published image, tagged with a hash of the Dockerfile and its requirements file. A change to either needs a new tag in `compose-terminus.yaml`, which `test_sandbox_image.py` checks, and the workflow then publishes it.
+Hawk pulls sandbox images instead of building them: it drops compose `build:` keys and rejects `extends:`, and treats a file as compose only if its name ends in `compose.yaml`. `terminus-compose.yaml` therefore names the published image, tagged with a hash of the Dockerfile and its requirements file. A change to either needs a new tag in `terminus-compose.yaml`, which `test_sandbox_image.py` checks, and the workflow then publishes it.
 
 ## Scoring
 

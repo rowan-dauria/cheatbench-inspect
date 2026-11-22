@@ -3,14 +3,14 @@ name: Sandbox image
 # Builds the Terminus-2 sandbox (the Dockerfile's `terminus` target) for amd64
 # and arm64 and publishes it to GHCR, for Hawk, which pulls sandbox images rather
 # than building them. The tag is a hash of the build inputs, the one
-# compose-terminus.yaml names, so a published tag never changes: an existing tag
+# terminus-compose.yaml names, so a published tag never changes: an existing tag
 # is left alone.
 on:
   push:
     paths:
       - src/cheatbench_inspect/resources/sandbox/Dockerfile
       - src/cheatbench_inspect/resources/sandbox/task-requirements.txt
-      - src/cheatbench_inspect/resources/sandbox/compose-terminus.yaml
+      - src/cheatbench_inspect/resources/sandbox/terminus-compose.yaml
       - .github/workflows/sandbox-image.yml
   workflow_dispatch:
 
@@ -36,12 +36,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Compute the tag and check compose-terminus.yaml names it
+      - name: Compute the tag and check terminus-compose.yaml names it
         id: tag
         run: |
           tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" | sha256sum | cut -c1-12)"
-          grep -qx "    image: $IMAGE:$tag" "$CONTEXT/compose-terminus.yaml" || {
-            echo "::error::compose-terminus.yaml must name $IMAGE:$tag"
+          grep -qx "    image: $IMAGE:$tag" "$CONTEXT/terminus-compose.yaml" || {
+            echo "::error::terminus-compose.yaml must name $IMAGE:$tag"
             exit 1
           }
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
