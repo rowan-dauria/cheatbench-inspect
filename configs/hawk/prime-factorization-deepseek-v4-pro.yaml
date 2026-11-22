@@ -15,7 +15,7 @@
 # Face. The sandbox is the published multi-arch image that terminus-compose.yaml names.
 name: cheatbench-prime-factorization-deepseek-v4-pro
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@6cf41c2cd808036479210991f02ba2970618abfc
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3b9cbdd91e8255da72af7f51d08295b3777b5435
     name: cheatbench_inspect
     items:
       - name: cheatbench_prime_factorization
