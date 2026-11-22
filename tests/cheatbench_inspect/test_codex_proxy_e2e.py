@@ -261,7 +261,7 @@ def test_codex_responses_reasoning_and_content_internal_e2e(tmp_path: Path) -> N
     from inspect_swe._codex_cli.agentbinary import codex_cli_binary_source
     from inspect_swe._util.agentbinary import ensure_agent_binary_installed
 
-    compose = _RESOURCES / "sandbox/compose.yaml"
+    compose = _RESOURCES / "sandbox/codex-compose.yaml"
     subprocess.run(["docker", "compose", "-f", str(compose), "build"], check=True)
 
     turns = _scripted_turns()

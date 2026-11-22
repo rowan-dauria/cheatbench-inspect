@@ -1,9 +1,10 @@
 services:
   default:
-    # Placeholder tag targeting the Dockerfile `task` stage for local builds.
-    # Sub-step 4b will add a Dockerfile `codex` stage, publish the image, and
-    # pin its tag.
-    image: ghcr.io/rowan-dauria/task-env-codex:local-dev
+    # Local Docker builds this from the Dockerfile and tags it with this name.
+    # Hawk ignores `build:` and pulls the image, which the sandbox-image
+    # workflow publishes for linux/amd64 and linux/arm64. The tag is the image
+    # build inputs' hash, which a test checks against the files.
+    image: ghcr.io/rowan-dauria/task-env-codex:5f38b4b0ae74
     build:
       context: .
       target: task

@@ -720,3 +720,45 @@ async def test_prime_solver_passes_codex_grader_modules_without_verifier_endpoin
     assert "GraderServer" in policy.grader_modules["grader_server"]
     assert "make_state_verifier" in policy.grader_modules["verifier"]
     assert "verify_factors" in policy.grader_modules["grader"]
+
+
+@pytest.mark.parametrize(
+    ("model_config", "active_config", "effort", "summary"),
+    [
+        (
+            GenerateConfig(reasoning_effort="low", reasoning_summary="concise"),
+            GenerateConfig(),
+            "low",
+            "concise",
+        ),
+        (
+            GenerateConfig(),
+            GenerateConfig(reasoning_effort="medium", reasoning_summary="detailed"),
+            "medium",
+            "detailed",
+        ),
+        (
+            GenerateConfig(reasoning_effort="low", reasoning_summary="concise"),
+            GenerateConfig(reasoning_effort="medium", reasoning_summary="detailed"),
+            "medium",
+            "detailed",
+        ),
+        (GenerateConfig(), GenerateConfig(), "high", None),
+    ],
+)
+def test_effective_reasoning_flags(
+    monkeypatch: pytest.MonkeyPatch,
+    model_config: GenerateConfig,
+    active_config: GenerateConfig,
+    effort: str,
+    summary: str | None,
+) -> None:
+    monkeypatch.setattr(codex, "active_generate_config", lambda: active_config)
+    model = _fake_responses_model(uses_responses=True, config=model_config)
+    flags = codex.cli_flags(
+        HarnessPolicy([], 10, 120, None), generate_config=codex._effective_generate_config(model)
+    )
+    assert f"model_reasoning_effort={effort}" in flags
+    assert [flag for flag in flags if flag.startswith("model_reasoning_summary=")] == (
+        [f"model_reasoning_summary={summary}"] if summary else []
+    )

@@ -10,6 +10,9 @@ from typing import Any
 
 from inspect_ai.agent import sandbox_agent_bridge
 from inspect_ai.model import GenerateConfig, Model, get_model
+from inspect_ai.model._generate_config import (
+    active_generate_config,  # inspect-evals-lint: ignore[private_api_imports] -- No public accessor for the active eval config.
+)
 from inspect_ai.solver import TaskState
 from inspect_ai.util import sandbox
 
@@ -322,14 +325,21 @@ def _payload(
     }
 
 
+def _effective_generate_config(model: Model) -> GenerateConfig:
+    """Match the bridge merge for the active model."""
+    return model.config.merge(active_generate_config())
+
+
 async def run_codex(
     state: TaskState, policy: HarnessPolicy, *, cli_version: str, cli_model: str
 ) -> HarnessResult:
     """Install and run the pinned Codex CLI, returning a classified HarnessResult."""
     model = get_model()  # inspect-evals-lint: ignore[IEBP001] -- Binds the active model.
     validate_responses_route(model)
+    # The bridge merges the active eval config over the active model config.
+    generate_config = _effective_generate_config(model)
     # Validate policy and flags before installing the CLI or starting the bridge.
-    cli_flags(policy, generate_config=model.config)
+    cli_flags(policy, generate_config=generate_config)
     await _install_cli(cli_version)
     slug = model_slug(cli_model)
     async with sandbox_agent_bridge(
@@ -340,7 +350,7 @@ async def run_codex(
         result = await sandbox().exec(
             ["python3", "-I", "-c", BOOTSTRAP],
             input=json.dumps(
-                _payload(state, policy, cli_model, bridge.port, generate_config=model.config)
+                _payload(state, policy, cli_model, bridge.port, generate_config=generate_config)
             ),
             timeout=policy.timeout_s + 650,
             user=AGENT_USER,
