@@ -88,11 +88,15 @@ async def run_claude_sdk(
 ) -> dict[str, Any]:
     """Run the pinned SDK and return its native episode record."""
     await _install_cli(cli_version)
-    async with sandbox_agent_bridge(
-        model_aliases={cli_model: get_model()},
-        filter=anthropic_reasoning_filter,
-        forward_generation_config=False,
-    ) as bridge:
+    async with (
+        sandbox_agent_bridge(
+            model_aliases={
+                cli_model: get_model()  # inspect-evals-lint: ignore[IEBP001] -- Harness execution binds the active model.
+            },
+            filter=anthropic_reasoning_filter,
+            forward_generation_config=False,
+        ) as bridge
+    ):
         result = await sandbox().exec(
             ["python3", "-I", "-c", BOOTSTRAP],
             input=json.dumps(_payload(state, policy, cli_model, bridge.port)),

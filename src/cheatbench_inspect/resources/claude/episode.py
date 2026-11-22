@@ -498,7 +498,9 @@ def main() -> None:
                 if modules.get(name):
                     module = types.ModuleType(f"{package.__name__}.{name}")
                     sys.modules[module.__name__] = module
-                    exec(modules[name], module.__dict__)
+                    exec(
+                        modules[name], module.__dict__
+                    )  # inspect-evals-lint: ignore[IESC002] -- Trusted bundled module sources execute inside the sandbox.
                     loaded[name] = module
             staged = task.get("staged") or {}
             if "grader" in loaded:
