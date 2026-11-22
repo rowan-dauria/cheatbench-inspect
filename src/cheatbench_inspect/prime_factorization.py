@@ -8,9 +8,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from inspect_ai.agent import sandbox_agent_bridge
 from inspect_ai.dataset import Dataset, Sample, json_dataset
-from inspect_ai.model import GenerateConfig, ModelOutput, ResponseSchema, get_model
+from inspect_ai.model import GenerateConfig, ResponseSchema, get_model
 from inspect_ai.scorer import Score, Scorer, Target, mean, scorer
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.tool import Tool, ToolDef, ToolError, tool
@@ -25,14 +24,13 @@ from cheatbench_inspect.container import (
     BOOTSTRAP,
     hand_staged_files_to_agent,
 )
+from cheatbench_inspect.harness import HarnessPolicy, apply_harness_result, run_harness
 from cheatbench_inspect.judge import build_judge_prompt, render_trajectory
-from cheatbench_inspect.lost_episodes import is_lost_episode
 from cheatbench_inspect.resources.prime_factorization.judge_schema import (
     EXTRA_CONTEXT,
     PrimeFactorVerdict,
 )
 from cheatbench_inspect.resources.prime_factorization.verifier import make_verifier
-from cheatbench_inspect.terminus import prepare_harbor
 
 # The original builder's output, hosted as a Hugging Face dataset and pinned by
 # commit and checksum. scripts/prime_factorization_dataset.py publishes it.
@@ -145,19 +143,6 @@ def verify_factors(number: int) -> Tool:
 # exists, and drops episodes the harness lost to provider or transport failures.
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/judge.py#L156-L179
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/errors.py#L362-L503
-def apply_terminus_result(state: TaskState, result: dict[str, Any]) -> None:
-    state.output = ModelOutput.from_content(model=str(state.model), content=result["final_text"])
-    state.store.set("harbor_trajectory", result["harbor_trajectory"])
-    if result.get("harbor_artifacts"):
-        state.store.set("harbor_artifacts", result["harbor_artifacts"])
-    if result.get("live_logs"):
-        state.store.set("live_logs", result["live_logs"])
-    if error := result.get("error"):
-        state.store.set("harbor_error", error)
-        if result["harbor_trajectory"] is None or is_lost_episode(error):
-            raise RuntimeError(error)
-
-
 # The bundled Python modules and episode parameters arrive on stdin, as in CheatBench.
 # Only the generated loopback URL needs to cross back out of the sandbox.
 _START_VERIFIER = """
@@ -234,40 +219,25 @@ def live_log_observer(
     }
 
 
-async def run_terminus_2(state: TaskState, *, mcp_servers: list[dict[str, str]]) -> TaskState:
-    """Run the pinned Harbor harness against this episode's sandbox."""
-    async with sandbox_agent_bridge() as bridge:
-        command, stdin = prepare_harbor(
-            sample_id=str(state.sample_id),
-            prompt=state.input_text,
-            model=str(state.model),
-            api_base=f"http://127.0.0.1:{bridge.port}/v1",
-            mcp_servers=mcp_servers,
-            max_turns=MAX_TURNS,
-            observer=live_log_observer(
-                str(state.sample_id),
-                state.metadata.get("live_logs"),
-                state.metadata.get("staged_files", []),
-            ),
-        )
-
-        result = await sandbox().exec(
-            command, input=stdin, timeout=4250, user=AGENT_USER, env=AGENT_ENV
-        )
-        if not result.success:
-            raise RuntimeError(result.stderr)
-        apply_terminus_result(state, json.loads(result.stdout))
-        return state
-
-
 @solver
-def prime_factorization_solver() -> Solver:
+def prime_factorization_solver(harness: str = "terminus-2") -> Solver:
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         number = state.metadata["number"]
         await hand_staged_files_to_agent(state.metadata["staged_files"])
         async with verifier_endpoint(number) as url:
             servers = [{"name": "verifier", "transport": "streamable-http", "url": url}]
-            return await run_terminus_2(state, mcp_servers=servers)
+            policy = HarnessPolicy(
+                mcp_servers=servers,
+                max_turns=MAX_TURNS,
+                timeout_s=3600,
+                observer=live_log_observer(
+                    str(state.sample_id),
+                    state.metadata.get("live_logs"),
+                    state.metadata.get("staged_files", []),
+                ),
+            )
+            apply_harness_result(state, await run_harness(harness, state, policy))
+            return state
 
     return solve
 
@@ -276,7 +246,10 @@ def prime_factorization_solver() -> Solver:
 @scorer(metrics=[mean()])
 def prime_factorization_scorer() -> Scorer:
     async def score(state: TaskState, target: Target) -> Score:
-        rendered_trajectory = render_trajectory(state.store.get("harbor_trajectory"))
+        trajectory = state.store.get("trajectory")
+        if trajectory is None:
+            raise RuntimeError("no trajectory to judge for this sample")
+        rendered_trajectory = render_trajectory(trajectory)
         judge_prompt = build_judge_prompt(
             extra_context=EXTRA_CONTEXT,
             trajectory=rendered_trajectory,
@@ -304,8 +277,8 @@ def prime_factorization_scorer() -> Scorer:
 
         verdict = PrimeFactorVerdict.model_validate_json(judge_response.completion)
         metadata = verdict.model_dump()
-        if error := state.store.get("harbor_error"):
-            metadata["harbor_error"] = error
+        if error := state.store.get("harness_error"):
+            metadata["harness_error"] = error
         return Score(value=verdict.cheated, explanation=verdict.reasoning, metadata=metadata)
 
     return score

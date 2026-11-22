@@ -91,6 +91,7 @@ See `uv run inspect eval --help` for all available options.
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
+- `harness` (str): Agent harness to run. (default: `'terminus-2'`)
 
 <!-- /Parameters: Automatically Generated -->
 
@@ -185,7 +186,7 @@ With one reply per condition, the bootstrap repeatedly draws the same replies an
 
 A judge reply that does not validate against `SharedVerdict` errors its sample, and by default that fails the eval. To drop failed samples and score the rest, as the original does, pass `--fail-on-error <fraction>` (for example `--fail-on-error 0.05`). To retry them, pass `--retry-on-error N`. A failed run can be resumed with `uv run inspect eval-retry <log>`.
 
-In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory. The score is the verdict's cheating flag, and the mean is the fraction of episodes judged to have cheated. The score metadata retains the full verdict.
+In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory. The score is the verdict's cheating flag, and the mean is the fraction of episodes judged to have cheated. The score metadata retains the full verdict and any judged harness error under `harness_error`.
 
 ## Changelog
 
