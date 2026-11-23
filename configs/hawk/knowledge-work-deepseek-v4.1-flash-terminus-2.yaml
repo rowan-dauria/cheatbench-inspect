@@ -1,0 +1,32 @@
+# Knowledge Work on Hawk with DeepSeek V4.1 Flash (1017) in Terminus-2, all 20 rows.
+#   hawk eval-set run configs/hawk/knowledge-work-deepseek-v4.1-flash-terminus-2.yaml
+# Port test for task coverage, not a paper row: the paper reports no DeepSeek V4.1 Flash
+# results. It is the cheapest DeepSeek model on Hawk's proxy, and it handles tool calls,
+# image input and high reasoning effort through OpenRouter (checked 2026-11-23).
+name: knowledge-work-deepseek-v4-1-flash-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_knowledge_work
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/deepseek/deepseek-v4.1-flash-1017
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
