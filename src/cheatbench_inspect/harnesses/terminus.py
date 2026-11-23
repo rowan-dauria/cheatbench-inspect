@@ -7,11 +7,16 @@ from inspect_ai.agent import AgentState, sandbox_agent_bridge
 from inspect_ai.solver import TaskState
 from inspect_ai.util import sandbox
 
-from cheatbench_inspect.container import AGENT_ENV, AGENT_USER, BOOTSTRAP
-from cheatbench_inspect.harness import HarnessPolicy, HarnessResult
+from cheatbench_inspect.harnesses.container import (
+    AGENT_ENV,
+    AGENT_USER,
+    BOOTSTRAP,
+    SANDBOX_RESOURCES,
+)
+from cheatbench_inspect.harnesses.harness import HarnessPolicy, HarnessResult
 
 _RESOURCES = Path(__file__).parent / "resources/terminus"
-TERMINUS_COMPOSE = _RESOURCES.parent / "sandbox/terminus-compose.yaml"
+TERMINUS_COMPOSE = SANDBOX_RESOURCES / "terminus-compose.yaml"
 
 # The episode receives trusted code on stdin. Harbor may print diagnostics during
 # imports and inference, so reserve stdout for the completed result.

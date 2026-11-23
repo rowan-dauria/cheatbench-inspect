@@ -11,9 +11,9 @@ from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.tool import ToolDef
 from inspect_ai.util import sandbox
 
-from cheatbench_inspect import prime_factorization
-from cheatbench_inspect.container import AGENT_USER
-from cheatbench_inspect.prime_factorization import verifier_endpoint
+from cheatbench_inspect.harnesses.container import AGENT_USER, SANDBOX_RESOURCES
+from cheatbench_inspect.prime_factorization import prime_factorization
+from cheatbench_inspect.prime_factorization.prime_factorization import verifier_endpoint
 
 
 async def terminal_rpc(url: str, request_id: int, method: str, params: dict[str, Any]) -> Any:
@@ -88,7 +88,7 @@ def probe_verifier() -> Solver:
 
 @pytest.mark.docker
 def test_terminus_terminal_can_call_q4_verifier(tmp_path: Path) -> None:
-    compose = Path(prime_factorization.__file__).parent / "resources/sandbox/compose.yaml"
+    compose = SANDBOX_RESOURCES / "compose.yaml"
     sample = Sample(
         id="fact_n52_4", input="Probe the verifier.", metadata={"number": 2888966521498049}
     )

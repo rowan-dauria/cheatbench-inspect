@@ -13,8 +13,8 @@ from inspect_ai.agent import AgentState
 from inspect_ai.model import GenerateConfig, Model, ModelName, get_model
 from inspect_ai.solver import TaskState
 
-import cheatbench_inspect.codex as codex
-from cheatbench_inspect.harness import (
+import cheatbench_inspect.harnesses.codex as codex
+from cheatbench_inspect.harnesses.harness import (
     HarnessPolicy,
     run_harness,
     validate_harness,

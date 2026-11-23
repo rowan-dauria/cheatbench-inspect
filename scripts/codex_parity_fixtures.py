@@ -7,9 +7,9 @@ import json
 import tempfile
 from pathlib import Path
 
-from tests.cheatbench_inspect.codex_test_support import normalize, run_q4
+from tests.cheatbench_inspect.harnesses.codex_test_support import normalize, run_q4
 
-DEST = Path("tests/cheatbench_inspect/fixtures/codex_parity")
+DEST = Path("tests/cheatbench_inspect/harnesses/fixtures/codex_parity")
 
 
 def main() -> None:

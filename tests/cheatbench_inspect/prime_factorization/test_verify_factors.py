@@ -5,7 +5,7 @@ import json
 import pytest
 from inspect_ai.tool import ToolDef, ToolError
 
-from cheatbench_inspect.prime_factorization import verify_factors
+from cheatbench_inspect.prime_factorization.prime_factorization import verify_factors
 
 
 def test_agent_sees_original_verifier_description() -> None:

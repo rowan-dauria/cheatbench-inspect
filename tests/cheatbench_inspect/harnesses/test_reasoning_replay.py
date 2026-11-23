@@ -22,7 +22,7 @@ from inspect_ai.model._providers.openrouter import OpenRouterAPI
 from inspect_ai.solver import solver
 from inspect_ai.tool import ToolCall
 
-from cheatbench_inspect.reasoning_replay import (
+from cheatbench_inspect.harnesses.reasoning_replay import (
     anthropic_reasoning_filter,
     pack_reasoning,
     unpack_reasoning,

@@ -99,7 +99,7 @@ See `uv run inspect eval --help` for all available options.
 
 ## Dataset
 
-`cheatbench_sycophancy` has 28 single-turn prompts, generated from the original `tasks/sycophancy` rows and stored in `src/cheatbench_inspect/resources/sycophancy/data.jsonl`:
+`cheatbench_sycophancy` has 28 single-turn prompts, generated from the original `tasks/sycophancy` rows and stored in `src/cheatbench_inspect/sycophancy/resources/data.jsonl`:
 
 - **AI bubble** (7): the odds that the AI bubble bursts within 5 years, asked bare (`baseline`) and after the user says they are considering investing in each of six named AI companies.
 - **Forecasts** (21): seven forecasting questions, each asked bare (`baseline`), with a believer line (`for`) and with a sceptic line (`against`).
@@ -152,7 +152,7 @@ uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
   -T "task_dir=$prime_dir" --model openai/gpt-5-nano --limit 1
 ```
 
-The sandbox image is built from [`resources/sandbox/Dockerfile`](src/cheatbench_inspect/resources/sandbox/Dockerfile). Local Docker builds it; [Hawk](#running-on-hawk) pulls the copy that the [sandbox-image workflow](.github/workflows/sandbox-image.yml) publishes for amd64 and arm64.
+The sandbox image is built from [`harnesses/resources/sandbox/Dockerfile`](src/cheatbench_inspect/harnesses/resources/sandbox/Dockerfile). Local Docker builds it; [Hawk](#running-on-hawk) pulls the copy that the [sandbox-image workflow](.github/workflows/sandbox-image.yml) publishes for amd64 and arm64.
 
 ### Running Claude models
 
@@ -204,7 +204,7 @@ hawk eval-set run configs/hawk/sycophancy-deepseek-v4-pro.yaml
 hawk eval-set run configs/hawk/prime-factorization-deepseek-v4-pro.yaml
 ```
 
-Hawk pulls sandbox images instead of building them: it drops compose `build:` keys and rejects `extends:`, and treats a file as compose only if its name ends in `compose.yaml`. `terminus-compose.yaml` therefore names the published image, tagged with a hash of the Dockerfile and its requirements file. A change to either needs a new tag in `terminus-compose.yaml`, which `test_sandbox_image.py` checks, and the workflow then publishes it.
+Hawk pulls sandbox images instead of building them: it drops compose `build:` keys and rejects `extends:`, and treats a file as compose only if its name ends in `compose.yaml`. `terminus-compose.yaml` therefore names the published image, tagged with a hash of the Dockerfile and its requirements file. A change to either needs a new tag in `terminus-compose.yaml`, which [the sandbox image tests](tests/cheatbench_inspect/harnesses/test_sandbox_image.py) check, and the workflow then publishes it.
 
 ## Scoring
 
@@ -303,8 +303,11 @@ Slow tests run with `uv run pytest --runslow`. See [CONTRIBUTING.md](CONTRIBUTIN
 ## Layout
 
 ```text
-src/cheatbench_inspect/        the eval: sycophancy.py, eval.yaml, resources/
-tests/cheatbench_inspect/      its tests and fixtures, per task
+src/cheatbench_inspect/        task entry points, shared judge and eval metadata
+  harnesses/                 agent launchers, sandbox resources and episode handling
+  prime_factorization/        solver, dataset, scorer and task resources
+  sycophancy/                 dataset, scorer, shift metric and task resources
+tests/cheatbench_inspect/      tests and fixtures for each task and the harnesses
 src/examples/            gpqa, agentic, llm_judge: worked examples, see Examples below
 tests/examples/          their tests
 agent_artefacts/trajectory_analysis/inspect_scout/   Scout scanners for the transcript audit

@@ -16,9 +16,9 @@ from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.tool import ToolCall
 from inspect_ai.util import JSONSchema
 
-from cheatbench_inspect import prime_factorization as prime
 from cheatbench_inspect.judge import build_judge_prompt
-from cheatbench_inspect.resources.prime_factorization.judge_schema import EXTRA_CONTEXT
+from cheatbench_inspect.prime_factorization.resources.judge_schema import EXTRA_CONTEXT
+from cheatbench_inspect.prime_factorization.scorers import prime_factorization_scorer
 
 PROMPT = "Factor 15."
 MOCK = "mockllm/model"
@@ -102,7 +102,7 @@ def test_scorer_judges_trajectory_with_strict_schema(
     task = Task(
         dataset=[Sample(input=PROMPT)],
         solver=record_conversation(error),
-        scorer=prime.prime_factorization_scorer(),
+        scorer=prime_factorization_scorer(),
     )
     grader = get_model(MOCK, custom_outputs=judge_reply, memoize=False)
     [log] = eval(

@@ -3,20 +3,19 @@
 import hashlib
 import re
 import subprocess
-from pathlib import Path
 
 import pytest
 import yaml
 
-SANDBOX = Path(__file__).resolve().parents[2] / "src/cheatbench_inspect/resources/sandbox"
+from cheatbench_inspect.harnesses.container import SANDBOX_RESOURCES
 
 
 def test_tag() -> None:
     inputs = ("Dockerfile", "task-requirements.txt", "claude-requirements.txt")
-    tag = hashlib.sha256(b"".join((SANDBOX / name).read_bytes() for name in inputs)).hexdigest()[
-        :12
-    ]
-    compose = SANDBOX / "claude-compose.yaml"
+    tag = hashlib.sha256(
+        b"".join((SANDBOX_RESOURCES / name).read_bytes() for name in inputs)
+    ).hexdigest()[:12]
+    compose = SANDBOX_RESOURCES / "claude-compose.yaml"
     service = yaml.safe_load(compose.read_text())["services"]["default"]
     assert compose.name.endswith("compose.yaml")
     assert service["image"] == f"ghcr.io/rowan-dauria/task-env-claude:{tag}"
@@ -29,11 +28,14 @@ def test_tag() -> None:
 @pytest.mark.slow
 def test_image() -> None:
     image = "local-task-env-claude-test"
-    subprocess.run(["docker", "build", "--target", "claude", "-t", image, str(SANDBOX)], check=True)
+    subprocess.run(
+        ["docker", "build", "--target", "claude", "-t", image, str(SANDBOX_RESOURCES)], check=True
+    )
 
     task_image = "local-task-env-base-test"
     subprocess.run(
-        ["docker", "build", "--target", "task", "-t", task_image, str(SANDBOX)], check=True
+        ["docker", "build", "--target", "task", "-t", task_image, str(SANDBOX_RESOURCES)],
+        check=True,
     )
     packages = ["dpkg-query", "-W", "-f=${binary:Package} ${Version} ${db:Status-Abbrev}\n"]
     task_packages = subprocess.check_output(
@@ -80,7 +82,7 @@ def test_image() -> None:
     expected = set()
     for name in ("task-requirements.txt", "claude-requirements.txt"):
         expected.update(
-            re.findall(r"(?m)^([a-zA-Z0-9_.-]+==[^\s;\\]+)", (SANDBOX / name).read_text())
+            re.findall(r"(?m)^([a-zA-Z0-9_.-]+==[^\s;\\]+)", (SANDBOX_RESOURCES / name).read_text())
         )
     assert {s.lower().replace("_", "-") for s in run("pip", "freeze").splitlines()} == {
         s.lower().replace("_", "-") for s in expected

@@ -6,9 +6,11 @@ It owns the staged files and its workspace.
 https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/sandbox/runtime.py#L104-L139
 """
 
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from inspect_ai.util import sandbox
+
+SANDBOX_RESOURCES = Path(__file__).parent / "resources" / "sandbox"
 
 AGENT_USER = "user"
 AGENT_HOME = f"/home/{AGENT_USER}"

@@ -7,7 +7,7 @@ from inspect_ai.agent import AgentState
 from inspect_ai.model import ModelOutput
 from inspect_ai.solver import TaskState
 
-from cheatbench_inspect.lost_episodes import is_lost_episode
+from cheatbench_inspect.harnesses.lost_episodes import is_lost_episode
 
 
 @dataclass(frozen=True)
@@ -27,7 +27,7 @@ class HarnessResult:
 
 
 async def _terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResult:
-    from cheatbench_inspect.terminus import run_terminus_2
+    from cheatbench_inspect.harnesses.terminus import run_terminus_2
 
     return await run_terminus_2(state, policy)
 
@@ -35,7 +35,7 @@ async def _terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResult:
 async def _claude_code(
     state: AgentState, policy: HarnessPolicy, options: dict[str, str]
 ) -> AgentState:
-    from cheatbench_inspect.claude_code import run_claude_code
+    from cheatbench_inspect.harnesses.claude_code import run_claude_code
 
     return await run_claude_code(
         state, policy, cli_version=options["cli_version"], cli_model=options["cli_model"]
@@ -43,7 +43,7 @@ async def _claude_code(
 
 
 async def _codex(state: AgentState, policy: HarnessPolicy, options: dict[str, str]) -> AgentState:
-    from cheatbench_inspect.codex import run_codex
+    from cheatbench_inspect.harnesses.codex import run_codex
 
     return await run_codex(
         state, policy, cli_version=options["cli_version"], cli_model=options["cli_model"]

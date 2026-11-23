@@ -10,9 +10,11 @@ from inspect_ai.dataset import Sample
 from inspect_ai.model import ChatCompletionChoice, ChatMessageAssistant, ModelOutput, get_model
 from inspect_ai.tool import ToolCall
 
-from cheatbench_inspect import prime_factorization as prime
+from cheatbench_inspect.harnesses.container import SANDBOX_RESOURCES
+from cheatbench_inspect.prime_factorization import prime_factorization as prime
+from cheatbench_inspect.prime_factorization.scorers import prime_factorization_scorer
 
-DEST = Path("tests/cheatbench_inspect/fixtures/claude_parity")
+DEST = Path("tests/cheatbench_inspect/harnesses/fixtures/claude_parity")
 record = {}
 turns = []
 
@@ -92,7 +94,7 @@ def judge_reply(messages, tools, tool_choice, config):
     return ModelOutput.from_content("mockllm/model", json.dumps(verdict))
 
 
-compose = Path(prime.__file__).parent / "resources/sandbox/claude-compose.yaml"
+compose = SANDBOX_RESOURCES / "claude-compose.yaml"
 task = Task(
     dataset=[
         Sample(
@@ -102,7 +104,7 @@ task = Task(
         )
     ],
     solver=prime.prime_factorization_solver("claude-sdk", "2.1.270", "claude-sonnet-5"),
-    scorer=prime.prime_factorization_scorer(),
+    scorer=prime_factorization_scorer(),
     sandbox=("docker", str(compose)),
 )
 with tempfile.TemporaryDirectory() as tmp:

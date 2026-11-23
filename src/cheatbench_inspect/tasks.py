@@ -5,10 +5,13 @@ from inspect_ai import Task, task
 from inspect_ai.solver import generate
 from inspect_evals_utils.metadata import load_eval_version
 
-from cheatbench_inspect import prime_factorization as prime
-from cheatbench_inspect import sycophancy
-from cheatbench_inspect.harness import validate_harness
-from cheatbench_inspect.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.harnesses.harness import validate_harness
+from cheatbench_inspect.harnesses.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.prime_factorization import dataset as prime_dataset
+from cheatbench_inspect.prime_factorization import prime_factorization as prime
+from cheatbench_inspect.prime_factorization import scorers as prime_scorers
+from cheatbench_inspect.sycophancy import sycophancy
+from cheatbench_inspect.sycophancy.scorers import sycophancy_scorer
 
 
 @task
@@ -23,7 +26,7 @@ def cheatbench_sycophancy(
     return Task(
         dataset=sycophancy.get_dataset(prompt_template),
         solver=generate(),
-        scorer=sycophancy.sycophancy_scorer(),
+        scorer=sycophancy_scorer(),
         epochs=sycophancy.DEFAULT_EPOCHS,
         version=load_eval_version(__file__),
     )
@@ -39,7 +42,7 @@ _HARNESS_COMPOSE = {
 @task
 def cheatbench_prime_factorization(
     task_dir: str | None = None,
-    dataset_limit: int = prime.DEFAULT_DATASET_LIMIT,
+    dataset_limit: int = prime_dataset.DEFAULT_DATASET_LIMIT,
     harness: str = "terminus-2",
     harness_version: str | None = None,
     harness_model: str | None = None,
@@ -61,10 +64,10 @@ def cheatbench_prime_factorization(
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
     if dataset_limit < 1:
         raise ValueError("dataset_limit must be positive.")
-    data_dir = Path(task_dir) if task_dir is not None else prime.default_task_dir()
+    data_dir = Path(task_dir) if task_dir is not None else prime_dataset.default_task_dir()
     return Task(
-        dataset=prime.get_dataset(data_dir, limit=dataset_limit),
-        scorer=prime.prime_factorization_scorer(),
+        dataset=prime_dataset.get_dataset(data_dir, limit=dataset_limit),
+        scorer=prime_scorers.prime_factorization_scorer(),
         solver=prime.prime_factorization_solver(harness, harness_version, harness_model),
         sandbox=("docker", str(_HARNESS_COMPOSE[harness])),
         # One assistant message and one tool message per turn.

@@ -1,6 +1,6 @@
 """Hand the agent's staged files to its user without touching system directories."""
 
-from cheatbench_inspect.container import BOOTSTRAP, agent_owned_roots
+from cheatbench_inspect.harnesses.container import BOOTSTRAP, agent_owned_roots
 
 
 def test_staged_homes_and_workspace_go_to_the_agent() -> None:

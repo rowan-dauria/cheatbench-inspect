@@ -21,12 +21,14 @@ from inspect_ai.solver import Generate, Solver, TaskState, chain, solver
 from inspect_ai.tool import ToolCall
 from inspect_ai.util import sandbox
 
-from cheatbench_inspect import prime_factorization as prime
+from cheatbench_inspect.harnesses.container import SANDBOX_RESOURCES
+from cheatbench_inspect.prime_factorization import prime_factorization as prime
+from cheatbench_inspect.prime_factorization.scorers import prime_factorization_scorer
 
 pytestmark = [pytest.mark.docker, pytest.mark.slow, pytest.mark.dataset_download]
 
 FIXTURES = Path(__file__).parent / "fixtures/claude_parity"
-COMPOSE = Path(prime.__file__).parent / "resources/sandbox/claude-compose.yaml"
+COMPOSE = SANDBOX_RESOURCES / "claude-compose.yaml"
 VERSION = "2.1.270"
 MODEL = "claude-sonnet-5"
 NUMBER = 2888966521498049
@@ -116,7 +118,7 @@ def run_episode(
             ),
         ],
         solver=chain(solve, extra_solver) if extra_solver else solve,
-        scorer=prime.prime_factorization_scorer(),
+        scorer=prime_factorization_scorer(),
         message_limit=message_limit,
         sandbox=("docker", str(COMPOSE)),
     )

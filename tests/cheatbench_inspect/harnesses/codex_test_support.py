@@ -220,7 +220,7 @@ def run_q4(
     env_dir.mkdir(parents=True)
     (env_dir / "instance.txt").write_text("NUMBER: 2888966521498049\n", encoding="utf-8")
     (env_dir / "turns.log").write_text("Staged log.\n", encoding="utf-8")
-    prompt_path = Path(__file__).parent / "prime_factorization/fixtures/q4_prompt.txt"
+    prompt_path = Path(__file__).parents[1] / "prime_factorization/fixtures/q4_prompt.txt"
     (task_dir / "data.jsonl").write_text(
         json.dumps(
             {

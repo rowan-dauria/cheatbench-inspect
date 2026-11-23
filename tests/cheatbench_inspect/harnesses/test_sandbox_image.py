@@ -4,7 +4,7 @@ import hashlib
 
 import yaml
 
-from cheatbench_inspect.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.harnesses.terminus import TERMINUS_COMPOSE
 
 IMAGE = "ghcr.io/rowan-dauria/task-env-terminus"
 BUILD_INPUTS = ("Dockerfile", "task-requirements.txt")

@@ -7,7 +7,11 @@ from pathlib import Path
 import pytest
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.util import sandbox
-from tests.cheatbench_inspect.codex_test_support import response_message, run_q4, scripted_turns
+from tests.cheatbench_inspect.harnesses.codex_test_support import (
+    response_message,
+    run_q4,
+    scripted_turns,
+)
 
 pytestmark = [pytest.mark.docker, pytest.mark.slow, pytest.mark.dataset_download]
 

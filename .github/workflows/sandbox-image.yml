@@ -5,12 +5,12 @@ name: Sandbox image
 on:
   push:
     paths:
-      - src/cheatbench_inspect/resources/sandbox/Dockerfile
-      - src/cheatbench_inspect/resources/sandbox/task-requirements.txt
-      - src/cheatbench_inspect/resources/sandbox/terminus-compose.yaml
-      - src/cheatbench_inspect/resources/sandbox/claude-compose.yaml
-      - src/cheatbench_inspect/resources/sandbox/codex-compose.yaml
-      - src/cheatbench_inspect/resources/sandbox/claude-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/Dockerfile
+      - src/cheatbench_inspect/harnesses/resources/sandbox/task-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/terminus-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/claude-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/codex-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/claude-requirements.txt
       - .github/workflows/sandbox-image.yml
   workflow_dispatch:
 
@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CONTEXT: src/cheatbench_inspect/resources/sandbox
+  CONTEXT: src/cheatbench_inspect/harnesses/resources/sandbox
 
 jobs:
   publish:

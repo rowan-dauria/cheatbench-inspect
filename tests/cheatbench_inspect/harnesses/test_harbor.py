@@ -11,13 +11,11 @@ from inspect_ai.dataset import Sample
 from inspect_ai.model import ContentReasoning, ContentText, ModelOutput, get_model
 from inspect_ai.solver import Generate, Solver, TaskState, chain, solver
 from inspect_ai.util import sandbox
-from tests.cheatbench_inspect.test_claude_integration import VERDICT
+from tests.cheatbench_inspect.harnesses.test_claude_integration import VERDICT
 
-from cheatbench_inspect.prime_factorization import (
-    prime_factorization_scorer,
-    prime_factorization_solver,
-)
-from cheatbench_inspect.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.harnesses.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.prime_factorization.prime_factorization import prime_factorization_solver
+from cheatbench_inspect.prime_factorization.scorers import prime_factorization_scorer
 
 NUMBER = 2888966521498049
 TURNS_LOG = "/home/user/trace/turns.log"
@@ -117,7 +115,9 @@ def test_harbor_records_terminal_observation_and_verifier_url(
         dataset=[
             Sample(
                 id="q4",
-                input=(Path(__file__).parent / "fixtures/q4_prompt.txt").read_text(),
+                input=(
+                    Path(__file__).parents[1] / "prime_factorization/fixtures/q4_prompt.txt"
+                ).read_text(),
                 metadata={"number": NUMBER, "staged_files": [TURNS_LOG]},
             )
         ],
@@ -189,7 +189,8 @@ print(json.dumps({"handoff": handoff, "refs": refs, "prompts": prompts,
 @pytest.mark.slow
 def test_summarization_prompts_drop_bridge_reasoning(tmp_path: Path) -> None:
     extension = (
-        Path(__file__).parents[3] / "src/cheatbench_inspect/resources/terminus/image_extension.py"
+        Path(__file__).parents[3]
+        / "src/cheatbench_inspect/harnesses/resources/terminus/image_extension.py"
     )
 
     @solver

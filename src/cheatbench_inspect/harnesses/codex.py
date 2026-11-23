@@ -12,9 +12,9 @@ from inspect_ai.model._generate_config import (
 from inspect_ai.tool import MCPServerConfigHTTP
 from inspect_swe import codex_cli
 
-from cheatbench_inspect.container import AGENT_ENV, AGENT_USER
-from cheatbench_inspect.harness import HarnessPolicy
-from cheatbench_inspect.reasoning_replay import responses_reasoning_filter
+from cheatbench_inspect.harnesses.container import AGENT_ENV, AGENT_USER
+from cheatbench_inspect.harnesses.harness import HarnessPolicy
+from cheatbench_inspect.harnesses.reasoning_replay import responses_reasoning_filter
 
 # No marketplace sync or optional plugin tools in the episode.
 _DISABLED_FEATURES = ("image_generation", "browser_use", "computer_use", "apps", "plugins")

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from cheatbench_inspect.prime_factorization import record_to_sample
+from cheatbench_inspect.prime_factorization.dataset import record_to_sample
 
 
 def test_q4_record_to_sample(tmp_path: Path) -> None:
@@ -38,7 +38,7 @@ def test_q4_record_to_sample(tmp_path: Path) -> None:
 def test_get_dataset_loads_rows_and_resolves_staged_files(tmp_path: Path) -> None:
     import json
 
-    from cheatbench_inspect import prime_factorization as prime
+    from cheatbench_inspect.prime_factorization import dataset as prime
 
     source = "files/skills.md"
     skills = tmp_path / "environment" / source

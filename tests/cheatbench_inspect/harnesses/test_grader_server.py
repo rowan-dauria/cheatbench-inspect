@@ -5,9 +5,9 @@ from urllib.request import Request, urlopen
 
 from inspect_ai.tool import ToolDef
 
-from cheatbench_inspect.prime_factorization import verify_factors
-from cheatbench_inspect.resources.prime_factorization.verifier import make_mcp_verifier
-from cheatbench_inspect.resources.sandbox.grader_server import GraderServer
+from cheatbench_inspect.harnesses.resources.sandbox.grader_server import GraderServer
+from cheatbench_inspect.prime_factorization.prime_factorization import verify_factors
+from cheatbench_inspect.prime_factorization.resources.verifier import make_mcp_verifier
 
 
 def test_http_client_discovers_and_calls_episode_verifier() -> None:

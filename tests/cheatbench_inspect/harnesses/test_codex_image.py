@@ -5,16 +5,19 @@ from pathlib import Path
 
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
-SANDBOX = ROOT / "src/cheatbench_inspect/resources/sandbox"
+from cheatbench_inspect.harnesses.container import SANDBOX_RESOURCES
+
+ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_codex_tag() -> None:
     inputs = ("Dockerfile", "task-requirements.txt")
-    tag = hashlib.sha256(b"".join((SANDBOX / name).read_bytes() for name in inputs)).hexdigest()[
-        :12
+    tag = hashlib.sha256(
+        b"".join((SANDBOX_RESOURCES / name).read_bytes() for name in inputs)
+    ).hexdigest()[:12]
+    service = yaml.safe_load((SANDBOX_RESOURCES / "codex-compose.yaml").read_text())["services"][
+        "default"
     ]
-    service = yaml.safe_load((SANDBOX / "codex-compose.yaml").read_text())["services"]["default"]
     assert service["image"] == f"ghcr.io/rowan-dauria/task-env-codex:{tag}"
     assert service["build"] == {"context": ".", "target": "task"}
     workflow = yaml.safe_load((ROOT / ".github/workflows/sandbox-image.yml").read_text())

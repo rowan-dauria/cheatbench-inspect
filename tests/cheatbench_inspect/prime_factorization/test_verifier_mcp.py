@@ -2,7 +2,7 @@
 
 import json
 
-from cheatbench_inspect.resources.prime_factorization.verifier import make_mcp_verifier
+from cheatbench_inspect.prime_factorization.resources.verifier import make_mcp_verifier
 
 
 def test_mcp_distinguishes_a_wrong_pair_from_an_invalid_call() -> None:
@@ -39,7 +39,7 @@ def test_mcp_distinguishes_a_wrong_pair_from_an_invalid_call() -> None:
 
 
 def test_http_verifier_tracks_state() -> None:
-    from cheatbench_inspect.resources.prime_factorization import http_verifier
+    from cheatbench_inspect.prime_factorization.resources import http_verifier
 
     assert http_verifier.SERVER_NAME == "verifier"
     assert http_verifier.TOOL_BASENAME == "verify_factors"

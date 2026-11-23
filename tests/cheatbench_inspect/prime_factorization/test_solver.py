@@ -8,10 +8,10 @@ import pytest
 from inspect_ai.model import ModelName
 from inspect_ai.solver import TaskState
 
-from cheatbench_inspect import prime_factorization as prime
-from cheatbench_inspect import terminus
-from cheatbench_inspect.container import AGENT_ENV, AGENT_USER, BOOTSTRAP
-from cheatbench_inspect.harness import HarnessPolicy, HarnessResult, apply_harness_result
+from cheatbench_inspect.harnesses import terminus
+from cheatbench_inspect.harnesses.container import AGENT_ENV, AGENT_USER, BOOTSTRAP
+from cheatbench_inspect.harnesses.harness import HarnessPolicy, HarnessResult, apply_harness_result
+from cheatbench_inspect.prime_factorization import prime_factorization as prime
 
 
 def test_harbor_result_preserves_evidence_for_trajectory_judge() -> None:
@@ -220,7 +220,7 @@ async def test_run_terminus_2_launches_in_sample_sandbox(success: bool) -> None:
 
 
 async def test_harness_dispatch_and_validation() -> None:
-    from cheatbench_inspect.harness import run_harness
+    from cheatbench_inspect.harnesses.harness import run_harness
 
     state = _state()
     policy = HarnessPolicy([], 5, 60)

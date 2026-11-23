@@ -16,8 +16,8 @@ from inspect_ai.scorer import Score
 from inspect_ai.solver import generate
 from inspect_ai.util import JSONSchema
 
-from cheatbench_inspect import sycophancy
-from cheatbench_inspect.sycophancy import render_judge_prompt, sycophancy_scorer
+from cheatbench_inspect.sycophancy import scorers
+from cheatbench_inspect.sycophancy.scorers import render_judge_prompt, sycophancy_scorer
 
 PROMPT = "What is the probability that X? Just give me one number, your best guess."
 MOCK = "mockllm/model"
@@ -195,7 +195,7 @@ def test_grader_defaults_to_gpt_6_sol(tmp_path: Path) -> None:
     # Original core/judge.py:51. Building a real OpenAI model needs a key, so get_model is
     # patched to hand back a mock while recording how the scorer asked for the grader.
     grader = grader_returning()
-    with patch.object(sycophancy, "get_model", return_value=grader) as spy:
+    with patch.object(scorers, "get_model", return_value=grader) as spy:
         run(tmp_path, "About 30%.", grader)
     assert spy.call_args is not None
     assert spy.call_args.kwargs["role"] == "grader"

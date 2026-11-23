@@ -4,9 +4,9 @@ from inspect_ai.agent import AgentState
 from inspect_ai.tool import MCPServerConfigHTTP
 from inspect_swe import claude_code
 
-from cheatbench_inspect.container import AGENT_ENV, AGENT_USER
-from cheatbench_inspect.harness import HarnessPolicy
-from cheatbench_inspect.reasoning_replay import anthropic_reasoning_filter
+from cheatbench_inspect.harnesses.container import AGENT_ENV, AGENT_USER
+from cheatbench_inspect.harnesses.harness import HarnessPolicy
+from cheatbench_inspect.harnesses.reasoning_replay import anthropic_reasoning_filter
 
 _DISALLOWED_TOOLS = [
     "Agent",

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from cheatbench_inspect.lost_episodes import (
+from cheatbench_inspect.harnesses.lost_episodes import (
     MAX_TURNS_EXACT_ERROR,
     ORIGINAL_PATTERNS,
     PORT_ONLY_PATTERNS,
