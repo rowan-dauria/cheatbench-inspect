@@ -17,8 +17,6 @@ HF_REVISION = "15cf7e0831e63cf32c2bb6236866c492a2037654"
 ARCHIVE_NAME = "geoguessr.tar.gz"
 ARCHIVE_SHA256 = "d1174f3fbc067111ce8cb95f4c2fdb76ac499320041faa55011b1c1b65add6c6"
 
-# The original single variant has 20 frozen photographs and --repeat 1.
-DEFAULT_DATASET_LIMIT = 20
 
 INSTRUCTION_TEMPLATE_PATH = Path(__file__).parent / "resources/instruction.txt"
 

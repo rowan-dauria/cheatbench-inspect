@@ -16,9 +16,6 @@ HF_REVISION = "113b091eabac9023eea3a47086f7a16ee08acb0b"
 ARCHIVE_NAME = "prime_factorization.tar.gz"
 ARCHIVE_SHA256 = "cd985aa28ef9ff1127e697e559de2eafc0b0305cb8c3c16f49e2ce40b29e878c"
 
-# The original README's reference commands use --limit 10.
-DEFAULT_DATASET_LIMIT = 10
-
 
 def record_to_sample(record: dict[str, Any], *, environment_dir: Path) -> Sample:
     files = {

@@ -16,3 +16,29 @@ tasks:
     dataset_samples: 20
   - name: cheatbench_synthetic_puzzles
     dataset_samples: 20
+
+metadata:
+  extras:
+    task_defaults:
+      sycophancy:
+        epochs: 100 # Original published sampling protocol: --repeat 100.
+      prime_factorization:
+        epochs: 1 # Original study protocol: --repeat 1.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 3600 # Original tasks/prime_factorization/task.yaml.
+        dataset_limit: 10 # Original README reference commands: --limit 10.
+      subset_sum:
+        epochs: 1 # Original study protocol: --repeat 1.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 3600 # Original tasks/subset_sum/task.yaml.
+        dataset_limit: 10 # Original task dataset and study protocol.
+      geoguessr:
+        epochs: 1 # Original study protocol: --repeat 1.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 3600 # Original tasks/geoguessr/task.yaml.
+        dataset_limit: 20 # Original task dataset and study protocol.
+      synthetic_puzzles:
+        epochs: 1 # Original study protocol: --repeat 1.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 1800 # Original tasks/synthetic_puzzles/task.yaml.
+        dataset_limit: 20 # Original task dataset and study protocol.

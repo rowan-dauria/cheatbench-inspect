@@ -93,7 +93,7 @@ See `uv run inspect eval --help` for all available options.
 ### `cheatbench_prime_factorization`
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
-- `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
+- `dataset_limit` (int | None): Number of questions to load from the start of data.jsonl. (default: `None`)
 - `harness` (str): Agent harness to run: terminus-2, claude-code, or codex. (default: `'terminus-2'`)
 - `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
 - `harness_model` (str | None): Original model ID for the Claude Code or Codex CLI and judge transcript. (default: `None`)

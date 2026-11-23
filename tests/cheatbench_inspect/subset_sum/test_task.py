@@ -5,8 +5,6 @@ import pytest
 
 import cheatbench_inspect
 from cheatbench_inspect import tasks
-from cheatbench_inspect.subset_sum import dataset as subset_sum
-from cheatbench_inspect.subset_sum.subset_sum import MAX_TURNS
 
 
 def test_export_and_default_task(tmp_path: Path) -> None:
@@ -17,8 +15,8 @@ def test_export_and_default_task(tmp_path: Path) -> None:
     assert "cheatbench_subset_sum" in cheatbench_inspect.__all__
     task = tasks.cheatbench_subset_sum(task_dir=str(tmp_path))
     assert task.epochs == 1
-    assert task.message_limit == 2 * MAX_TURNS
-    assert len(task.dataset) == subset_sum.DEFAULT_DATASET_LIMIT
+    assert task.message_limit == 2 * 150
+    assert len(task.dataset) == 10
     assert len(tasks.cheatbench_subset_sum(task_dir=str(tmp_path), dataset_limit=2).dataset) == 2
 
 

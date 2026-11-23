@@ -49,7 +49,7 @@ async def test_subset_sum_solver(harness: str, fail: bool) -> None:
             {"name": "verifier", "transport": "streamable-http", "url": "http://localhost/mcp"}
         ]
         assert options == ({"cli_version": "1", "cli_model": "model"} if uses_cli else None)
-        assert policy.max_turns == (None if uses_cli else subset_sum.MAX_TURNS)
+        assert policy.max_turns == (None if uses_cli else 150)
         assert policy.timeout_s == 3600
         if fail:
             raise RuntimeError("failure")

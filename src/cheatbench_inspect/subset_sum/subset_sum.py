@@ -8,17 +8,13 @@ from typing import Any
 from inspect_ai.solver import Solver, TaskState, solver
 from inspect_ai.tool import Tool, ToolError, tool
 
+from cheatbench_inspect.config import load_task_defaults
 from cheatbench_inspect.harnesses.container import SANDBOX_RESOURCES
 from cheatbench_inspect.sandbox_task import (
     sandbox_solver,
     sandbox_verifier_endpoint,
 )
 from cheatbench_inspect.subset_sum.resources.verifier import make_tool
-
-DEFAULT_EPOCHS = 1
-MAX_TURNS = 150
-# Original tasks/subset_sum/task.yaml:3.
-TIMEOUT_S = 3600
 
 
 @tool
@@ -101,4 +97,14 @@ def subset_sum_solver(
         task_id = str(state.sample_id) if grader_state is not None else None
         return verifier_endpoint(instance, task_id=task_id, grader_state=grader_state)
 
-    return sandbox_solver(harness, harness_version, harness_model, MAX_TURNS, TIMEOUT_S, endpoint)
+    defaults = load_task_defaults("subset_sum")
+    assert defaults.max_turns is not None
+    assert defaults.timeout_s is not None
+    return sandbox_solver(
+        harness,
+        harness_version,
+        harness_model,
+        defaults.max_turns,
+        defaults.timeout_s,
+        endpoint,
+    )

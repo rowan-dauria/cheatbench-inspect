@@ -16,8 +16,6 @@ HF_REVISION = "632714ac77ec57ece1e6d5be799158bd4afa0d2b"
 ARCHIVE_NAME = "synthetic_puzzles.tar.gz"
 ARCHIVE_SHA256 = "12b6e355684131e8b9492dcf628c9ee71febe499a4ab0a8ac9f14fc25310db5c"
 
-# The original single variant has 20 puzzles and --repeat 1.
-DEFAULT_DATASET_LIMIT = 20
 
 INSTRUCTION_TEMPLATE_PATH = Path(__file__).parent / "resources/instruction.txt"
 
