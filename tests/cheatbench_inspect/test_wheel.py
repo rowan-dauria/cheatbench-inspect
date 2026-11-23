@@ -30,6 +30,7 @@ def test_wheel_contains_runtime_resources(tmp_path: Path) -> None:
     }
     sandbox = Path("harnesses/resources/sandbox")
     expected.update({"eval.yaml", "resources/judge.txt", (sandbox / "Dockerfile").as_posix()})
+    expected.add("geoguessr/resources/instruction.txt")
     dockerfile = (package / sandbox / "Dockerfile").read_text()
     expected.update(
         (sandbox / name).as_posix()
