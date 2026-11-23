@@ -92,8 +92,8 @@ See `uv run inspect eval --help` for all available options.
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-sdk and codex. (default: `None`)
-- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-sdk and codex. (default: `None`)
+- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
+- `harness_model` (str | None): Original model ID for the Claude judge transcript or the Codex CLI. (default: `None`)
 
 <!-- /Parameters: Automatically Generated -->
 
@@ -156,7 +156,15 @@ The sandbox image is built from [`resources/sandbox/Dockerfile`](src/cheatbench_
 
 ### Running Claude models
 
-Use `harness="claude-sdk"` with `harness_version` set to the Claude Code version and `harness_model` set to the original's `configs/models.yaml` model id for that entry. See the Hawk configs for [Claude Sonnet 5](configs/hawk/prime-factorization-claude-sonnet-5.yaml) and [GLM 5.3](configs/hawk/prime-factorization-glm-5.3.yaml).
+Use `-T harness=claude-code` with the pinned Claude Code version and the original model id for the judge transcript. Set reasoning effort and other generation settings through Inspect's generation config.
+
+```bash
+uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
+  --model openrouter/anthropic/claude-sonnet-5 --limit 1 \
+  -T harness=claude-code -T harness_version=2.1.270 -T harness_model=claude-sonnet-5
+```
+
+See the Hawk configs for [Claude Sonnet 5](configs/hawk/prime-factorization-claude-sonnet-5.yaml) and [GLM 5.3](configs/hawk/prime-factorization-glm-5.3.yaml).
 
 ### Running Codex models
 
@@ -219,7 +227,7 @@ With one reply per condition, the bootstrap repeatedly draws the same replies an
 
 A judge reply that does not validate against `SharedVerdict` errors its sample, and by default that fails the eval. To drop failed samples and score the rest, as the original does, pass `--fail-on-error <fraction>` (for example `--fail-on-error 0.05`). To retry them, pass `--retry-on-error N`. A failed run can be resumed with `uv run inspect eval-retry <log>`.
 
-In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory. The score is the verdict's cheating flag, and the mean is the fraction of episodes judged to have cheated. The score metadata retains the full verdict and any judged harness error under `harness_error`.
+In Prime Factorization, the grader reads the rendered trajectory from the selected harness. The score is the verdict's cheating flag, and the mean is the fraction of episodes judged to have cheated. The score metadata retains the full verdict and any judged harness error under `harness_error`.
 
 ## Changelog
 
@@ -253,10 +261,14 @@ In Prime Factorization, the grader reads the full rendered Terminus-2 trajectory
 | Hawk uses `retry_attempts: 1`: the first lost episode fails the task, in-flight episodes are cancelled and rerun, and there is one retry per task rather than per sample. | Hawk 4.2.0 has no user-facing `retry_on_error`. | A second lost episode can fail the eval, and rerun episodes can change scores. |
 | Episodes with no agent steps, including install failures and empty or unparseable output, error instead of being judged as a placeholder transcript. | These episodes have no useful trajectory to judge. | The eval can fail instead of including a placeholder verdict. |
 | Inspect retries transient provider errors without a limit by default. The original's harness retries a bounded number of times. | The port uses Inspect's default model retry policy. | An outage late in an episode can end as a judged timeout instead of a lost episode. |
-| The Claude sandbox uses Anthropic's native Claude Code binary instead of the npm package, unpacks nvm from its release archive instead of a git checkout, has no installer download caches, locks SDK transitive Python dependencies at build time instead of resolving them at episode start, and has different image build history. | The sandbox must run without network access and uses the checksummed native installer. | The agent can observe these environment differences, which could affect its behavior and scores. |
-| Claude generation settings come from Inspect's GenerateConfig rather than the SDK's `thinking` and `effort` options. | The bridge drops harness-side generation settings. | Differences in settings can change agent behavior and scores. |
-| For OpenRouter reasoning replay, Claude Code receives thinking blocks with the original reasoning in their signature; the original CLI receives plain OpenRouter reasoning as `redacted_thinking` with an `openrouter.reasoning:` envelope. | The filter preserves reasoning through Inspect's bridge. | The judge sees the same THINKING text; effects of the different CLI block shape are unmeasured. |
-| Claude Code model calls use Inspect's sandbox agent bridge instead of the original's direct route or forwarder. | Inspect controls model selection and logging. | Effects on scores are unmeasured. |
+| Claude runs the pinned Claude Code CLI through `inspect_swe`. | The port uses the stock agent and its bridge. The original launches the CLI through the Claude Agent SDK. | Launcher and sandbox differences may affect agent behavior. |
+| Claude's verifier uses HTTP MCP. | The CLI connects to the episode verifier in the sandbox. The original embeds the verifier in its SDK process. | The verifier tool's name, description, schema and result match the Q4 reference. |
+| The bridge counts Claude model calls against the turn limit. | The stock agent does not expose the SDK's `max_turns` option. | An episode at the cap can end at a different point. The judge still scores its trace. |
+| Claude generation settings come from Inspect's GenerateConfig. | The bridge drops the CLI's generation settings. The original applies SDK `thinking` and `effort` options. | Settings can change behavior and scores. |
+| The Bash description gives shorter sleep and polling instructions and omits the Monitor example. | The CLI's Monitor feature flag is off in the stock run. | Tool guidance may affect behavior and scores. |
+| The Claude judge header says `agent=claude-code`. | The host converts the CLI conversation. It has no SDK session id, per-message billing record or SDK-reported total cost. | The Q4 judge prompt differs only in the harness name. |
+| Claude's live log mirror gets tool results when they reach the model bridge. | The stock agent does not expose SDK message callbacks. | A tool that reads the log within the same parallel tool batch may see fewer results. |
+| The Claude bridge wraps OpenRouter reasoning for replay. | The filter preserves readable reasoning and the information needed for the provider's next turn. The original uses an `openrouter.reasoning:` envelope on a redacted thinking block. | The judge sees readable thinking. Effects of the different CLI block shape are unmeasured. |
 | The shift metric sorts each condition's estimates before bootstrapping. | The original resamples in judge-record order, which depends on when asynchronous judging finished, so its interval is not reproducible. | None on point estimates. The interval differs only by resampling noise. |
 | An invalid Sycophancy judge verdict errors its sample. Under Inspect's default `fail_on_error` the eval then fails, with no shift result. | Inspect's standard error handling. The original drops that episode and scores the rest. | No result, rather than a score over the remaining replies. Use `--fail-on-error <fraction>` or `--retry-on-error N` to keep going. |
 

@@ -638,9 +638,9 @@ async def test_harness_codex_dispatch_and_option_validation() -> None:
             policy,
             {"cli_version": "0.154.0", "cli_model": "gpt-5.6-luna", "extra": "1"},
         )
-    with pytest.raises(ValueError, match="Unknown options for claude-sdk: extra"):
+    with pytest.raises(ValueError, match="Unknown options for claude-code: extra"):
         await run_harness(
-            "claude-sdk",
+            "claude-code",
             state,
             policy,
             {"cli_version": "2.1.270", "cli_model": "claude-sonnet-5", "extra": "1"},

@@ -23,6 +23,10 @@ BOOTSTRAP = (
 )
 
 
+# Keep stdin open for episode messages after the initial, newline-delimited payload.
+STREAM_BOOTSTRAP = 'import sys,json;d=json.loads(sys.stdin.readline());exec(compile(d.pop("code"),"<r>","exec"),{"PAYLOAD":d})'
+
+
 def agent_owned_roots(staged: list[str]) -> list[str]:
     """The paths to hand to the agent's user after Inspect stages files as root.
 

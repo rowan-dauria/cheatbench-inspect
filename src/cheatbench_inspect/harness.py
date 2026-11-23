@@ -37,23 +37,13 @@ async def _terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResult:
     return await run_terminus_2(state, policy)
 
 
-async def _claude_sdk(
+async def _claude_code(
     state: TaskState, policy: HarnessPolicy, options: dict[str, str]
 ) -> HarnessResult:
-    from cheatbench_inspect.claude_sdk import classify_claude_failure, run_claude_sdk
-    from cheatbench_inspect.claude_trajectory import to_trajectory
+    from cheatbench_inspect.claude_code import run_claude_code
 
-    record = await run_claude_sdk(
+    return await run_claude_code(
         state, policy, cli_version=options["cli_version"], cli_model=options["cli_model"]
-    )
-    error, lost = classify_claude_failure(record, record.get("stderr_tail", ""))
-    trajectory = None
-    if any(m.get("_type") == "AssistantMessage" for m in record.get("messages", [])):
-        trajectory = to_trajectory(
-            record, cli_version=options["cli_version"], cli_model=options["cli_model"]
-        )
-    return HarnessResult(
-        trajectory, record.get("final_text") or "", error, record, record.get("live_logs"), lost
     )
 
 
@@ -65,8 +55,8 @@ async def _codex(state: TaskState, policy: HarnessPolicy, options: dict[str, str
     )
 
 
-_HARNESSES = {"terminus-2": _terminus_2, "claude-sdk": _claude_sdk, "codex": _codex}
-_CLI_HARNESSES = {"claude-sdk", "codex"}
+_HARNESSES = {"terminus-2": _terminus_2, "claude-code": _claude_code, "codex": _codex}
+_CLI_HARNESSES = {"claude-code", "codex"}
 _CLI_OPTIONS = {"cli_version", "cli_model"}
 
 
@@ -85,8 +75,8 @@ async def run_harness(
         unknown = sorted(set(options) - _CLI_OPTIONS)
         if unknown:
             raise ValueError(f"Unknown options for {name}: {', '.join(unknown)}")
-        if name == "claude-sdk":
-            return await _claude_sdk(state, policy, options)
+        if name == "claude-code":
+            return await _claude_code(state, policy, options)
         return await _codex(state, policy, options)
     if options:
         raise ValueError("terminus-2 does not accept harness options")

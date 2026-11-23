@@ -21,7 +21,7 @@ from cheatbench_inspect.config import DEFAULT_JUDGE_MODEL, DEFAULT_JUDGE_REASONI
 from cheatbench_inspect.container import (
     AGENT_ENV,
     AGENT_USER,
-    BOOTSTRAP,
+    STREAM_BOOTSTRAP,
     hand_staged_files_to_agent,
 )
 from cheatbench_inspect.harness import HarnessPolicy, apply_harness_result, run_harness
@@ -144,16 +144,26 @@ def verify_factors(number: int) -> Tool:
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/judge.py#L156-L179
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/errors.py#L362-L503
 # The bundled Python modules and episode parameters arrive on stdin, as in CheatBench.
-# Only the generated loopback URL needs to cross back out of the sandbox.
+# The loopback URL and, when requested, the final grader state return on stdout.
 _START_VERIFIER = """
+import json, sys
 config = PAYLOAD
 transport = {}
 verifier = {}
 exec(compile(config["transport"], "grader_server.py", "exec"), transport)
 exec(compile(config["verifier"], "verifier.py", "exec"), verifier)
+state, check = verifier["make_state_verifier"](config["number"], config["task_id"])
+
+def call(args):
+    result = check(args.get("p"), args.get("q"))
+    return {
+        "content": [{"type": "text", "text": json.dumps(result)}],
+        "isError": not result["valid"],
+    }
+
 server = transport["GraderServer"](
-    state={},
-    call=verifier["make_mcp_verifier"](config["number"]),
+    state=state,
+    call=call,
     server_name="verifier",
     tool_name="verify_factors",
     description=config["description"],
@@ -163,40 +173,65 @@ server = transport["GraderServer"](
         "required": ["p", "q"],
     },
 )
-print(server.url, flush=True)
-server.serve_forever()
+server.start()
+try:
+    print(server.url, flush=True)
+    sys.stdin.read()
+finally:
+    server.close()
+print(json.dumps(state), flush=True)
 """
 
 
 @asynccontextmanager
-async def verifier_endpoint(number: int) -> AsyncGenerator[str, None]:
-    """Run this episode's MCP verifier in its sandbox and yield its loopback URL."""
+async def verifier_endpoint(
+    number: int, *, task_id: str | None = None, grader_state: dict[str, Any] | None = None
+) -> AsyncGenerator[str, None]:
+    """Serve the verifier and optionally collect its state when the episode ends."""
     resources = Path(__file__).parent / "resources"
     config = {
         "code": _START_VERIFIER,
         "transport": (resources / "sandbox/grader_server.py").read_text(),
         "verifier": (resources / "prime_factorization/verifier.py").read_text(),
         "number": number,
+        "task_id": task_id,
         "description": ToolDef(verify_factors(number)).description,
     }
     process = await sandbox().exec_remote(
-        ["python3", "-I", "-c", BOOTSTRAP],
-        ExecRemoteStreamingOptions(input=json.dumps(config), user=AGENT_USER, env=AGENT_ENV),
+        ["python3", "-I", "-c", STREAM_BOOTSTRAP],
+        ExecRemoteStreamingOptions(
+            input=json.dumps(config) + "\n", stdin_open=True, user=AGENT_USER, env=AGENT_ENV
+        ),
     )
     try:
+        # Keep the single-use iterator open through the state snapshot.
+        events = aiter(process)
         stdout = ""
         stderr = ""
         async with asyncio.timeout(30):
-            async for event in process:
+            while "\n" not in stdout:
+                event = await anext(events, None)
+                if event is None:
+                    raise RuntimeError(
+                        f"Verifier exited before reporting its URL: {stderr.strip()}"
+                    )
                 if isinstance(event, ExecStderr):
                     stderr += event.data
                 elif isinstance(event, ExecStdout):
                     stdout += event.data
-                    if "\n" in stdout:
-                        break
-            else:
-                raise RuntimeError(f"Verifier exited before reporting its URL: {stderr.strip()}")
-        yield stdout.splitlines()[0]
+        url, stdout = stdout.split("\n", 1)
+        yield url
+        if grader_state is not None:
+            async with asyncio.timeout(30):
+                await process.close_stdin()
+                while (event := await anext(events, None)) is not None:
+                    if isinstance(event, ExecStdout):
+                        stdout += event.data
+                    elif isinstance(event, ExecStderr):
+                        stderr += event.data
+                if not stdout.strip():
+                    raise RuntimeError(f"Verifier did not report its state: {stderr.strip()}")
+                grader_state.update(json.loads(stdout))
     finally:
         await asyncio.shield(process.kill())
 
@@ -243,13 +278,20 @@ def prime_factorization_solver(
         number = state.metadata["number"]
         await hand_staged_files_to_agent(state.metadata["staged_files"])
 
+        grader_state: dict[str, Any] = {}
+
         @asynccontextmanager
         async def servers_for_harness() -> AsyncGenerator[list[dict[str, str]], None]:
-            if harness in {"claude-sdk", "codex"}:
+            if harness == "codex":
                 yield []
-            else:
-                async with verifier_endpoint(number) as url:
-                    yield [{"name": "verifier", "transport": "streamable-http", "url": url}]
+                return
+            endpoint = (
+                verifier_endpoint(number, task_id=str(state.sample_id), grader_state=grader_state)
+                if harness == "claude-code"
+                else verifier_endpoint(number)
+            )
+            async with endpoint as url:
+                yield [{"name": "verifier", "transport": "streamable-http", "url": url}]
 
         async with servers_for_harness() as servers:
             policy = HarnessPolicy(
@@ -263,7 +305,7 @@ def prime_factorization_solver(
                 ),
                 grader_modules=codex_grader_modules() if harness == "codex" else None,
             )
-            if harness in {"claude-sdk", "codex"}:
+            if harness in {"claude-code", "codex"}:
                 result = await run_harness(
                     harness,
                     state,
@@ -272,8 +314,10 @@ def prime_factorization_solver(
                 )
             else:
                 result = await run_harness(harness, state, policy)
-            apply_harness_result(state, result)
-            return state
+        if harness == "claude-code":
+            result.artifacts["grader_state"] = grader_state
+        apply_harness_result(state, result)
+        return state
 
     return solve
 

@@ -31,7 +31,7 @@ def cheatbench_sycophancy(
 
 _HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE,
-    "claude-sdk": TERMINUS_COMPOSE.with_name("claude-compose.yaml"),
+    "claude-code": TERMINUS_COMPOSE.with_name("claude-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
 }
 
@@ -51,11 +51,11 @@ def cheatbench_prime_factorization(
             Defaults to the published build of the original's builder, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
         harness: Agent harness to run.
-        harness_version: Claude CLI or Codex version, required for claude-sdk and codex.
-        harness_model: Claude CLI or Codex model ID, required for claude-sdk and codex.
+        harness_version: Claude CLI or Codex version, required for claude-code and codex.
+        harness_model: Original model ID for the Claude judge transcript or the Codex CLI.
     """
     validate_harness(harness)
-    if harness in {"claude-sdk", "codex"} and (not harness_version or not harness_model):
+    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
