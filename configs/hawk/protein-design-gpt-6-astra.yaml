@@ -2,7 +2,7 @@
 # Release codex cohort configuration with all 20 targets and the 5400 s episode timeout.
 name: protein-design-gpt-6-astra
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3d7a4c11b03d617b98a2f0e3fe959c5768bb5454
     name: cheatbench_inspect
     items:
       - name: cheatbench_protein_design
