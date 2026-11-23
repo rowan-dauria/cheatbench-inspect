@@ -1,0 +1,31 @@
+# Run with hawk eval-set run configs/hawk/openmath-deepseek-v4-pro-terminus-2-smoke.yaml
+# One-row DeepSeek V4 Pro smoke on Terminus-2.
+# Port test, not a paper row: the original ran DeepSeek V4 Pro in DeepSeek Harness, which the port lacks,
+# so it runs on Terminus-2 per the 2026-11-22 decision.
+name: openmath-deepseek-v4-pro-smoke
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@113dfce78a5775b3b803b0935ffe416b1d864275
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_openmath
+        args:
+          harness: terminus-2
+          dataset_limit: 1
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/deepseek/deepseek-v4-pro
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

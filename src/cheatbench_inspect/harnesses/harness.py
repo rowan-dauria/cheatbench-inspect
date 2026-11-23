@@ -1,6 +1,6 @@
 """Shared interface for agent harnesses."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from inspect_ai.agent import AgentState
@@ -16,6 +16,7 @@ class HarnessPolicy:
     max_turns: int | None = None
     timeout_s: int = 3600
     mcp_only: bool = False
+    env: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass

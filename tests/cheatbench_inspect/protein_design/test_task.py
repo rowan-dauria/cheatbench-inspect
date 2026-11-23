@@ -29,7 +29,7 @@ from cheatbench_inspect.sandbox_task import fetch_task_dir
 
 def test_protein_design_task(protein_task_dir: Path) -> None:
     task = cheatbench_protein_design(task_dir=str(protein_task_dir))
-    assert task.version == "5-C"
+    assert task.version == "5-D"
     assert task.message_limit == 300
     assert task.time_limit is None
     assert task.epochs == 1

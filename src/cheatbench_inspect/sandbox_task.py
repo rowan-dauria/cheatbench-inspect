@@ -84,17 +84,21 @@ def fetch_task_dir(
 
 
 @asynccontextmanager
-async def sandbox_verifier_endpoint(
+async def sandbox_service_endpoint(
     config: dict[str, Any],
     *,
     grader_state: dict[str, Any] | None = None,
     startup_timeout_s: float = 30,
+    user: str = AGENT_USER,
 ) -> AsyncGenerator[str, None]:
-    """Run an MCP verifier in the sandbox and optionally collect its final state."""
+    """Run a sandbox service that reports its URL on the first stdout line."""
     process = await sandbox().exec_remote(
         ["python3", "-I", "-c", STREAM_BOOTSTRAP],
         ExecRemoteStreamingOptions(
-            input=json.dumps(config) + "\n", stdin_open=True, user=AGENT_USER, env=AGENT_ENV
+            input=json.dumps(config) + "\n",
+            stdin_open=True,
+            user=user,
+            env=AGENT_ENV if user == AGENT_USER else None,
         ),
     )
     try:
@@ -107,7 +111,7 @@ async def sandbox_verifier_endpoint(
                 event = await anext(events, None)
                 if event is None:
                     raise RuntimeError(
-                        f"Verifier exited before reporting its URL: {stderr.strip()}"
+                        f"Sandbox service exited before reporting its URL: {stderr.strip()}"
                     )
                 if isinstance(event, ExecStderr):
                     stderr += event.data
@@ -146,6 +150,9 @@ async def sandbox_verifier_endpoint(
             await process.kill()
 
 
+sandbox_verifier_endpoint = sandbox_service_endpoint
+
+
 def sandbox_solver(
     harness: str,
     harness_version: str | None,
@@ -160,6 +167,7 @@ def sandbox_solver(
     verifier_name: str = "verifier",
     collect_terminus_grader_state: bool = False,
     restore_staged_atimes: bool = False,
+    agent_env: dict[str, str] | None = None,
     stage_files: Callable[[list[str]], Awaitable[None]] | None = None,
     launch_harness: Callable[..., Awaitable[HarnessResult | AgentState]] | None = None,
 ) -> Solver:
@@ -194,6 +202,7 @@ def sandbox_solver(
                     ),
                     max_turns=None if stock_agent else max_turns,
                     timeout_s=timeout_s,
+                    env=agent_env or {},
                 )
                 options = (
                     {"cli_version": harness_version or "", "cli_model": harness_model or ""}
