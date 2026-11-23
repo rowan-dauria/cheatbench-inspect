@@ -67,6 +67,7 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
     "resources/sandbox/task-requirements.txt",
 ]
 "cheatbench_inspect.geoguessr" = ["resources/instruction.txt"]
+"cheatbench_inspect.synthetic_puzzles" = ["resources/instruction.txt"]
 "cheatbench_inspect.sycophancy" = ["resources/*.jsonl"]
 
 # Layout preset: multi-eval (tests/<package>/, src/<package>/README.md) or

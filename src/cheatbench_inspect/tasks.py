@@ -18,6 +18,9 @@ from cheatbench_inspect.subset_sum import subset_sum
 from cheatbench_inspect.subset_sum.scorers import subset_sum_scorer
 from cheatbench_inspect.sycophancy import sycophancy
 from cheatbench_inspect.sycophancy.scorers import sycophancy_scorer
+from cheatbench_inspect.synthetic_puzzles import dataset as puzzle_dataset
+from cheatbench_inspect.synthetic_puzzles import synthetic_puzzles
+from cheatbench_inspect.synthetic_puzzles.scorers import synthetic_puzzles_scorer
 
 
 @task
@@ -166,5 +169,45 @@ def cheatbench_geoguessr(
         # One assistant message and one tool message per turn.
         message_limit=2 * geoguessr.MAX_TURNS,
         epochs=geoguessr.DEFAULT_EPOCHS,
+        version=load_eval_version(__file__),
+    )
+
+
+@task
+def cheatbench_synthetic_puzzles(
+    task_dir: str | None = None,
+    dataset_limit: int | None = None,
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+) -> Task:
+    """Run Synthetic Puzzles with the selected agent harness.
+
+    Args:
+        task_dir: Directory containing the generated data.jsonl and environment/ tree.
+            Defaults to the pinned Hugging Face archive, downloaded and cached.
+        dataset_limit: Number of puzzles to load from the start of data.jsonl.
+        harness: Agent harness to run.
+        harness_version: Claude CLI or Codex version, required for claude-code and codex.
+        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+    """
+    validate_harness(harness)
+    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
+    if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
+        raise ValueError("terminus-2 does not accept harness_version or harness_model")
+    if dataset_limit is None:
+        dataset_limit = puzzle_dataset.DEFAULT_DATASET_LIMIT
+    if dataset_limit < 1:
+        raise ValueError("dataset_limit must be positive.")
+    data_dir = Path(task_dir) if task_dir is not None else puzzle_dataset.default_task_dir()
+    return Task(
+        dataset=puzzle_dataset.get_dataset(data_dir, limit=dataset_limit),
+        scorer=synthetic_puzzles_scorer(data_dir),
+        solver=synthetic_puzzles.synthetic_puzzles_solver(harness, harness_version, harness_model),
+        sandbox=("docker", str(_OFFLINE_HARNESS_COMPOSE[harness])),
+        # One assistant message and one tool message per turn.
+        message_limit=2 * synthetic_puzzles.MAX_TURNS,
+        epochs=synthetic_puzzles.DEFAULT_EPOCHS,
         version=load_eval_version(__file__),
     )

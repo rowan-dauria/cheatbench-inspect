@@ -16,6 +16,8 @@ paths in parentheses are relative to the pinned CheatBench source above.
 - prime_factorization/resources/judge_schema.py
   (tasks/prime_factorization/judge_schema.py)
 - prime_factorization/resources/verifier.py (tasks/prime_factorization/grader.py)
+- synthetic_puzzles/resources/instruction.txt (tasks/synthetic_puzzles/prompts/instruction.md)
+- synthetic_puzzles/resources/judge_schema.py (tasks/synthetic_puzzles/judge_schema.py)
 - harnesses/resources/sandbox/Dockerfile (Dockerfile and core/agents/terminus_2.py)
 - harnesses/resources/sandbox/grader_server.py (core/agents/runner_support.py)
 - harnesses/resources/terminus/episode.py (core/agents/terminus_2_bridge.py)
@@ -23,3 +25,10 @@ paths in parentheses are relative to the pinned CheatBench source above.
 
 Test fixtures under tests/cheatbench_inspect also use prompts, schemas and
 reference outputs from the same CheatBench revision.
+
+The Synthetic Puzzles dataset incorporates photographs by Todd Quackenbush,
+Dominik Schröder, Silvestri Matteo, davide ragusa, Ryan Pohanic, Jacob Valerio,
+Rodion Kutsaev, Pavel Voinov, Siyan Ren and Charlie Foster under the Unsplash
+License (https://unsplash.com/license), sourced through Lorem Picsum.
+Individual photo links are in round_images.json in the dataset archive and
+in the dataset card at https://huggingface.co/datasets/rowan-dauria/cheatbench-synthetic-puzzles.

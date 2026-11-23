@@ -1,4 +1,4 @@
-"""Docker tests for GeoGuessr image transport and sandbox egress denial across all harnesses."""
+"""Docker tests for image-task transport and sandbox egress denial across harnesses."""
 
 from __future__ import annotations
 
@@ -12,10 +12,12 @@ import struct
 import threading
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import pytest
+from inspect_ai import Task
 from inspect_ai import eval as inspect_eval
 from inspect_ai.event import ModelEvent
 from inspect_ai.model import (
@@ -35,10 +37,45 @@ from tests.cheatbench_inspect.harnesses.codex_test_support import (
     scripted_turns,
 )
 
-from cheatbench_inspect.tasks import cheatbench_geoguessr
+from cheatbench_inspect.synthetic_puzzles.dataset import default_task_dir as puzzle_dataset_dir
+from cheatbench_inspect.tasks import cheatbench_geoguessr, cheatbench_synthetic_puzzles
 
 _IMAGE_ID = "31fee33fbdbd6b87"
 _IMAGE_PATH = f"/workspace/image/{_IMAGE_ID}.jpg"
+_PUZZLE_PATH = "/workspace/puzzle/img_01.jpg"
+
+
+@dataclass(frozen=True)
+class ImageEpisode:
+    task: Callable[..., Task]
+    directory: Path
+    image_path: str
+
+    @property
+    def staged_bytes(self) -> bytes:
+        raw = (self.directory / "environment/files" / self.image_path[1:]).read_bytes()
+        assert _jpeg_dimensions(raw) == ((4200, 2800) if self.is_puzzle else (1024, 1024))
+        return raw
+
+    @property
+    def is_puzzle(self) -> bool:
+        return self.image_path == _PUZZLE_PATH
+
+
+@pytest.fixture(
+    params=[
+        "geoguessr",
+        pytest.param(
+            "synthetic_puzzles", marks=[pytest.mark.dataset_download, pytest.mark.huggingface]
+        ),
+    ]
+)
+def image_episode(request: pytest.FixtureRequest, row0_task_dir: Path) -> ImageEpisode:
+    if request.param == "geoguessr":
+        return ImageEpisode(cheatbench_geoguessr, row0_task_dir, _IMAGE_PATH)
+    return ImageEpisode(cheatbench_synthetic_puzzles, puzzle_dataset_dir(), _PUZZLE_PATH)
+
+
 _BASE64_RUN = re.compile(r"[A-Za-z0-9+/=]{200,}")
 
 _EGRESS_PROBE_PY = "\n".join(
@@ -111,6 +148,24 @@ def _jpeg_dimensions(data: bytes) -> tuple[int, int]:
     raise AssertionError("No JPEG SOF frame header found")
 
 
+def _assert_delivered_jpeg(
+    episode: ImageEpisode,
+    staged: bytes,
+    delivered: bytes,
+    *,
+    puzzle_dimensions: tuple[int, int],
+    puzzle_bytes: int,
+    puzzle_sha256: str,
+) -> None:
+    if episode.is_puzzle:
+        assert _jpeg_dimensions(delivered) == puzzle_dimensions
+        assert len(delivered) == puzzle_bytes
+        assert hashlib.sha256(delivered).hexdigest() == puzzle_sha256
+    else:
+        assert delivered == staged
+        assert _jpeg_dimensions(delivered) == (1024, 1024)
+
+
 def _decode_data_uri(uri: str) -> tuple[str, bytes]:
     assert uri.startswith("data:"), f"Expected data URI, got {uri[:40]!r}"
     header, encoded = uri.split(",", 1)
@@ -144,7 +199,7 @@ def _redact_b64_payloads(obj: Any) -> Any:
     return obj
 
 
-def _honest_judge_reply(prompts: list[str]) -> Callable[..., ModelOutput]:
+def _honest_judge_reply(prompts: list[str], *, puzzle: bool = False) -> Callable[..., ModelOutput]:
     def reply(messages: Any, tools: Any, tool_choice: Any, config: Any) -> ModelOutput:
         del tools, tool_choice, config
         prompts.append(messages[0].text)
@@ -168,17 +223,26 @@ def _honest_judge_reply(prompts: list[str]) -> Callable[..., ModelOutput]:
             "explicit_prohibition_violated": False,
             "explicit_prohibition_evidence": "",
         }
+        if puzzle:
+            del verdict["saw_path"], verdict["path_source"]
+            verdict.update(
+                found_reference=False,
+                reference_source="none",
+                prohibited_computation=False,
+                own_count_method="none",
+                own_count=0,
+            )
         return ModelOutput.from_content("mockllm/model", json.dumps(verdict))
 
     return reply
 
 
-def _capture_sandbox_jpeg(captured: dict[str, Any]):
+def _capture_sandbox_jpeg(captured: dict[str, Any], image_path: str):
     @solver
     def _solver():
         async def solve(state: Any, generate: Any) -> Any:
             del generate
-            raw = await sandbox().read_file(_IMAGE_PATH, text=False)
+            raw = await sandbox().read_file(image_path, text=False)
             assert isinstance(raw, bytes)
             captured["sandbox_jpeg_bytes"] = raw
             captured["sandbox_jpeg_sha256"] = hashlib.sha256(raw).hexdigest()
@@ -436,7 +500,7 @@ class _FakeAnthropicMessagesServer(socketserver.ThreadingMixIn, http.server.HTTP
         self.server_close()
 
 
-def _terminus_turn_json(*, view_image: bool, complete: bool) -> str:
+def _terminus_turn_json(image_path: str, *, view_image: bool, complete: bool) -> str:
     payload: dict[str, Any] = {
         "analysis": "View the staged photograph." if view_image else "Done viewing the photograph.",
         "plan": "Inspect the image." if view_image else "Finish the episode.",
@@ -444,7 +508,7 @@ def _terminus_turn_json(*, view_image: bool, complete: bool) -> str:
         "task_complete": complete,
     }
     if view_image:
-        payload["view_images"] = [_IMAGE_PATH]
+        payload["view_images"] = [image_path]
     return json.dumps(payload)
 
 
@@ -491,18 +555,16 @@ def _find_responses_image_blocks(
 
 @pytest.mark.docker
 @pytest.mark.slow
-def test_terminus_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -> None:
-    staged_bytes = (
-        row0_task_dir / f"environment/files/workspace/image/{_IMAGE_ID}.jpg"
-    ).read_bytes()
+def test_terminus_image_transport_openrouter(tmp_path: Path, image_episode: ImageEpisode) -> None:
+    staged_bytes = image_episode.staged_bytes
     staged_sha256 = hashlib.sha256(staged_bytes).hexdigest()
 
     def responder(req_doc: dict[str, Any], idx: int) -> tuple[dict[str, Any], str]:
         del req_doc
         if idx == 0:
-            text = _terminus_turn_json(view_image=True, complete=False)
+            text = _terminus_turn_json(image_episode.image_path, view_image=True, complete=False)
         else:
-            text = _terminus_turn_json(view_image=False, complete=True)
+            text = _terminus_turn_json(image_episode.image_path, view_image=False, complete=True)
         return {"role": "assistant", "content": text}, "stop"
 
     fake = _FakeChatCompletionsServer(responder).start()
@@ -514,18 +576,20 @@ def test_terminus_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path
             base_url=fake.base_url,
             api_key="dummy-openrouter-key",
         )
-        task = cheatbench_geoguessr(
-            task_dir=str(row0_task_dir),
+        task = image_episode.task(
+            task_dir=str(image_episode.directory),
             dataset_limit=1,
             harness="terminus-2",
         )
-        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured))
+        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured, image_episode.image_path))
         [log] = inspect_eval(
             task,
             model=agent,
             model_roles={
                 "grader": get_model(
-                    "mockllm/model", custom_outputs=_honest_judge_reply(prompts), memoize=False
+                    "mockllm/model",
+                    custom_outputs=_honest_judge_reply(prompts, puzzle=image_episode.is_puzzle),
+                    memoize=False,
                 )
             },
             log_dir=str(tmp_path / "logs"),
@@ -548,31 +612,36 @@ def test_terminus_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path
     assert role == "user"
     mime, decoded = _decode_data_uri(block["image_url"]["url"])
     assert mime == "image/jpeg"
-    dims = _jpeg_dimensions(decoded)
-    assert decoded == staged_bytes
-    assert dims == (1024, 1024)
+    _assert_delivered_jpeg(
+        image_episode,
+        staged_bytes,
+        decoded,
+        puzzle_dimensions=(2000, 1333),
+        puzzle_bytes=1_010_350,
+        puzzle_sha256="d3bac2a33ffac2608a021f3042d7e8a0822c072751d412bb157a941c361de30b",
+    )
 
     assert _model_events_with_images(sample), "Inspect transcript missing ContentImage"
     assert len(prompts) == 1
-    view_turn = re.escape(_terminus_turn_json(view_image=True, complete=False))
+    view_turn = re.escape(
+        _terminus_turn_json(image_episode.image_path, view_image=True, complete=False)
+    )
     assert re.search(rf"^Assistant:\s*{view_turn}", prompts[0], re.MULTILINE)
     _assert_judge_prompt_has_no_base64(prompts[0])
 
 
 @pytest.mark.docker
 @pytest.mark.slow
-def test_terminus_image_transport_anthropic(tmp_path: Path, row0_task_dir: Path) -> None:
-    staged_bytes = (
-        row0_task_dir / f"environment/files/workspace/image/{_IMAGE_ID}.jpg"
-    ).read_bytes()
+def test_terminus_image_transport_anthropic(tmp_path: Path, image_episode: ImageEpisode) -> None:
+    staged_bytes = image_episode.staged_bytes
     staged_sha256 = hashlib.sha256(staged_bytes).hexdigest()
 
     def responder(req_doc: dict[str, Any], idx: int) -> tuple[list[dict[str, Any]], str]:
         del req_doc
         if idx == 0:
-            text = _terminus_turn_json(view_image=True, complete=False)
+            text = _terminus_turn_json(image_episode.image_path, view_image=True, complete=False)
         else:
-            text = _terminus_turn_json(view_image=False, complete=True)
+            text = _terminus_turn_json(image_episode.image_path, view_image=False, complete=True)
         return [{"type": "text", "text": text}], "end_turn"
 
     fake = _FakeAnthropicMessagesServer(responder).start()
@@ -584,18 +653,20 @@ def test_terminus_image_transport_anthropic(tmp_path: Path, row0_task_dir: Path)
             base_url=fake.base_url,
             api_key="dummy-anthropic-key",
         )
-        task = cheatbench_geoguessr(
-            task_dir=str(row0_task_dir),
+        task = image_episode.task(
+            task_dir=str(image_episode.directory),
             dataset_limit=1,
             harness="terminus-2",
         )
-        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured))
+        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured, image_episode.image_path))
         [log] = inspect_eval(
             task,
             model=agent,
             model_roles={
                 "grader": get_model(
-                    "mockllm/model", custom_outputs=_honest_judge_reply(prompts), memoize=False
+                    "mockllm/model",
+                    custom_outputs=_honest_judge_reply(prompts, puzzle=image_episode.is_puzzle),
+                    memoize=False,
                 )
             },
             log_dir=str(tmp_path / "logs"),
@@ -620,13 +691,20 @@ def test_terminus_image_transport_anthropic(tmp_path: Path, row0_task_dir: Path)
     assert source["type"] == "base64"
     assert source["media_type"] == "image/jpeg"
     decoded = base64.b64decode(source["data"])
-    dims = _jpeg_dimensions(decoded)
-    assert decoded == staged_bytes
-    assert dims == (1024, 1024)
+    _assert_delivered_jpeg(
+        image_episode,
+        staged_bytes,
+        decoded,
+        puzzle_dimensions=(2000, 1333),
+        puzzle_bytes=1_010_350,
+        puzzle_sha256="d3bac2a33ffac2608a021f3042d7e8a0822c072751d412bb157a941c361de30b",
+    )
 
     assert _model_events_with_images(sample), "Inspect transcript missing ContentImage"
     assert len(prompts) == 1
-    view_turn = re.escape(_terminus_turn_json(view_image=True, complete=False))
+    view_turn = re.escape(
+        _terminus_turn_json(image_episode.image_path, view_image=True, complete=False)
+    )
     assert re.search(rf"^Assistant:\s*{view_turn}", prompts[0], re.MULTILINE)
     _assert_judge_prompt_has_no_base64(prompts[0])
 
@@ -634,10 +712,10 @@ def test_terminus_image_transport_anthropic(tmp_path: Path, row0_task_dir: Path)
 @pytest.mark.docker
 @pytest.mark.slow
 @pytest.mark.dataset_download
-def test_claude_code_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -> None:
-    staged_bytes = (
-        row0_task_dir / f"environment/files/workspace/image/{_IMAGE_ID}.jpg"
-    ).read_bytes()
+def test_claude_code_image_transport_openrouter(
+    tmp_path: Path, image_episode: ImageEpisode
+) -> None:
+    staged_bytes = image_episode.staged_bytes
     staged_sha256 = hashlib.sha256(staged_bytes).hexdigest()
 
     agent_turns = 0
@@ -659,7 +737,7 @@ def test_claude_code_image_transport_openrouter(tmp_path: Path, row0_task_dir: P
                             "type": "function",
                             "function": {
                                 "name": "Read",
-                                "arguments": json.dumps({"file_path": _IMAGE_PATH}),
+                                "arguments": json.dumps({"file_path": image_episode.image_path}),
                             },
                         }
                     ],
@@ -677,20 +755,22 @@ def test_claude_code_image_transport_openrouter(tmp_path: Path, row0_task_dir: P
             base_url=fake.base_url,
             api_key="dummy-openrouter-key",
         )
-        task = cheatbench_geoguessr(
-            task_dir=str(row0_task_dir),
+        task = image_episode.task(
+            task_dir=str(image_episode.directory),
             dataset_limit=1,
             harness="claude-code",
             harness_version="2.1.270",
             harness_model="claude-sonnet-5",
         )
-        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured))
+        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured, image_episode.image_path))
         [log] = inspect_eval(
             task,
             model=agent,
             model_roles={
                 "grader": get_model(
-                    "mockllm/model", custom_outputs=_honest_judge_reply(prompts), memoize=False
+                    "mockllm/model",
+                    custom_outputs=_honest_judge_reply(prompts, puzzle=image_episode.is_puzzle),
+                    memoize=False,
                 )
             },
             log_dir=str(tmp_path / "logs"),
@@ -715,9 +795,14 @@ def test_claude_code_image_transport_openrouter(tmp_path: Path, row0_task_dir: P
     assert role == "user"
     mime, decoded = _decode_data_uri(block["image_url"]["url"])
     assert mime == "image/jpeg"
-    dims = _jpeg_dimensions(decoded)
-    assert decoded == staged_bytes
-    assert dims == (1024, 1024)
+    _assert_delivered_jpeg(
+        image_episode,
+        staged_bytes,
+        decoded,
+        puzzle_dimensions=(2000, 1333),
+        puzzle_bytes=508_953,
+        puzzle_sha256="dbf07ef8e97686e9fe6cfbd3d4fe74f8d1277ed9909355543d43373070fc24c7",
+    )
 
     tool_msgs = [m for m in turn2_req["messages"] if m.get("role") == "tool"]
     assert len(tool_msgs) == 1
@@ -734,10 +819,8 @@ def test_claude_code_image_transport_openrouter(tmp_path: Path, row0_task_dir: P
 @pytest.mark.docker
 @pytest.mark.slow
 @pytest.mark.dataset_download
-def test_codex_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -> None:
-    staged_bytes = (
-        row0_task_dir / f"environment/files/workspace/image/{_IMAGE_ID}.jpg"
-    ).read_bytes()
+def test_codex_image_transport_openrouter(tmp_path: Path, image_episode: ImageEpisode) -> None:
+    staged_bytes = image_episode.staged_bytes
     staged_sha256 = hashlib.sha256(staged_bytes).hexdigest()
 
     turn1 = [
@@ -778,7 +861,7 @@ def test_codex_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -
             "type": "function_call",
             "call_id": "call_view_img_1",
             "name": "view_image",
-            "arguments": json.dumps({"path": _IMAGE_PATH}),
+            "arguments": json.dumps({"path": image_episode.image_path}),
             "status": "completed",
         },
     ]
@@ -828,20 +911,22 @@ def test_codex_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -
             responses_api=True,
             config=GenerateConfig(reasoning_effort="high", reasoning_summary="detailed"),
         )
-        task = cheatbench_geoguessr(
-            task_dir=str(row0_task_dir),
+        task = image_episode.task(
+            task_dir=str(image_episode.directory),
             dataset_limit=1,
             harness="codex",
             harness_version="0.154.0",
             harness_model="gpt-5.6-luna",
         )
-        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured))
+        task.solver = chain(task.solver, _capture_sandbox_jpeg(captured, image_episode.image_path))
         [log] = inspect_eval(
             task,
             model=agent,
             model_roles={
                 "grader": get_model(
-                    "mockllm/model", custom_outputs=_honest_judge_reply(prompts), memoize=False
+                    "mockllm/model",
+                    custom_outputs=_honest_judge_reply(prompts, puzzle=image_episode.is_puzzle),
+                    memoize=False,
                 )
             },
             log_dir=str(tmp_path / "logs"),
@@ -864,9 +949,14 @@ def test_codex_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -
     container_kind, block = image_blocks[0]
     mime, decoded = _decode_data_uri(block["image_url"])
     assert mime == "image/jpeg"
-    dims = _jpeg_dimensions(decoded)
-    assert decoded == staged_bytes
-    assert dims == (1024, 1024)
+    _assert_delivered_jpeg(
+        image_episode,
+        staged_bytes,
+        decoded,
+        puzzle_dimensions=(1920, 1280),
+        puzzle_bytes=564_625,
+        puzzle_sha256="12e123a9cbbabb2daccb49565070dcdebaa829ca4d0c0dec8ef8672a76c9a5a8",
+    )
 
     assert container_kind == "message:user"
     fc_outputs = [item for item in turn2_req["input"] if item.get("type") == "function_call_output"]
@@ -878,7 +968,7 @@ def test_codex_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -
     assert _model_events_with_images(sample), "Inspect transcript missing ContentImage"
     assert len(prompts) == 1
     assert "Assistant: Viewing the staged photograph." in prompts[0]
-    assert f"view_image(path={_IMAGE_PATH!r})" in prompts[0]
+    assert f"view_image(path={image_episode.image_path!r})" in prompts[0]
     assert "Tool (view_image):" in prompts[0]
     _assert_judge_prompt_has_no_base64(prompts[0])
 

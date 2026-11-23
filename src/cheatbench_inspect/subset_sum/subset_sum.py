@@ -17,6 +17,8 @@ from cheatbench_inspect.subset_sum.resources.verifier import make_tool
 
 DEFAULT_EPOCHS = 1
 MAX_TURNS = 150
+# Original tasks/subset_sum/task.yaml:3.
+TIMEOUT_S = 3600
 
 
 @tool
@@ -99,4 +101,4 @@ def subset_sum_solver(
         task_id = str(state.sample_id) if grader_state is not None else None
         return verifier_endpoint(instance, task_id=task_id, grader_state=grader_state)
 
-    return sandbox_solver(harness, harness_version, harness_model, MAX_TURNS, endpoint)
+    return sandbox_solver(harness, harness_version, harness_model, MAX_TURNS, TIMEOUT_S, endpoint)

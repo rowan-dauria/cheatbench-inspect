@@ -68,7 +68,7 @@ RUN pip install --no-cache-dir \\
 # has top-level imports for the rest of the original harness (pydantic, etc.), so we
 # extract the verbatim `render_prompt` AST node from the pinned core/trial.py source
 # and register it as `core.trial` before invoking build.py.
-CONTAINER_ENTRYPOINT = """
+RENDER_PROMPT_BOOTSTRAP = """
 import ast
 import runpy
 import sys
@@ -96,9 +96,15 @@ core_pkg.trial = trial_mod
 sys.modules["core"] = core_pkg
 sys.modules["core.trial"] = trial_mod
 
+"""
+
+CONTAINER_ENTRYPOINT = (
+    RENDER_PROMPT_BOOTSTRAP
+    + """
 sys.argv = ["/build/tasks/geoguessr/build.py", "--variant", "single"]
 runpy.run_path("/build/tasks/geoguessr/build.py", run_name="__main__")
 """
+)
 
 DATASET_CARD = f"""---
 license: mit
@@ -154,10 +160,12 @@ def fetch_inputs(repo_root: Path) -> None:
         (repo_root / rel_image).write_bytes(data)
 
 
-def ensure_builder_image() -> str:
+def ensure_builder_image(
+    dockerfile: str = BUILDER_DOCKERFILE, repository: str = "cheatbench-geoguessr-builder"
+) -> str:
     """Build (or reuse) the pinned Python 3.11 + exiftool builder Docker image."""
-    tag = hashlib.sha256(BUILDER_DOCKERFILE.encode()).hexdigest()[:12]
-    image = f"cheatbench-geoguessr-builder:{tag}"
+    tag = hashlib.sha256(dockerfile.encode()).hexdigest()[:12]
+    image = f"{repository}:{tag}"
     inspect = subprocess.run(
         ["docker", "image", "inspect", image],
         capture_output=True,
@@ -166,12 +174,18 @@ def ensure_builder_image() -> str:
     if inspect.returncode == 0:
         return image
     with tempfile.TemporaryDirectory() as ctx:
-        (Path(ctx) / "Dockerfile").write_text(BUILDER_DOCKERFILE, encoding="utf-8")
+        (Path(ctx) / "Dockerfile").write_text(dockerfile, encoding="utf-8")
         subprocess.run(["docker", "build", "-t", image, ctx], check=True)
     return image
 
 
-def run_builder_in_container(repo_root: Path, image: str) -> None:
+def run_builder_in_container(
+    repo_root: Path,
+    image: str,
+    *,
+    entrypoint: str = CONTAINER_ENTRYPOINT,
+    interpreter: str = "python3.11",
+) -> None:
     """Run build.py inside the builder container with networking disabled."""
     # SOURCE_DATE_EPOCH=0 makes Python 3.11's py_compile emit PEP 552 checked-hash
     # .pyc headers instead of wall-clock mtime headers; PYTHONHASHSEED=0 keeps
@@ -196,10 +210,10 @@ def run_builder_in_container(repo_root: Path, image: str) -> None:
             "-v",
             f"{repo_root}:/build",
             image,
-            "python3.11",
+            interpreter,
             "-B",
             "-c",
-            CONTAINER_ENTRYPOINT,
+            entrypoint,
         ],
         check=True,
     )
@@ -213,9 +227,11 @@ def stage_archive_tree(repo_root: Path, staged: Path) -> None:
     shutil.copytree(single_env / "files", staged / "environment/files")
 
 
-def pack(work: Path, archive: Path) -> str:
+def pack(
+    work: Path, archive: Path, *, root_files: tuple[str, ...] = ("data.jsonl", "manifest.json")
+) -> str:
     """Pack data.jsonl, manifest.json and environment/ reproducibly and return sha256."""
-    paths = [work / "data.jsonl", work / "manifest.json", work / "environment"]
+    paths = [*(work / file for file in root_files), work / "environment"]
     paths += sorted((work / "environment").rglob("*"))
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode="w", format=tarfile.PAX_FORMAT) as tar:
@@ -238,7 +254,14 @@ def pack(work: Path, archive: Path) -> str:
     return hashlib.sha256(archive.read_bytes()).hexdigest()
 
 
-def write_fixture(staged: Path, row_ids: list[str], out: Path) -> str:
+def write_fixture(
+    staged: Path,
+    row_ids: list[str],
+    out: Path,
+    *,
+    root_files: tuple[str, ...] = ("data.jsonl", "manifest.json"),
+    exclude: tuple[str, ...] = (),
+) -> str:
     """Pack selected rows, manifest.json and precisely the files they stage."""
     records = [
         json.loads(line)
@@ -256,15 +279,19 @@ def write_fixture(staged: Path, row_ids: list[str], out: Path) -> str:
             "".join(json.dumps(row) + "\n" for row in selected),
             encoding="utf-8",
         )
-        shutil.copyfile(staged / "manifest.json", fixture / "manifest.json")
+        for file in root_files:
+            if file != "data.jsonl":
+                shutil.copyfile(staged / file, fixture / file)
         for row in selected:
             for rel in set(row["files"].values()) | set(row["files_abs"].values()):
+                if rel in exclude:
+                    continue
                 source = staged / "environment" / rel
                 target = fixture / "environment" / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(source, target)
         out.parent.mkdir(parents=True, exist_ok=True)
-        return pack(fixture, out)
+        return pack(fixture, out, root_files=root_files)
 
 
 def upload(repo_id: str, archive: Path) -> str:

@@ -20,6 +20,8 @@ DEFAULT_EPOCHS = 1
 # The original runner's --max-turns default, which Terminus-2 enforces as Harbor iterations.
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/run.py#L684-L685
 MAX_TURNS = 150
+# Original tasks/prime_factorization/task.yaml:3.
+TIMEOUT_S = 3600
 
 
 # AGENT TOOLS
@@ -126,6 +128,7 @@ def prime_factorization_solver(
         harness_version,
         harness_model,
         MAX_TURNS,
+        TIMEOUT_S,
         endpoint,
         stage_files=hand_staged_files_to_agent,
         launch_harness=run_harness,

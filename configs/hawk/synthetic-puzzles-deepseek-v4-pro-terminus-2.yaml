@@ -1,0 +1,29 @@
+# Run with hawk eval-set run configs/hawk/synthetic-puzzles-deepseek-v4-pro-terminus-2.yaml
+# Release terminus-2 cohort configuration with 20 rows and the task default 1800 s timeout.
+name: synthetic-puzzles-deepseek-v4-pro-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_synthetic_puzzles
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/deepseek/deepseek-v4-pro
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
