@@ -8,7 +8,7 @@
 # Hawk exposes task retries via retry_attempts, not retry_on_error.
 name: geoguessr-claude-fable-5-1
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@2c9d507658f11dc2817b26d91a4b0b48fb632944
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@b6a89020fc2c6e2dd0d2d8c65e21bf91901cc66d
     name: cheatbench_inspect
     items:
       - name: cheatbench_geoguessr
