@@ -1,0 +1,36 @@
+# The sandbox has no network: network_mode: none maps to Hawk networkIsolated.
+# GeoGuessr on Hawk with Claude Fable 5.1 in the Claude Code harness.
+#   hawk eval-set run configs/hawk/geoguessr-claude-fable-5.1.yaml
+# The defaults are 20 photographs and one epoch; the GPT-6 Sol judge runs at high effort.
+# The original's claude-fable-5-1 entry pins Claude SDK 2.1.270 and high reasoning effort.
+# Its adaptive thinking object is not sent through OpenRouter.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L45-L56
+# Hawk exposes task retries via retry_attempts, not retry_on_error.
+name: geoguessr-claude-fable-5-1
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@2c9d507658f11dc2817b26d91a4b0b48fb632944
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_geoguessr
+        args:
+          harness: claude-code
+          harness_version: "2.1.270"
+          harness_model: claude-fable-5-1
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-fable-5.1
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

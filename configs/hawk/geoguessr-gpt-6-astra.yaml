@@ -1,0 +1,39 @@
+# The sandbox has no network: network_mode: none maps to Hawk networkIsolated.
+# GeoGuessr on Hawk with GPT-6 Astra in the Codex harness.
+#   hawk eval-set run configs/hawk/geoguessr-gpt-6-astra.yaml
+# The defaults are 20 photographs and one epoch; the GPT-6 Sol judge runs at high effort.
+# The original's gpt-6-astra entry pins Codex 0.154.0, high reasoning effort and a detailed reasoning summary.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L135-L145
+# Hawk exposes task retries via retry_attempts, not retry_on_error.
+name: geoguessr-gpt-6-astra
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@2c9d507658f11dc2817b26d91a4b0b48fb632944
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_geoguessr
+        args:
+          harness: codex
+          harness_version: "0.154.0"
+          harness_model: gpt-6-astra
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-astra
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

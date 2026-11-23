@@ -4,7 +4,7 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "4-B"
+version: "4-C"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
@@ -12,3 +12,5 @@ tasks:
     dataset_samples: 10
   - name: cheatbench_subset_sum
     dataset_samples: 10
+  - name: cheatbench_geoguessr
+    dataset_samples: 20

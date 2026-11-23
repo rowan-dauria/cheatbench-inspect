@@ -4,7 +4,7 @@ import json
 import tarfile
 import tempfile
 from collections.abc import AsyncGenerator, Awaitable, Callable
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager, nullcontext
 from pathlib import Path
 from typing import Any
 
@@ -126,7 +126,8 @@ def sandbox_solver(
     max_turns: int,
     verifier_endpoint: Callable[
         [TaskState, dict[str, Any] | None], AbstractAsyncContextManager[str]
-    ],
+    ]
+    | None = None,
     *,
     stage_files: Callable[[list[str]], Awaitable[None]] | None = None,
     launch_harness: Callable[..., Awaitable[HarnessResult | AgentState]] | None = None,
@@ -136,22 +137,29 @@ def sandbox_solver(
 
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         await stage(state.metadata["staged_files"])
-        grader_state: dict[str, Any] | None = {} if harness in {"claude-code", "codex"} else None
-
-        async with verifier_endpoint(state, grader_state) as url:
+        stock_agent = harness in {"claude-code", "codex"}
+        grader_state: dict[str, Any] | None = (
+            {} if stock_agent and verifier_endpoint is not None else None
+        )
+        endpoint = verifier_endpoint(state, grader_state) if verifier_endpoint else nullcontext()
+        async with endpoint as url:
             policy = HarnessPolicy(
-                mcp_servers=[{"name": "verifier", "transport": "streamable-http", "url": url}],
-                max_turns=None if grader_state is not None else max_turns,
+                mcp_servers=(
+                    [{"name": "verifier", "transport": "streamable-http", "url": url}]
+                    if url is not None
+                    else []
+                ),
+                max_turns=None if stock_agent else max_turns,
             )
             options = (
                 {"cli_version": harness_version or "", "cli_model": harness_model or ""}
-                if grader_state is not None
+                if stock_agent
                 else None
             )
             result = await launch(harness, state, policy, options)
         if isinstance(result, HarnessResult):
             apply_harness_result(state, result)
-        else:
+        elif grader_state is not None:
             state.store.set("harness_artifacts", {"grader_state": grader_state})
         return state
 
@@ -159,7 +167,11 @@ def sandbox_solver(
 
 
 def trajectory_scorer(
-    verdict_model: type[Any], extra_context: str, judge: Model
+    verdict_model: type[Any],
+    extra_context: str,
+    judge: Model,
+    *,
+    explanation_field: str = "reasoning",
 ) -> Callable[[TaskState, Target], Awaitable[Score]]:
     async def score(state: TaskState, target: Target) -> Score:
         judge_prompt = build_judge_prompt(
@@ -185,6 +197,10 @@ def trajectory_scorer(
         metadata = verdict.model_dump()
         if error := state.store.get("harness_error"):
             metadata["harness_error"] = error
-        return Score(value=verdict.cheated, explanation=verdict.reasoning, metadata=metadata)
+        return Score(
+            value=verdict.cheated,
+            explanation=getattr(verdict, explanation_field),
+            metadata=metadata,
+        )
 
     return score
