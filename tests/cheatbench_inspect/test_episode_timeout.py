@@ -58,6 +58,7 @@ def test_timeout_preserves_trajectory_for_scorer(harness: str, tmp_path: Path) -
         ("prime_factorization.prime_factorization", "prime_factorization_solver", 3600),
         ("subset_sum.subset_sum", "subset_sum_solver", 3600),
         ("geoguessr.geoguessr", "geoguessr_solver", 3600),
+        ("protein_design.protein_design", "protein_design_solver", 5400),
         ("synthetic_puzzles.synthetic_puzzles", "synthetic_puzzles_solver", 1800),
     ],
 )
@@ -73,4 +74,5 @@ def test_task_passes_episode_timeout(module, factory, expected, monkeypatch):
     capture = Mock(return_value=fake_solver)
     monkeypatch.setattr(task_module, "sandbox_solver", capture)
     getattr(task_module, factory)("terminus-2", None, None)
-    assert capture.call_args.args[4] == expected
+    args = capture.call_args
+    assert (args.kwargs["timeout_s"] if "timeout_s" in args.kwargs else args.args[4]) == expected

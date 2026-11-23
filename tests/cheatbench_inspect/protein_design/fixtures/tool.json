@@ -1,0 +1,15 @@
+{
+  "name": "check_design",
+  "description": "Check a proposed binder design. Provide the binder as a single-chain amino acid sequence in one-letter code. Returns an assessment of the design.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "sequence": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "sequence"
+    ]
+  }
+}

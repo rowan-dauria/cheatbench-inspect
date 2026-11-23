@@ -8,6 +8,7 @@ from contextlib import AbstractAsyncContextManager, asynccontextmanager, nullcon
 from pathlib import Path
 from typing import Any
 
+from anyio import CancelScope
 from inspect_ai.agent import AgentState
 from inspect_ai.model import GenerateConfig, Model, ResponseSchema
 from inspect_ai.scorer import Score, Target
@@ -113,20 +114,36 @@ async def sandbox_verifier_endpoint(
                 elif isinstance(event, ExecStdout):
                     stdout += event.data
         url, stdout = stdout.split("\n", 1)
-        yield url
-        if grader_state is not None:
-            async with asyncio.timeout(30):
-                await process.close_stdin()
-                while (event := await anext(events, None)) is not None:
-                    if isinstance(event, ExecStdout):
-                        stdout += event.data
-                    elif isinstance(event, ExecStderr):
-                        stderr += event.data
-                if not stdout.strip():
-                    raise RuntimeError(f"Verifier did not report its state: {stderr.strip()}")
-                grader_state.update(json.loads(stdout))
+        launch_error = None
+        try:
+            yield url
+        except BaseException as error:
+            launch_error = error
+            raise
+        finally:
+            if grader_state is not None:
+                try:
+                    # A bridge limit can cancel the enclosing Inspect task group.
+                    with CancelScope(shield=True):
+                        async with asyncio.timeout(30):
+                            await process.close_stdin()
+                            while (event := await anext(events, None)) is not None:
+                                if isinstance(event, ExecStdout):
+                                    stdout += event.data
+                                elif isinstance(event, ExecStderr):
+                                    stderr += event.data
+                            if not stdout.strip():
+                                raise RuntimeError(
+                                    f"Verifier did not report its state: {stderr.strip()}"
+                                )
+                            grader_state.update(json.loads(stdout))
+                except Exception as error:
+                    if launch_error is None:
+                        raise
+                    launch_error.add_note(f"Verifier state collection failed: {error}")
     finally:
-        await asyncio.shield(process.kill())
+        with CancelScope(shield=True):
+            await process.kill()
 
 
 def sandbox_solver(
@@ -142,6 +159,7 @@ def sandbox_solver(
     *,
     verifier_name: str = "verifier",
     collect_terminus_grader_state: bool = False,
+    restore_staged_atimes: bool = False,
     stage_files: Callable[[list[str]], Awaitable[None]] | None = None,
     launch_harness: Callable[..., Awaitable[HarnessResult | AgentState]] | None = None,
 ) -> Solver:
@@ -151,8 +169,9 @@ def sandbox_solver(
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         await stage(state.metadata["staged_files"])
         for path, stamp in state.metadata.get("file_mtimes", {}).items():
+            time_flags = ["-am"] if restore_staged_atimes else ["-m"]
             result = await sandbox().exec(
-                ["touch", "-c", "-m", "-d", stamp, "--", path],
+                ["touch", "-c", *time_flags, "-d", stamp, "--", path],
                 env={**AGENT_ENV, "TZ": "UTC"},
                 user=AGENT_USER,
             )
@@ -165,28 +184,30 @@ def sandbox_solver(
             else None
         )
         endpoint = verifier_endpoint(state, grader_state) if verifier_endpoint else nullcontext()
-        async with endpoint as url:
-            policy = HarnessPolicy(
-                mcp_servers=(
-                    [{"name": verifier_name, "transport": "streamable-http", "url": url}]
-                    if url is not None
-                    else []
-                ),
-                max_turns=None if stock_agent else max_turns,
-                timeout_s=timeout_s,
-            )
-            options = (
-                {"cli_version": harness_version or "", "cli_model": harness_model or ""}
-                if stock_agent
-                else None
-            )
-            with time_limit(timeout_s if stock_agent else None):
-                result = await launch(harness, state, policy, options)
-        if isinstance(result, HarnessResult):
-            apply_harness_result(state, result)
-        if grader_state is not None:
-            artifacts = state.store.get("harness_artifacts") or {}
-            state.store.set("harness_artifacts", {**artifacts, "grader_state": grader_state})
+        try:
+            async with endpoint as url:
+                policy = HarnessPolicy(
+                    mcp_servers=(
+                        [{"name": verifier_name, "transport": "streamable-http", "url": url}]
+                        if url is not None
+                        else []
+                    ),
+                    max_turns=None if stock_agent else max_turns,
+                    timeout_s=timeout_s,
+                )
+                options = (
+                    {"cli_version": harness_version or "", "cli_model": harness_model or ""}
+                    if stock_agent
+                    else None
+                )
+                with time_limit(timeout_s if stock_agent else None):
+                    result = await launch(harness, state, policy, options)
+            if isinstance(result, HarnessResult):
+                apply_harness_result(state, result)
+        finally:
+            if grader_state is not None:
+                artifacts = state.store.get("harness_artifacts") or {}
+                state.store.set("harness_artifacts", {**artifacts, "grader_state": grader_state})
         return state
 
     return solve

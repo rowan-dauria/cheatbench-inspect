@@ -492,6 +492,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "agent-client-protocol" },
+    { name = "anyio" },
     { name = "inspect-ai" },
     { name = "inspect-evals-utils", extra = ["huggingface"] },
     { name = "inspect-swe" },
@@ -519,6 +520,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "agent-client-protocol", specifier = "<1" },
+    { name = "anyio", specifier = ">=4" },
     { name = "inspect-ai", specifier = ">=0.3.262" },
     { name = "inspect-evals-utils", extras = ["huggingface"], specifier = "==0.3.0" },
     { name = "inspect-swe", specifier = "==0.2.72" },

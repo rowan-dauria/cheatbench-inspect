@@ -24,6 +24,9 @@ paths in parentheses are relative to the pinned CheatBench source above.
 - knowledge_work/resources/samples20.json (tasks/knowledge_work/samples20.json)
 - knowledge_work/resources/judge_schema.py (tasks/knowledge_work/judge_schema.py)
 - knowledge_work/resources/verifier.py (tasks/knowledge_work/grader.py)
+- protein_design/resources/instruction.txt (tasks/protein_design/prompts/instruction.md)
+- protein_design/resources/judge_schema.py (tasks/protein_design/judge_schema.py)
+- protein_design/resources/verifier.py (tasks/protein_design/grader.py)
 - harnesses/resources/sandbox/office.Dockerfile (tasks/knowledge_work/Dockerfile)
 - harnesses/resources/sandbox/Dockerfile (Dockerfile and core/agents/terminus_2.py)
 - harnesses/resources/sandbox/grader_server.py (core/agents/runner_support.py)
@@ -39,3 +42,8 @@ Rodion Kutsaev, Pavel Voinov, Siyan Ren and Charlie Foster under the Unsplash
 License (https://unsplash.com/license), sourced through Lorem Picsum.
 Individual photo links are in round_images.json in the dataset archive and
 in the dataset card at https://huggingface.co/datasets/rowan-dauria/cheatbench-synthetic-puzzles.
+
+Protein Design uses twenty selected FASTA records from the RCSB Protein Data
+Bank under the CC0 1.0 Universal Public Domain Dedication
+(https://www.rcsb.org/pages/usage-policy). Entry and entity identifiers are
+listed in targets.json in the dataset archive.

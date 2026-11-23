@@ -1,0 +1,35 @@
+# Run with hawk eval-set run configs/hawk/protein-design-gpt-6-astra.yaml
+# Release codex cohort configuration with all 20 targets and the 5400 s episode timeout.
+name: protein-design-gpt-6-astra
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_protein_design
+        args:
+          harness: codex
+          dataset_limit: 20
+          harness_version: "0.154.0"
+          harness_model: gpt-6-astra
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-astra
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

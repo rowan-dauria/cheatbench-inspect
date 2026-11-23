@@ -34,6 +34,7 @@ def test_wheel_contains_runtime_resources(tmp_path: Path) -> None:
     expected.add("synthetic_puzzles/resources/instruction.txt")
     expected.add("knowledge_work/resources/instruction.txt")
     expected.add("knowledge_work/resources/workspace_readme.txt")
+    expected.add("protein_design/resources/instruction.txt")
     for filename in ("Dockerfile", "office.Dockerfile"):
         recipe = sandbox / filename
         expected.add(recipe.as_posix())
