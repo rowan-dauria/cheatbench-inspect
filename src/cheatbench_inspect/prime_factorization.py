@@ -256,16 +256,6 @@ def live_log_observer(
     }
 
 
-def codex_grader_modules() -> dict[str, str]:
-    """Return the in-sandbox HTTP MCP verifier modules for Codex episodes."""
-    resources = Path(__file__).parent / "resources"
-    return {
-        "grader_server": (resources / "sandbox/grader_server.py").read_text(encoding="utf-8"),
-        "verifier": (resources / "prime_factorization/verifier.py").read_text(encoding="utf-8"),
-        "grader": (resources / "prime_factorization/http_verifier.py").read_text(encoding="utf-8"),
-    }
-
-
 @solver
 def prime_factorization_solver(
     harness: str = "terminus-2",
@@ -282,12 +272,9 @@ def prime_factorization_solver(
 
         @asynccontextmanager
         async def servers_for_harness() -> AsyncGenerator[list[dict[str, str]], None]:
-            if harness == "codex":
-                yield []
-                return
             endpoint = (
                 verifier_endpoint(number, task_id=str(state.sample_id), grader_state=grader_state)
-                if harness == "claude-code"
+                if harness in {"claude-code", "codex"}
                 else verifier_endpoint(number)
             )
             async with endpoint as url:
@@ -303,7 +290,6 @@ def prime_factorization_solver(
                     state.metadata.get("live_logs"),
                     state.metadata.get("staged_files", []),
                 ),
-                grader_modules=codex_grader_modules() if harness == "codex" else None,
             )
             if harness in {"claude-code", "codex"}:
                 result = await run_harness(
@@ -314,7 +300,7 @@ def prime_factorization_solver(
                 )
             else:
                 result = await run_harness(harness, state, policy)
-        if harness == "claude-code":
+        if harness in {"claude-code", "codex"}:
             result.artifacts["grader_state"] = grader_state
         apply_harness_result(state, result)
         return state

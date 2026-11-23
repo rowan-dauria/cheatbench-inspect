@@ -1,9 +1,7 @@
 """Run inspect_swe's Claude Code agent and capture its judge trajectory."""
 
 import asyncio
-import json
-from collections.abc import AsyncGenerator, Awaitable, Callable
-from contextlib import asynccontextmanager
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from inspect_ai.agent import AgentState
@@ -17,12 +15,12 @@ from inspect_ai.model import (
 )
 from inspect_ai.solver import TaskState
 from inspect_ai.tool import MCPServerConfigHTTP, ToolChoice, ToolInfo
-from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, sandbox
 from inspect_swe import claude_code
 
 from cheatbench_inspect.agent_trajectory import message_text, readable_reasoning, to_trajectory
-from cheatbench_inspect.container import AGENT_ENV, AGENT_USER, STREAM_BOOTSTRAP
+from cheatbench_inspect.container import AGENT_ENV, AGENT_USER
 from cheatbench_inspect.harness import HarnessPolicy, HarnessResult
+from cheatbench_inspect.harness_live_log import live_log
 from cheatbench_inspect.lost_episodes import MAX_TURNS_EXACT_ERROR, is_harness_timeout
 from cheatbench_inspect.reasoning_replay import anthropic_reasoning_filter
 
@@ -63,34 +61,23 @@ _DISALLOWED_TOOLS = [
 ]
 
 
-_START_OBSERVER = """
-import json, sys
-observer = {}
-exec(compile(PAYLOAD["observer"], "observer.py", "exec"), observer)
-mirror = observer["MessageObserver"](PAYLOAD["row"], PAYLOAD["staged"])
-for line in sys.stdin:
-    for message in json.loads(line):
-        mirror.observe(message)
-    print(flush=True)
-print(json.dumps(mirror.finish()), flush=True)
-"""
-
-
-def _mirror_record(message: ChatMessageAssistant | ChatMessageTool) -> dict[str, Any]:
+def _mirror_record(message: ChatMessageAssistant | ChatMessageTool) -> list[dict[str, Any]]:
     """Adapt a bridge message to the original live log observer's record format."""
     text = message_text(message)
     if isinstance(message, ChatMessageTool):
-        return {
-            "_type": "UserMessage",
-            "content": [
-                {
-                    "_type": "ToolResultBlock",
-                    "tool_use_id": message.tool_call_id,
-                    "content": text or (message.error.message if message.error else ""),
-                    "is_error": message.error is not None,
-                }
-            ],
-        }
+        return [
+            {
+                "_type": "UserMessage",
+                "content": [
+                    {
+                        "_type": "ToolResultBlock",
+                        "tool_use_id": message.tool_call_id,
+                        "content": text or (message.error.message if message.error else ""),
+                        "is_error": message.error is not None,
+                    }
+                ],
+            }
+        ]
     blocks: list[dict[str, Any]] = []
     if thinking := readable_reasoning(message):
         blocks.append({"_type": "ThinkingBlock", "thinking": thinking})
@@ -100,65 +87,7 @@ def _mirror_record(message: ChatMessageAssistant | ChatMessageTool) -> dict[str,
         {"_type": "ToolUseBlock", "id": call.id, "name": call.function, "input": call.arguments}
         for call in message.tool_calls or []
     )
-    return {"_type": "AssistantMessage", "content": blocks}
-
-
-@asynccontextmanager
-async def _live_log(
-    policy: HarnessPolicy, report: dict[str, Any]
-) -> AsyncGenerator[Callable[[list[ChatMessageAssistant | ChatMessageTool]], Awaitable[None]]]:
-    process = None
-    if observer := policy.observer:
-        payload = {**observer, "observer": observer["code"], "code": _START_OBSERVER}
-        process = await sandbox().exec_remote(
-            ["python3", "-I", "-c", STREAM_BOOTSTRAP],
-            ExecRemoteStreamingOptions(
-                input=json.dumps(payload) + "\n", stdin_open=True, user=AGENT_USER, env=AGENT_ENV
-            ),
-        )
-
-    if process is None:
-
-        async def ignore(messages: list[ChatMessageAssistant | ChatMessageTool]) -> None:
-            pass
-
-        yield ignore
-        return
-
-    events = aiter(process)
-    write_lock = asyncio.Lock()
-    stdout = ""
-    stderr = ""
-
-    async def read_line() -> str:
-        nonlocal stdout, stderr
-        async with asyncio.timeout(30):
-            while "\n" not in stdout:
-                event = await anext(events, None)
-                if event is None:
-                    raise RuntimeError(f"Live log observer exited: {stderr.strip()}")
-                if isinstance(event, ExecStdout):
-                    stdout += event.data
-                elif isinstance(event, ExecStderr):
-                    stderr += event.data
-        line, stdout = stdout.split("\n", 1)
-        return line
-
-    async def write(messages: list[ChatMessageAssistant | ChatMessageTool]) -> None:
-        if messages:
-            async with write_lock:
-                await process.write_stdin(json.dumps([_mirror_record(m) for m in messages]) + "\n")
-                # The next tool may read turns.log. Wait until the writes are visible.
-                await read_line()
-
-    try:
-        yield write
-        await process.close_stdin()
-        report.update(json.loads(await read_line()))
-        while await anext(events, None) is not None:
-            pass
-    finally:
-        await asyncio.shield(process.kill())
+    return [{"_type": "AssistantMessage", "content": blocks}]
 
 
 class ClaudeTurnLimitError(Exception):
@@ -170,7 +99,7 @@ async def run_claude_code(
 ) -> HarnessResult:
     """Run one pinned Claude Code episode inside the sample sandbox."""
     report: dict[str, Any] = {}
-    async with _live_log(policy, report) as mirror:
+    async with live_log(policy, report, _mirror_record) as mirror:
         result = await _run_claude_code(state, policy, cli_version, cli_model, mirror)
     result.live_logs = report or None
     return result

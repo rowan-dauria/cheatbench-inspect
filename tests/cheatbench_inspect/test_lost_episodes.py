@@ -71,6 +71,11 @@ def test_exact_max_turns_error_is_never_lost() -> None:
 # original reason it stands in for (and that it is classified as lost).
 PORT_ONLY_CASES = [
     (
+        "stock_codex_upstream_http_500",
+        "InternalServerError: Error code: 500 - Scripted provider failure",
+        "api_internal_server",
+    ),
+    (
         "stream_idle_timeout",
         (
             "BadRequestError: litellm.BadRequestError: OpenAIException - "

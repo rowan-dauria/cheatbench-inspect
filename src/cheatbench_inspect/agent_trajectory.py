@@ -5,6 +5,7 @@ from typing import Any
 from inspect_ai.model import (
     ChatMessage,
     ChatMessageAssistant,
+    ChatMessageSystem,
     ChatMessageTool,
     ChatMessageUser,
     ContentImage,
@@ -17,14 +18,15 @@ from cheatbench_inspect.reasoning_replay import unpack_reasoning
 _IMAGE = "<image returned to the model, elided>"
 
 
-def message_text(message: ChatMessage) -> str:
+def message_text(message: ChatMessage, *, separator: str = "\n\n", strip: bool = True) -> str:
     if isinstance(message.content, str):
-        return message.content.strip()
-    return "\n\n".join(
-        part.text.strip() if isinstance(part, ContentText) else _IMAGE
+        return message.content.strip() if strip else message.content
+    text = separator.join(
+        (part.text.strip() if strip else part.text) if isinstance(part, ContentText) else _IMAGE
         for part in message.content
         if isinstance(part, (ContentText, ContentImage))
-    ).strip()
+    )
+    return text.strip() if strip else text
 
 
 def readable_reasoning(message: ChatMessageAssistant) -> str:
@@ -48,6 +50,7 @@ def to_trajectory(
     model: str,
     details: dict[str, Any],
     final_text: str,
+    include_initial_context: bool = False,
 ) -> dict[str, Any] | None:
     """Convert assistant turns and associated tool results to ATIF steps."""
     steps: list[dict[str, Any]] = []
@@ -73,7 +76,7 @@ def to_trajectory(
             steps.append(step)
         elif isinstance(message, ChatMessageTool):
             call_id = message.tool_call_id
-            result: dict[str, Any] = {"content": message_text(message)}
+            result: dict[str, Any] = {"content": message_text(message, strip=agent != "codex")}
             if message.error:
                 result["extra"] = {"is_error": True}
                 if not result["content"]:
@@ -86,11 +89,11 @@ def to_trajectory(
                 steps.append(step)
             step.setdefault("observation", {"results": []})["results"].append(result)
         elif (
-            isinstance(message, ChatMessageUser)
-            and seen_assistant
-            and (text := message_text(message))
-        ):
-            steps.append({"source": "user", "message": text})
+            isinstance(message, ChatMessageUser) and (seen_assistant or include_initial_context)
+        ) or (isinstance(message, ChatMessageSystem) and include_initial_context):
+            text = message_text(message, separator="" if agent == "codex" else "\n\n")
+            if text:
+                steps.append({"source": message.role, "message": text})
 
     if not seen_assistant:
         return None

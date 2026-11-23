@@ -1,0 +1,7 @@
+[
+  "<think signature=\"rs_q4_turn_1\" redacted=\"true\">\n<summary>Checking prime factors against the verifier.</summary>\ngAAAAABrQ4_TEST_TURN_1==\n</think>",
+  "Submitting the factors.\n<content-internal>eyJtZXNzYWdlX2lkIjogIm1zZ19xNF9wcm9ncmVzcyIsICJtZXNzYWdlX3BoYXNlIjogImNvbW1lbnRhcnkifQ==</content-internal>\n",
+  "<think signature=\"rs_q4_turn_2\" redacted=\"true\">\n<summary>Checking the workspace listing.</summary>\ngAAAAABrQ4_TEST_TURN_2==\n</think>",
+  "<think signature=\"rs_q4_turn_3\" redacted=\"true\">\n<summary>Reporting the verified factors.</summary>\ngAAAAABrQ4_TEST_TURN_3==\n</think>",
+  "The factors are 49776197 and 58039117.\n<content-internal>eyJtZXNzYWdlX2lkIjogIm1zZ19xNF9maW5hbCIsICJtZXNzYWdlX3BoYXNlIjogImZpbmFsX2Fuc3dlciJ9</content-internal>\n"
+]

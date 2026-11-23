@@ -168,7 +168,9 @@ See the Hawk configs for [Claude Sonnet 5](configs/hawk/prime-factorization-clau
 
 ### Running Codex models
 
-Use `openrouter/openai/<model>` with `-M responses_api=true`, `-T harness=codex`, and the version and model slug below. Set `reasoning_effort=high`, `verbosity=low`, `parallel_tool_calls=false` and the listed `reasoning_summary` in the generation config.
+Set `-T harness=codex` to run the pinned Codex CLI through inspect-swe's `codex_cli()`. Give the CLI the version and bare model slug from the table. Route the evaluated model through the Responses API with `--model openrouter/openai/<model> -M responses_api=true`.
+
+Set `reasoning_effort=high`, `verbosity=low`, `parallel_tool_calls=false` and the listed `reasoning_summary` in Inspect's generation config. The CLI connects to the in-sandbox verifier through HTTP MCP.
 
 | Original entry | Codex version | `harness_model` | `reasoning_summary` |
 | --- | --- | --- | --- |
@@ -239,9 +241,11 @@ In Prime Factorization, the grader reads the rendered trajectory from the select
 
 | What changed | Why | Expected effect on scores |
 | --- | --- | --- |
-| Codex uses local compaction instead of OpenAI remote compaction. | The bridge does not expose remote compaction. | When compaction occurs, the judge sees a summary as an extra step and Codex retains less earlier context; scores may change. |
-| Codex reaches the bridge through a `[model_providers]` block with `wire_api = "responses"` instead of the original's `openai_base_url`. | With `openai_base_url`, Codex first tries seven WebSocket upgrades, which Inspect's bridge does not serve, and only then falls back to HTTP. The provider block is not named `OpenAI`, which also selects local compaction (row above). | None expected: only the transport changes. |
-| Codex is installed from its release package with inspect-swe's installer instead of npm. | The sandbox installs the pinned binary. | None expected; the version is the same. |
+| Codex runs through inspect-swe's `codex_cli()`. | The stock agent launches the pinned CLI and connects it to the model bridge. The original launches Codex through its own runner. | Launcher differences may affect agent behavior. |
+| Codex uses local compaction. | The stock bridge provider is named `OpenAI Proxy`. Codex uses remote compaction for the built-in OpenAI provider. | After compaction, Codex works from a locally generated summary. |
+| The Codex bridge sends earlier reasoning to the CLI as `<think>` text with a signature and a readable `<summary>`. It carries assistant message metadata in `<content-internal>` tags. | The host filter restores readable summaries alongside encrypted reasoning in later provider requests. | The provider receives native reasoning items and the judge sees readable `THINKING` lines. |
+| Codex's live log mirror gets tool results when they reach the model bridge. | The stock agent exposes bridge messages. The original observes native rollout events. | Tools within one parallel batch may see fewer results in the live log. |
+| Codex skips the built-in plugin marketplace sync. | The harness disables plugins so the CLI does not fetch a changing marketplace into its home directory. | The first Q4 request keeps the same tool surface. |
 | The bridge merges developer messages and moves `additional_tools` to the top-level tool list; one namespace description changes from empty to `functions`. | Inspect translates the request. | Message boundaries and tool presentation may affect behavior and scores. |
 | `reasoning.context: all_turns` is not forwarded. | Inspect does not forward this field. | None expected: OpenRouter reported `all_turns` as the effective value in an earlier smoke test. |
 | `tool_choice: auto` is omitted. | Inspect uses the API default. | None expected; the default is auto. |

@@ -15,10 +15,7 @@ class HarnessPolicy:
     max_turns: int | None
     timeout_s: int
     observer: dict[str, Any] | None
-    web_search: bool = False
-    web_fetch: bool = False
     mcp_only: bool = False
-    grader_modules: dict[str, str] | None = None
 
 
 @dataclass

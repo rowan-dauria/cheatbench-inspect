@@ -147,10 +147,14 @@ ORIGINAL_PATTERNS: tuple[tuple[str, str], ...] = (
 # Inspect's `sandbox_agent_bridge` converts status-less upstream and Inspect
 # exceptions (`status_code_of(ex) is None`) into HTTP 400 `invalid_request_error`,
 # which Harbor's LiteLLM records as `BadRequestError: litellm.BadRequestError:
-# OpenAIException - <message>`. Each pattern below stands in for a specific lost
+# OpenAIException - <message>`. The stock CLI may also replace provider errors
+# with its own wording. Each pattern below stands in for a specific lost
 # failure mode where the bridge/Inspect wording prevents ORIGINAL_PATTERNS from
 # matching the category the original would assign.
 PORT_ONLY_PATTERNS: tuple[tuple[str, str], ...] = (
+    # The stock Codex CLI reports high demand for a Responses 500. The
+    # model exception retained by the bridge has the original status code.
+    (r"\bInternalServerError: Error code: 500\b", "api_internal_server"),
     # Failure mode: streaming response stalled mid-stream (Inspect StreamIdleTimeoutError).
     # Exact port message: "BadRequestError: litellm.BadRequestError: OpenAIException - stream_idle_timeout '120' exceeded (streaming response stalled)."
     # Stands in for original reason: `response_stalled` (ApiResponseStalledError, errors.py#L403).
