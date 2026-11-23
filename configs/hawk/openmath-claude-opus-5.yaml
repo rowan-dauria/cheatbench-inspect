@@ -3,7 +3,7 @@
 # The original adaptive thinking object is not sent through OpenRouter.
 name: openmath-claude-opus-5
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@113dfce78a5775b3b803b0935ffe416b1d864275
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
     name: cheatbench_inspect
     items:
       - name: cheatbench_openmath

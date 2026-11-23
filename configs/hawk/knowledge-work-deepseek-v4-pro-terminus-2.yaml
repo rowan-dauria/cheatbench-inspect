@@ -4,7 +4,7 @@
 # so it runs on Terminus-2 per the 2026-11-22 decision.
 name: knowledge-work-deepseek-v4-pro-terminus-2
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ed44e8384dfdfecff91f5a103a501895668f631b
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
     name: cheatbench_inspect
     items:
       - name: cheatbench_knowledge_work
