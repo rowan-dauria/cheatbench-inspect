@@ -1,0 +1,29 @@
+# Run with hawk eval-set run configs/hawk/openmath-claude-sonnet-5-port-smoke.yaml
+# One-row port smoke test. This model is outside the paper cohorts.
+name: openmath-claude-sonnet-5-port-smoke
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_openmath
+        args:
+          harness: claude-code
+          dataset_limit: 1
+          harness_version: "2.1.270"
+          harness_model: claude-sonnet-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-sonnet-5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

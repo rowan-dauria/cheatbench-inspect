@@ -1,6 +1,7 @@
 from cheatbench_inspect.tasks import (
     cheatbench_geoguessr,
     cheatbench_knowledge_work,
+    cheatbench_openmath,
     cheatbench_prime_factorization,
     cheatbench_protein_design,
     cheatbench_subset_sum,
@@ -11,6 +12,7 @@ from cheatbench_inspect.tasks import (
 __all__ = [
     "cheatbench_geoguessr",
     "cheatbench_knowledge_work",
+    "cheatbench_openmath",
     "cheatbench_prime_factorization",
     "cheatbench_protein_design",
     "cheatbench_subset_sum",

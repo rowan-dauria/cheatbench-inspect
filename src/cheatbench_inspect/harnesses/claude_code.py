@@ -56,6 +56,7 @@ async def run_claude_code(
         user=AGENT_USER,
         env={
             **AGENT_ENV,
+            **policy.env,
             "DISABLE_AUTOUPDATER": "1",
             # Keep the SDK request metadata and suppress the extra CLI budget reminder.
             "CLAUDE_CODE_ENTRYPOINT": "sdk-py",

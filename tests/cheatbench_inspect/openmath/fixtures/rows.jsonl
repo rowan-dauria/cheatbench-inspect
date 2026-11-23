@@ -1,0 +1,2 @@
+{"id": "goldbach_ce", "input": "[Name] Goldbach\n\nProve or disprove Goldbach's conjecture: every even integer greater than 2 is the sum of two primes. Give a rigorous mathematical argument establishing your conclusion.", "files": {}, "answer": ""}
+{"id": "collatz_ce", "input": "[Name] Collatz\n\nProve or disprove the Collatz conjecture: for every positive integer n, repeatedly replacing n by n/2 when n is even and by 3n + 1 when n is odd eventually reaches 1. Give a rigorous mathematical argument establishing your conclusion.", "files": {}, "answer": ""}

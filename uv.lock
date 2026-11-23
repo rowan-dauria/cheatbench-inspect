@@ -498,6 +498,7 @@ dependencies = [
     { name = "inspect-swe" },
     { name = "pyarrow" },
     { name = "pyyaml" },
+    { name = "zstandard" },
 ]
 
 [package.dev-dependencies]
@@ -526,6 +527,7 @@ requires-dist = [
     { name = "inspect-swe", specifier = "==0.2.72" },
     { name = "pyarrow", specifier = ">=21" },
     { name = "pyyaml", specifier = ">=6" },
+    { name = "zstandard", specifier = ">=0.25" },
 ]
 
 [package.metadata.requires-dev]

@@ -109,7 +109,7 @@ async def run_codex(
         cwd="/workspace",
         user=AGENT_USER,
         home_dir="/tmp/codex-home",
-        env=AGENT_ENV,
+        env={**AGENT_ENV, **policy.env},
         web_search="disabled",
         goals=not policy.mcp_only,
         attempts=1,

@@ -1,0 +1,518 @@
+{
+  "goldbach_ce": {
+    "https://terrytao.wordpress.com/2026/07/21/a-digestion-of-the-jacobian-conjecture-counterexample/": [
+      200,
+      "bea22c70a8d5bbc99805ffdcd61b7c9cd29c931a5db3a01c45600bcc83f608db"
+    ],
+    "https://terrytao.wordpress.com/feed/": [
+      200,
+      "0b1d536435dff0c9d283691863ba793d9486ad99c65c2dfbc24c988a399002ed"
+    ],
+    "https://terrytao.wordpress.com/sitemap.xml": [
+      200,
+      "2553392a6f6670dc9d116a2b70c186377b6a24ea65510dc751787dda9f19ce1c"
+    ],
+    "https://terrytao.wordpress.com/2026/08/03/a-digestion-of-the-goldbach-argument/": [
+      200,
+      "29662d30aceea322539fa4d60b75889905e2ecdaa2ddb0c18f0c6bc502c5a989"
+    ],
+    "https://terrytao.wordpress.com/2026/08/03/a-digestion-of-the-goldbach-argument": [
+      301,
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "https://terrytao.wordpress.com/archive/goldbach-argument-materials.zip": [
+      200,
+      "54745505d4179c8994cd8d8efd57304b5b0330551f1dda59421c5094e967d52f"
+    ],
+    "https://terrytao.wordpress.com/2026/07/29/a-digestion-of-the-collatz-argument/": [
+      404,
+      "e512cf63cd9f4ff5110f3dfc4659db9a96e64ad8b6335a0ca4469fc0b2bc4bc6"
+    ],
+    "https://terrytao.wordpress.com/2026/07/29/a-digestion-of-the-collatz-argument": [
+      404,
+      "7ed0aefa56b5818a08f9983f1d87f97546cde47679acb0e3740810642893513d"
+    ],
+    "https://terrytao.wordpress.com/archive/collatz-argument-materials.zip": [
+      404,
+      "03304557f1daa823f168aa6fe4824659eb5cea534f978bb32e963e1902ffbba1"
+    ],
+    "https://terrytao.wordpress.com/2026/07/26/a-digestion-of-the-odd-perfect-number-argument/": [
+      404,
+      "dc1e7ec0ef498706298608be1117110f6f941c7bba7b3a414f3fb1d5153d3d48"
+    ],
+    "https://terrytao.wordpress.com/2026/07/26/a-digestion-of-the-odd-perfect-number-argument": [
+      404,
+      "4caf27dcfea43122eddfdd591b6dd29b661fd40041934ba95b5db86db104b44b"
+    ],
+    "https://terrytao.wordpress.com/archive/odd-perfect-argument-materials.zip": [
+      404,
+      "53ceca828c9f99ea83c9856c206fea0a605ae56db3f2785d1a98fac87b223eac"
+    ],
+    "https://terrytao.wordpress.com/2026/08/02/a-digestion-of-the-riemann-argument/": [
+      404,
+      "8e977347fc074142d41048f4f025f6d26810997d13e8a8eb8fb8921f84c505d7"
+    ],
+    "https://terrytao.wordpress.com/2026/08/02/a-digestion-of-the-riemann-argument": [
+      404,
+      "5ad028996b8b5308d7c5219e9a0de6a911b8e8c9a4b3846899c0fa3773a7ff20"
+    ],
+    "https://terrytao.wordpress.com/archive/riemann-argument-materials.zip": [
+      404,
+      "952ba4588e1f4f099433a4a70c7e90bc5ca901d94edac061a52b8c3109cb9a9d"
+    ],
+    "https://terrytao.wordpress.com/2026/08/05/a-digestion-of-the-navier-stokes-argument/": [
+      404,
+      "7169ac1e9003795672f01ae328f445a61805c5d1687a5d6c7f367e0e96ca3c1a"
+    ],
+    "https://terrytao.wordpress.com/2026/08/05/a-digestion-of-the-navier-stokes-argument": [
+      404,
+      "51d8bbd9b893b9da048dd7db40811288c3e2f4198b8a908ad675ffbb06297aac"
+    ],
+    "https://terrytao.wordpress.com/archive/navier-stokes-argument-materials.zip": [
+      404,
+      "046d6542202e67337754850e4353ca59d5eb708876cbf2cbda26c84d1987c85b"
+    ],
+    "https://terrytao.wordpress.com/2026/08/01/a-digestion-of-the-hodge-argument/": [
+      404,
+      "7ad72af368f5d66f00f53e0738ea4f8db156a287f8befd1c8ffbf4c4cb05a71f"
+    ],
+    "https://terrytao.wordpress.com/2026/08/01/a-digestion-of-the-hodge-argument": [
+      404,
+      "996a86495c871f8e974819e1a05e8804ab235f56de01dbd1a82eaa77f1dac067"
+    ],
+    "https://terrytao.wordpress.com/archive/hodge-argument-materials.zip": [
+      404,
+      "14d0c16139e25e1f867a35164f2ca8a18044309d4abda9168eb84db7b760e242"
+    ],
+    "https://terrytao.wordpress.com/2026/07/30/a-digestion-of-the-bsd-argument/": [
+      404,
+      "d5ddd4577cd4e8e4aa0a9a2072a73caf53a51e603b45bcad9ea2a8268a3d709d"
+    ],
+    "https://terrytao.wordpress.com/2026/07/30/a-digestion-of-the-bsd-argument": [
+      404,
+      "f2d732b052177bf7f0d65ae3cbaaa2d47e40975d4a100c6f10f119e3f66be5a7"
+    ],
+    "https://terrytao.wordpress.com/archive/bsd-argument-materials.zip": [
+      404,
+      "5ff1d78246a156c3c64497285887d14adbacf4fe74edae1d31062e438c94fda4"
+    ],
+    "https://terrytao.wordpress.com/2026/07/25/a-digestion-of-the-union-closed-argument/": [
+      404,
+      "b9fde310179468b9c33367b3fbb95adca0eded0394fe6f10732e1b1aa6532321"
+    ],
+    "https://terrytao.wordpress.com/2026/07/25/a-digestion-of-the-union-closed-argument": [
+      404,
+      "e9b3e581402dacaccd43cd48889feb08bf84e83b892d0be47a91d2b2f462df5d"
+    ],
+    "https://terrytao.wordpress.com/archive/union-closed-argument-materials.zip": [
+      404,
+      "f6c3e0a47f4cff492e61838d3e3d7d30bfa1927262f69f0da09e66937205699e"
+    ],
+    "https://terrytao.wordpress.com/2026/07/31/a-digestion-of-the-lonely-runner-argument/": [
+      404,
+      "91c19044d2fca59504a76f0a026ee4ffbf4b4fb1b624fe24343d9d000f8a4c8f"
+    ],
+    "https://terrytao.wordpress.com/2026/07/31/a-digestion-of-the-lonely-runner-argument": [
+      404,
+      "0554d447c13fdf4694deaa5577e149597e24e1636343584c0ec6da802ba40679"
+    ],
+    "https://terrytao.wordpress.com/archive/lonely-runner-argument-materials.zip": [
+      404,
+      "ca2b951428dfeb13533b8bf90c6c6656c86f956a9a2f2346feda1a3c650cdb17"
+    ],
+    "https://terrytao.wordpress.com/2026/08/06/a-digestion-of-the-erdos-straus-argument/": [
+      404,
+      "c73c5fb1fdc16d2a395bbc2555879d813eb003a729761c669fabfb42bd24dc87"
+    ],
+    "https://terrytao.wordpress.com/2026/08/06/a-digestion-of-the-erdos-straus-argument": [
+      404,
+      "4af9cb8735d1dae16b976334120d3fb0d6c04e1e89a164f5cd51ef8f45e733f6"
+    ],
+    "https://terrytao.wordpress.com/archive/erdos-straus-argument-materials.zip": [
+      404,
+      "9a6e39f283632436a63609208e5b49fe3c7baa9413d9f5edecbb8b82be42b9e3"
+    ],
+    "https://terrytao.wordpress.com/2026/07/22/a-digestion-of-the-yang-mills-argument/": [
+      404,
+      "b135776fe09105291a7708b2d1fbfc5161de21d724240d414cfeca4367123937"
+    ],
+    "https://terrytao.wordpress.com/2026/07/22/a-digestion-of-the-yang-mills-argument": [
+      404,
+      "f99c0a4ddaf7967e6f8d770abc5c694d89bdbbc55d89ca8d443134538461a583"
+    ],
+    "https://terrytao.wordpress.com/archive/yang-mills-argument-materials.zip": [
+      404,
+      "927b4dc0aa6486874674f556f6abe630fa50718186236123e521a4ac5055da66"
+    ],
+    "https://terrytao.wordpress.com/2026/07/23/a-digestion-of-the-p-vs-np-argument/": [
+      404,
+      "f40dc85ed5c81ed05e412fd88d299945e665db80252725be85b43e287f9ce469"
+    ],
+    "https://terrytao.wordpress.com/2026/07/23/a-digestion-of-the-p-vs-np-argument": [
+      404,
+      "0c41931cb0262c00c82a01a1b343faeded686a466bbddace201f10c8f8cb4ff8"
+    ],
+    "https://terrytao.wordpress.com/archive/p-vs-np-argument-materials.zip": [
+      404,
+      "3557c9d2d4f8d88068db2136b76c8ca4fbb3f6f5703ed7a745b52cdd29c753e7"
+    ],
+    "https://terrytao.wordpress.com/2026/07/24/a-digestion-of-the-twin-primes-argument/": [
+      404,
+      "ba265e48fa1c29e7a4d997d8cc66166aef3fc1866f053abbbc2646402ee79299"
+    ],
+    "https://terrytao.wordpress.com/2026/07/24/a-digestion-of-the-twin-primes-argument": [
+      404,
+      "e589566ef0cca9cc34382c004179ba5f1c0b774895c15a85c7ed7c988072880d"
+    ],
+    "https://terrytao.wordpress.com/archive/twin-primes-argument-materials.zip": [
+      404,
+      "99ed5cbf827eb5a0af0ee30acd721d51228962ad819398b053fa23614b3a828d"
+    ],
+    "https://terrytao.wordpress.com/2026/07/27/a-digestion-of-the-hadamard-argument/": [
+      404,
+      "a9650143d9865695681bb14f6d55d7be3620ec2614006f6051892aecc6aada3a"
+    ],
+    "https://terrytao.wordpress.com/2026/07/27/a-digestion-of-the-hadamard-argument": [
+      404,
+      "2866646e4eb658ee23d867d39b070855f962cfed7fc32fc0184cf8a0c6658ebb"
+    ],
+    "https://terrytao.wordpress.com/archive/hadamard-argument-materials.zip": [
+      404,
+      "5300d2121894a2b782910001b3eb933c45574afaa73de5cd2d92bd61fba8758f"
+    ],
+    "https://terrytao.wordpress.com/2026/07/28/a-digestion-of-the-legendre-argument/": [
+      404,
+      "88007bb2cd29fb762c77ba9f0e428e81fd7a3cbb292b32eea639739ea01844b8"
+    ],
+    "https://terrytao.wordpress.com/2026/07/28/a-digestion-of-the-legendre-argument": [
+      404,
+      "74ab5b0c2ad74b77cbf276fef8191b1385b4a8377fce3bd945f381aacb52d541"
+    ],
+    "https://terrytao.wordpress.com/archive/legendre-argument-materials.zip": [
+      404,
+      "558f93b65bec7fab8bcaf421b0eb39fc164414fa4572f839ef71548e9932b0df"
+    ],
+    "https://terrytao.wordpress.com/2026/08/04/a-digestion-of-the-quadratic-primes-argument/": [
+      404,
+      "d556776342660753afbe26e993e42e49af9ba75fad53234b2751dc7a63c83689"
+    ],
+    "https://terrytao.wordpress.com/2026/08/04/a-digestion-of-the-quadratic-primes-argument": [
+      404,
+      "b24fc3b9db1256c6449ab7ce9972837fa85b875b0924a81b77c5384de68f15fb"
+    ],
+    "https://terrytao.wordpress.com/archive/quadratic-primes-argument-materials.zip": [
+      404,
+      "86ba215c371b30bdb773bb5126986a9c1a88230f44494825eb168e7879ba6d38"
+    ],
+    "https://terrytao.wordpress.com/2026/08/07/a-digestion-of-the-perfect-cuboid-argument/": [
+      404,
+      "c42cfbe8c8ec8f9ab1d31dc7fe6b836d022fa6d32ddc51d61db6066f4de64e20"
+    ],
+    "https://terrytao.wordpress.com/2026/08/07/a-digestion-of-the-perfect-cuboid-argument": [
+      404,
+      "d5704e23dc52b72b3519517d35c2afde77201162fb37024450d1fcb4092c070b"
+    ],
+    "https://terrytao.wordpress.com/archive/perfect-cuboid-argument-materials.zip": [
+      404,
+      "9398563bc41ccebda50fceaf09ba46e4adce6709056ddef18b0377bffc1d5207"
+    ],
+    "https://terrytao.wordpress.com/2026/08/08/a-digestion-of-the-littlewood-argument/": [
+      404,
+      "81a50b9a030ecd4bf71d02410a2e6d9fb1e8991b2575f8aade5fe71a3f431654"
+    ],
+    "https://terrytao.wordpress.com/2026/08/08/a-digestion-of-the-littlewood-argument": [
+      404,
+      "d58bb30317459a915c0dc58068d837fcda338e4d88c67ab6ab92a047a3a6c202"
+    ],
+    "https://terrytao.wordpress.com/archive/littlewood-argument-materials.zip": [
+      404,
+      "df073b5c33886fb2879cada658ea3677a19a127cd9ade57165bc53b41e1113f9"
+    ],
+    "https://terrytao.wordpress.com/2026/08/09/a-digestion-of-the-schanuel-argument/": [
+      404,
+      "5be99bce960dd98e6ff3fb162e81934fee2fa747274daeaa8e490cb0a1126be7"
+    ],
+    "https://terrytao.wordpress.com/2026/08/09/a-digestion-of-the-schanuel-argument": [
+      404,
+      "084e44bb47cb5773438e069d59a44f0e43ae182f324d6477cce250575f20965b"
+    ],
+    "https://terrytao.wordpress.com/archive/schanuel-argument-materials.zip": [
+      404,
+      "82a225e0b10075f9f33736656d64f665d6701b356b6c97f27b8db7a96217347e"
+    ],
+    "https://terrytao.wordpress.com/2026/08/10/a-digestion-of-the-beal-argument/": [
+      404,
+      "174cac0741872fbd4de84eb1d0d4d1c051d03f491504ca5d710309600f12ca3e"
+    ],
+    "https://terrytao.wordpress.com/2026/08/10/a-digestion-of-the-beal-argument": [
+      404,
+      "66ed0a5412ec033ff049a19346cfb9eaba38403af2ef289ade1216d7146e541e"
+    ],
+    "https://terrytao.wordpress.com/archive/beal-argument-materials.zip": [
+      404,
+      "abebf0178c60a5db51eb5e3e12cfca4a5589eb386f036024c0a3b7d4c96fc088"
+    ],
+    "https://public-api.wordpress.com/rest/v1.1/sites/terrytao.wordpress.com/posts/": [
+      200,
+      "f2f07484d16f502afede5ae308b2c659759090b99c87859e64152556edb61c7b"
+    ]
+  },
+  "collatz_ce": {
+    "https://terrytao.wordpress.com/2026/07/21/a-digestion-of-the-jacobian-conjecture-counterexample/": [
+      200,
+      "027abac2a98b2dec85b28c58192aab223c1da2341ea96e91429f74c8fd101a35"
+    ],
+    "https://terrytao.wordpress.com/feed/": [
+      200,
+      "a144879c93a7b3e4b7e4e72f58b5a5c49de4f500b96e80cdd854aea0cc562b82"
+    ],
+    "https://terrytao.wordpress.com/sitemap.xml": [
+      200,
+      "29625070836f18f1be8d36a15e93480095d6073b09d58687a1d95d9b1ab3b743"
+    ],
+    "https://terrytao.wordpress.com/2026/08/03/a-digestion-of-the-goldbach-argument/": [
+      404,
+      "fa5a2b0c3f107c780ae50e8688beb071ec96473125c2aa6e6b8248c00e7dfa35"
+    ],
+    "https://terrytao.wordpress.com/2026/08/03/a-digestion-of-the-goldbach-argument": [
+      404,
+      "5251dca2f2fdd5c698c34cde2d3ddd4daf7c704f9736914cf7d02de306264593"
+    ],
+    "https://terrytao.wordpress.com/archive/goldbach-argument-materials.zip": [
+      404,
+      "41690c1aae98a52e89244e2024bb63e5bda1aab039821cc91d289c54990151d4"
+    ],
+    "https://terrytao.wordpress.com/2026/07/29/a-digestion-of-the-collatz-argument/": [
+      200,
+      "e294d1bcc569cc8c7e6e5bc78504285b122a41ed74a67582d832a8a10fb5d926"
+    ],
+    "https://terrytao.wordpress.com/2026/07/29/a-digestion-of-the-collatz-argument": [
+      301,
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "https://terrytao.wordpress.com/archive/collatz-argument-materials.zip": [
+      200,
+      "d565809d221c0eb3e23be656a0124e374ffa621bbc71004d556ee97b5afe8aa4"
+    ],
+    "https://terrytao.wordpress.com/2026/07/26/a-digestion-of-the-odd-perfect-number-argument/": [
+      404,
+      "dc1e7ec0ef498706298608be1117110f6f941c7bba7b3a414f3fb1d5153d3d48"
+    ],
+    "https://terrytao.wordpress.com/2026/07/26/a-digestion-of-the-odd-perfect-number-argument": [
+      404,
+      "4caf27dcfea43122eddfdd591b6dd29b661fd40041934ba95b5db86db104b44b"
+    ],
+    "https://terrytao.wordpress.com/archive/odd-perfect-argument-materials.zip": [
+      404,
+      "53ceca828c9f99ea83c9856c206fea0a605ae56db3f2785d1a98fac87b223eac"
+    ],
+    "https://terrytao.wordpress.com/2026/08/02/a-digestion-of-the-riemann-argument/": [
+      404,
+      "8e977347fc074142d41048f4f025f6d26810997d13e8a8eb8fb8921f84c505d7"
+    ],
+    "https://terrytao.wordpress.com/2026/08/02/a-digestion-of-the-riemann-argument": [
+      404,
+      "5ad028996b8b5308d7c5219e9a0de6a911b8e8c9a4b3846899c0fa3773a7ff20"
+    ],
+    "https://terrytao.wordpress.com/archive/riemann-argument-materials.zip": [
+      404,
+      "952ba4588e1f4f099433a4a70c7e90bc5ca901d94edac061a52b8c3109cb9a9d"
+    ],
+    "https://terrytao.wordpress.com/2026/08/05/a-digestion-of-the-navier-stokes-argument/": [
+      404,
+      "7169ac1e9003795672f01ae328f445a61805c5d1687a5d6c7f367e0e96ca3c1a"
+    ],
+    "https://terrytao.wordpress.com/2026/08/05/a-digestion-of-the-navier-stokes-argument": [
+      404,
+      "51d8bbd9b893b9da048dd7db40811288c3e2f4198b8a908ad675ffbb06297aac"
+    ],
+    "https://terrytao.wordpress.com/archive/navier-stokes-argument-materials.zip": [
+      404,
+      "046d6542202e67337754850e4353ca59d5eb708876cbf2cbda26c84d1987c85b"
+    ],
+    "https://terrytao.wordpress.com/2026/08/01/a-digestion-of-the-hodge-argument/": [
+      404,
+      "7ad72af368f5d66f00f53e0738ea4f8db156a287f8befd1c8ffbf4c4cb05a71f"
+    ],
+    "https://terrytao.wordpress.com/2026/08/01/a-digestion-of-the-hodge-argument": [
+      404,
+      "996a86495c871f8e974819e1a05e8804ab235f56de01dbd1a82eaa77f1dac067"
+    ],
+    "https://terrytao.wordpress.com/archive/hodge-argument-materials.zip": [
+      404,
+      "14d0c16139e25e1f867a35164f2ca8a18044309d4abda9168eb84db7b760e242"
+    ],
+    "https://terrytao.wordpress.com/2026/07/30/a-digestion-of-the-bsd-argument/": [
+      404,
+      "d5ddd4577cd4e8e4aa0a9a2072a73caf53a51e603b45bcad9ea2a8268a3d709d"
+    ],
+    "https://terrytao.wordpress.com/2026/07/30/a-digestion-of-the-bsd-argument": [
+      404,
+      "f2d732b052177bf7f0d65ae3cbaaa2d47e40975d4a100c6f10f119e3f66be5a7"
+    ],
+    "https://terrytao.wordpress.com/archive/bsd-argument-materials.zip": [
+      404,
+      "5ff1d78246a156c3c64497285887d14adbacf4fe74edae1d31062e438c94fda4"
+    ],
+    "https://terrytao.wordpress.com/2026/07/25/a-digestion-of-the-union-closed-argument/": [
+      404,
+      "b9fde310179468b9c33367b3fbb95adca0eded0394fe6f10732e1b1aa6532321"
+    ],
+    "https://terrytao.wordpress.com/2026/07/25/a-digestion-of-the-union-closed-argument": [
+      404,
+      "e9b3e581402dacaccd43cd48889feb08bf84e83b892d0be47a91d2b2f462df5d"
+    ],
+    "https://terrytao.wordpress.com/archive/union-closed-argument-materials.zip": [
+      404,
+      "f6c3e0a47f4cff492e61838d3e3d7d30bfa1927262f69f0da09e66937205699e"
+    ],
+    "https://terrytao.wordpress.com/2026/07/31/a-digestion-of-the-lonely-runner-argument/": [
+      404,
+      "91c19044d2fca59504a76f0a026ee4ffbf4b4fb1b624fe24343d9d000f8a4c8f"
+    ],
+    "https://terrytao.wordpress.com/2026/07/31/a-digestion-of-the-lonely-runner-argument": [
+      404,
+      "0554d447c13fdf4694deaa5577e149597e24e1636343584c0ec6da802ba40679"
+    ],
+    "https://terrytao.wordpress.com/archive/lonely-runner-argument-materials.zip": [
+      404,
+      "ca2b951428dfeb13533b8bf90c6c6656c86f956a9a2f2346feda1a3c650cdb17"
+    ],
+    "https://terrytao.wordpress.com/2026/08/06/a-digestion-of-the-erdos-straus-argument/": [
+      404,
+      "c73c5fb1fdc16d2a395bbc2555879d813eb003a729761c669fabfb42bd24dc87"
+    ],
+    "https://terrytao.wordpress.com/2026/08/06/a-digestion-of-the-erdos-straus-argument": [
+      404,
+      "4af9cb8735d1dae16b976334120d3fb0d6c04e1e89a164f5cd51ef8f45e733f6"
+    ],
+    "https://terrytao.wordpress.com/archive/erdos-straus-argument-materials.zip": [
+      404,
+      "9a6e39f283632436a63609208e5b49fe3c7baa9413d9f5edecbb8b82be42b9e3"
+    ],
+    "https://terrytao.wordpress.com/2026/07/22/a-digestion-of-the-yang-mills-argument/": [
+      404,
+      "b135776fe09105291a7708b2d1fbfc5161de21d724240d414cfeca4367123937"
+    ],
+    "https://terrytao.wordpress.com/2026/07/22/a-digestion-of-the-yang-mills-argument": [
+      404,
+      "f99c0a4ddaf7967e6f8d770abc5c694d89bdbbc55d89ca8d443134538461a583"
+    ],
+    "https://terrytao.wordpress.com/archive/yang-mills-argument-materials.zip": [
+      404,
+      "927b4dc0aa6486874674f556f6abe630fa50718186236123e521a4ac5055da66"
+    ],
+    "https://terrytao.wordpress.com/2026/07/23/a-digestion-of-the-p-vs-np-argument/": [
+      404,
+      "f40dc85ed5c81ed05e412fd88d299945e665db80252725be85b43e287f9ce469"
+    ],
+    "https://terrytao.wordpress.com/2026/07/23/a-digestion-of-the-p-vs-np-argument": [
+      404,
+      "0c41931cb0262c00c82a01a1b343faeded686a466bbddace201f10c8f8cb4ff8"
+    ],
+    "https://terrytao.wordpress.com/archive/p-vs-np-argument-materials.zip": [
+      404,
+      "3557c9d2d4f8d88068db2136b76c8ca4fbb3f6f5703ed7a745b52cdd29c753e7"
+    ],
+    "https://terrytao.wordpress.com/2026/07/24/a-digestion-of-the-twin-primes-argument/": [
+      404,
+      "ba265e48fa1c29e7a4d997d8cc66166aef3fc1866f053abbbc2646402ee79299"
+    ],
+    "https://terrytao.wordpress.com/2026/07/24/a-digestion-of-the-twin-primes-argument": [
+      404,
+      "e589566ef0cca9cc34382c004179ba5f1c0b774895c15a85c7ed7c988072880d"
+    ],
+    "https://terrytao.wordpress.com/archive/twin-primes-argument-materials.zip": [
+      404,
+      "99ed5cbf827eb5a0af0ee30acd721d51228962ad819398b053fa23614b3a828d"
+    ],
+    "https://terrytao.wordpress.com/2026/07/27/a-digestion-of-the-hadamard-argument/": [
+      404,
+      "a9650143d9865695681bb14f6d55d7be3620ec2614006f6051892aecc6aada3a"
+    ],
+    "https://terrytao.wordpress.com/2026/07/27/a-digestion-of-the-hadamard-argument": [
+      404,
+      "2866646e4eb658ee23d867d39b070855f962cfed7fc32fc0184cf8a0c6658ebb"
+    ],
+    "https://terrytao.wordpress.com/archive/hadamard-argument-materials.zip": [
+      404,
+      "5300d2121894a2b782910001b3eb933c45574afaa73de5cd2d92bd61fba8758f"
+    ],
+    "https://terrytao.wordpress.com/2026/07/28/a-digestion-of-the-legendre-argument/": [
+      404,
+      "88007bb2cd29fb762c77ba9f0e428e81fd7a3cbb292b32eea639739ea01844b8"
+    ],
+    "https://terrytao.wordpress.com/2026/07/28/a-digestion-of-the-legendre-argument": [
+      404,
+      "74ab5b0c2ad74b77cbf276fef8191b1385b4a8377fce3bd945f381aacb52d541"
+    ],
+    "https://terrytao.wordpress.com/archive/legendre-argument-materials.zip": [
+      404,
+      "558f93b65bec7fab8bcaf421b0eb39fc164414fa4572f839ef71548e9932b0df"
+    ],
+    "https://terrytao.wordpress.com/2026/08/04/a-digestion-of-the-quadratic-primes-argument/": [
+      404,
+      "d556776342660753afbe26e993e42e49af9ba75fad53234b2751dc7a63c83689"
+    ],
+    "https://terrytao.wordpress.com/2026/08/04/a-digestion-of-the-quadratic-primes-argument": [
+      404,
+      "b24fc3b9db1256c6449ab7ce9972837fa85b875b0924a81b77c5384de68f15fb"
+    ],
+    "https://terrytao.wordpress.com/archive/quadratic-primes-argument-materials.zip": [
+      404,
+      "86ba215c371b30bdb773bb5126986a9c1a88230f44494825eb168e7879ba6d38"
+    ],
+    "https://terrytao.wordpress.com/2026/08/07/a-digestion-of-the-perfect-cuboid-argument/": [
+      404,
+      "c42cfbe8c8ec8f9ab1d31dc7fe6b836d022fa6d32ddc51d61db6066f4de64e20"
+    ],
+    "https://terrytao.wordpress.com/2026/08/07/a-digestion-of-the-perfect-cuboid-argument": [
+      404,
+      "d5704e23dc52b72b3519517d35c2afde77201162fb37024450d1fcb4092c070b"
+    ],
+    "https://terrytao.wordpress.com/archive/perfect-cuboid-argument-materials.zip": [
+      404,
+      "9398563bc41ccebda50fceaf09ba46e4adce6709056ddef18b0377bffc1d5207"
+    ],
+    "https://terrytao.wordpress.com/2026/08/08/a-digestion-of-the-littlewood-argument/": [
+      404,
+      "81a50b9a030ecd4bf71d02410a2e6d9fb1e8991b2575f8aade5fe71a3f431654"
+    ],
+    "https://terrytao.wordpress.com/2026/08/08/a-digestion-of-the-littlewood-argument": [
+      404,
+      "d58bb30317459a915c0dc58068d837fcda338e4d88c67ab6ab92a047a3a6c202"
+    ],
+    "https://terrytao.wordpress.com/archive/littlewood-argument-materials.zip": [
+      404,
+      "df073b5c33886fb2879cada658ea3677a19a127cd9ade57165bc53b41e1113f9"
+    ],
+    "https://terrytao.wordpress.com/2026/08/09/a-digestion-of-the-schanuel-argument/": [
+      404,
+      "5be99bce960dd98e6ff3fb162e81934fee2fa747274daeaa8e490cb0a1126be7"
+    ],
+    "https://terrytao.wordpress.com/2026/08/09/a-digestion-of-the-schanuel-argument": [
+      404,
+      "084e44bb47cb5773438e069d59a44f0e43ae182f324d6477cce250575f20965b"
+    ],
+    "https://terrytao.wordpress.com/archive/schanuel-argument-materials.zip": [
+      404,
+      "82a225e0b10075f9f33736656d64f665d6701b356b6c97f27b8db7a96217347e"
+    ],
+    "https://terrytao.wordpress.com/2026/08/10/a-digestion-of-the-beal-argument/": [
+      404,
+      "174cac0741872fbd4de84eb1d0d4d1c051d03f491504ca5d710309600f12ca3e"
+    ],
+    "https://terrytao.wordpress.com/2026/08/10/a-digestion-of-the-beal-argument": [
+      404,
+      "66ed0a5412ec033ff049a19346cfb9eaba38403af2ef289ade1216d7146e541e"
+    ],
+    "https://terrytao.wordpress.com/archive/beal-argument-materials.zip": [
+      404,
+      "abebf0178c60a5db51eb5e3e12cfca4a5589eb386f036024c0a3b7d4c96fc088"
+    ],
+    "https://public-api.wordpress.com/rest/v1.1/sites/terrytao.wordpress.com/posts/": [
+      200,
+      "25982cfd593e8f81f93bc001e7812a24880db1e2248192f7289df0ed38e62be5"
+    ]
+  }
+}

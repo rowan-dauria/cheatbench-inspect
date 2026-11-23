@@ -78,7 +78,11 @@ async def run_terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResu
                 timeout_s=policy.timeout_s,
             )
             result = await sandbox().exec(
-                command, input=stdin, timeout=policy.timeout_s + 650, user=AGENT_USER, env=AGENT_ENV
+                command,
+                input=stdin,
+                timeout=policy.timeout_s + 650,
+                user=AGENT_USER,
+                env={**AGENT_ENV, **policy.env},
             )
     finally:
         state.messages = agent_state.messages
