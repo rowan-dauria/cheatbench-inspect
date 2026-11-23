@@ -3,7 +3,7 @@
 # The original adaptive thinking object is not sent through OpenRouter.
 name: synthetic-puzzles-claude-opus-5-terminus-2
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@9a1bd167752a8f28fa88a046c5212dbd8ce161e6
     name: cheatbench_inspect
     items:
       - name: cheatbench_synthetic_puzzles
