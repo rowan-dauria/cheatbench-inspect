@@ -2,7 +2,7 @@
 # Release codex cohort configuration with all 20 assignments and the 3600 s episode timeout.
 name: knowledge-work-gpt-5.6-sol
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@0db61ce6222c7ba45a83fcaf28738df10d0bbe62
     name: cheatbench_inspect
     items:
       - name: cheatbench_knowledge_work
