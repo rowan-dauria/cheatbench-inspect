@@ -13,7 +13,7 @@
 # the doubled `openrouter/`.
 name: cheatbench-sycophancy-deepseek-v4-pro
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@9f7db968e667b23ee444c6ee9a16f69f74f6c67d
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
     name: cheatbench_inspect
     items:
       - name: cheatbench_sycophancy

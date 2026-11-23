@@ -3,7 +3,7 @@
 # The original adaptive thinking object is not sent through OpenRouter.
 name: knowledge-work-claude-opus-5
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@0db61ce6222c7ba45a83fcaf28738df10d0bbe62
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
     name: cheatbench_inspect
     items:
       - name: cheatbench_knowledge_work

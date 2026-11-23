@@ -4,7 +4,7 @@
 # so it runs on Terminus-2 per the 2026-11-22 decision.
 name: openmath-deepseek-v4-pro-terminus-2
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@113dfce78a5775b3b803b0935ffe416b1d864275
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
     name: cheatbench_inspect
     items:
       - name: cheatbench_openmath

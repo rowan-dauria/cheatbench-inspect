@@ -3,7 +3,7 @@
 # The original adaptive thinking object is not sent through OpenRouter.
 name: protein-design-claude-fable-5.1
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3d7a4c11b03d617b98a2f0e3fe959c5768bb5454
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
     name: cheatbench_inspect
     items:
       - name: cheatbench_protein_design

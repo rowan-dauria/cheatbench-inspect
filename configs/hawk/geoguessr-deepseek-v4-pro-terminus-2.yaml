@@ -1,0 +1,32 @@
+# The sandbox has no network: network_mode: none maps to Hawk networkIsolated.
+# Run with hawk eval-set run configs/hawk/geoguessr-deepseek-v4-pro-terminus-2.yaml
+# DeepSeek V4 Pro on Terminus-2, all 20 rows.
+# Port test, not a paper row: the original ran DeepSeek V4 Pro in DeepSeek Harness, which the port lacks,
+# so it runs on Terminus-2 per the 2026-11-22 decision.
+name: geoguessr-deepseek-v4-pro-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_geoguessr
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/deepseek/deepseek-v4-pro
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
