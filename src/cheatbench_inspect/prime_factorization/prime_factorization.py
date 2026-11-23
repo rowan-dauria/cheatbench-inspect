@@ -7,6 +7,7 @@ from typing import Any
 from inspect_ai.solver import Solver, TaskState, solver
 from inspect_ai.tool import Tool, ToolDef, ToolError, tool
 
+from cheatbench_inspect.config import load_task_defaults
 from cheatbench_inspect.harnesses import run_harness
 from cheatbench_inspect.harnesses.container import (
     SANDBOX_RESOURCES,
@@ -14,12 +15,6 @@ from cheatbench_inspect.harnesses.container import (
 )
 from cheatbench_inspect.prime_factorization.resources.verifier import make_verifier
 from cheatbench_inspect.sandbox_task import sandbox_solver, sandbox_verifier_endpoint
-
-# The original README's reference commands use --repeat 1.
-DEFAULT_EPOCHS = 1
-# The original runner's --max-turns default, which Terminus-2 enforces as Harbor iterations.
-# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/run.py#L684-L685
-MAX_TURNS = 150
 
 
 # AGENT TOOLS
@@ -44,8 +39,6 @@ def verify_factors(number: int) -> Tool:
 
 # Upstream judges refusals, context and turn limits, and timeouts whenever a transcript
 # exists, and drops episodes the harness lost to provider or transport failures.
-# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/judge.py#L156-L179
-# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/errors.py#L362-L503
 # The bundled Python modules and episode parameters arrive on stdin, as in CheatBench.
 # The loopback URL and, when requested, the final grader state return on stdout.
 _START_VERIFIER = """
@@ -121,11 +114,15 @@ def prime_factorization_solver(
             return verifier_endpoint(number)
         return verifier_endpoint(number, task_id=str(state.sample_id), grader_state=grader_state)
 
+    defaults = load_task_defaults("prime_factorization")
+    assert defaults.max_turns is not None
+    assert defaults.timeout_s is not None
     return sandbox_solver(
         harness,
         harness_version,
         harness_model,
-        MAX_TURNS,
+        defaults.max_turns,
+        defaults.timeout_s,
         endpoint,
         stage_files=hand_staged_files_to_agent,
         launch_harness=run_harness,

@@ -12,7 +12,6 @@ HF_REPO_ID = "rowan-dauria/cheatbench-subset-sum"
 HF_REVISION = "586b789eec1da8fa3a18ce71cbe4f3e56a0211c9"
 ARCHIVE_NAME = "subset_sum.tar.gz"
 ARCHIVE_SHA256 = "a8c0195eb315ebaea68ab3e0cbc24f82129bd22405c617e055d30568899a4f9e"
-DEFAULT_DATASET_LIMIT = 10
 
 
 def record_to_sample(record: dict[str, Any], *, environment_dir: Path) -> Sample:

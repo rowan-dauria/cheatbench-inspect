@@ -43,7 +43,7 @@ async def test_geoguessr_solver_runs_without_verifier(harness: str, fail: bool) 
         events.append(("run", name))
         assert st is state
         assert policy.mcp_servers == []
-        assert policy.max_turns == (geoguessr.MAX_TURNS if harness == "terminus-2" else None)
+        assert policy.max_turns == (150 if harness == "terminus-2" else None)
         assert policy.timeout_s == 3600
         assert policy.mcp_only is False
         if harness in {"claude-code", "codex"}:

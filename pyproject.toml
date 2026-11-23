@@ -18,6 +18,7 @@ dependencies = [
     "inspect-swe==0.2.72",
     # inspect-ai imports acp.helpers, which was removed in 1.0.
     "agent-client-protocol<1",
+    "pyyaml>=6",
 ]
 
 [project.urls]
@@ -67,6 +68,7 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
     "resources/sandbox/task-requirements.txt",
 ]
 "cheatbench_inspect.geoguessr" = ["resources/instruction.txt"]
+"cheatbench_inspect.synthetic_puzzles" = ["resources/instruction.txt"]
 "cheatbench_inspect.sycophancy" = ["resources/*.jsonl"]
 
 # Layout preset: multi-eval (tests/<package>/, src/<package>/README.md) or

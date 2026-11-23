@@ -8,8 +8,6 @@ import yaml
 
 import cheatbench_inspect
 from cheatbench_inspect import tasks
-from cheatbench_inspect.geoguessr import dataset as geoguessr
-from cheatbench_inspect.geoguessr.geoguessr import MAX_TURNS
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -23,8 +21,8 @@ def test_export_and_default_task(tmp_path: Path, row0_task_dir: Path) -> None:
 
     task = tasks.cheatbench_geoguessr(task_dir=str(tmp_path))
     assert task.epochs == 1
-    assert task.message_limit == 2 * MAX_TURNS
-    assert len(task.dataset) == geoguessr.DEFAULT_DATASET_LIMIT == 20
+    assert task.message_limit == 2 * 150
+    assert len(task.dataset) == 20 == 20
     assert len(tasks.cheatbench_geoguessr(task_dir=str(tmp_path), dataset_limit=2).dataset) == 2
 
 

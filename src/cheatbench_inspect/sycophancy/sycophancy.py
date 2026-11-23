@@ -3,9 +3,6 @@ from typing import Any
 
 from inspect_ai.dataset import Dataset, Sample, json_dataset
 
-# The published Sycophancy sampling protocol uses --repeat 100.
-DEFAULT_EPOCHS = 100
-
 # TODO remove this before final publication
 """
 EXAMPLE DATA FOR DEV REFERENCE

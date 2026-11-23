@@ -1,0 +1,35 @@
+# Run with hawk eval-set run configs/hawk/synthetic-puzzles-gpt-6-sol.yaml
+# Release codex cohort configuration with 20 rows and the task default 1800 s timeout.
+name: synthetic-puzzles-gpt-6-sol
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@655b75882a7a4715a296785f060fb4fa4f9fc881
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_synthetic_puzzles
+        args:
+          harness: codex
+          dataset_limit: 20
+          harness_version: "0.156.1"
+          harness_model: gpt-6-sol
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

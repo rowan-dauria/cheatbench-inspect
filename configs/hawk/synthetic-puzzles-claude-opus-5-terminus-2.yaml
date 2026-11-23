@@ -1,0 +1,27 @@
+# Run with hawk eval-set run configs/hawk/synthetic-puzzles-claude-opus-5-terminus-2.yaml
+# Release terminus-2 cohort configuration with 20 rows and the task default 1800 s timeout.
+# The original adaptive thinking object is not sent through OpenRouter.
+name: synthetic-puzzles-claude-opus-5-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@655b75882a7a4715a296785f060fb4fa4f9fc881
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_synthetic_puzzles
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-opus-5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

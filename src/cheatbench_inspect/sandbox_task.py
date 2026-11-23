@@ -12,7 +12,14 @@ from inspect_ai.agent import AgentState
 from inspect_ai.model import GenerateConfig, Model, ResponseSchema
 from inspect_ai.scorer import Score, Target
 from inspect_ai.solver import Generate, Solver, TaskState
-from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, json_schema, sandbox
+from inspect_ai.util import (
+    ExecRemoteStreamingOptions,
+    ExecStderr,
+    ExecStdout,
+    json_schema,
+    sandbox,
+    time_limit,
+)
 from inspect_evals_utils.cache import INSPECT_EVALS_CACHE_PATH
 from inspect_evals_utils.huggingface import hf_hub_download
 
@@ -124,6 +131,7 @@ def sandbox_solver(
     harness_version: str | None,
     harness_model: str | None,
     max_turns: int,
+    timeout_s: int,
     verifier_endpoint: Callable[
         [TaskState, dict[str, Any] | None], AbstractAsyncContextManager[str]
     ]
@@ -137,6 +145,14 @@ def sandbox_solver(
 
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         await stage(state.metadata["staged_files"])
+        for path, stamp in state.metadata.get("file_mtimes", {}).items():
+            result = await sandbox().exec(
+                ["touch", "-c", "-m", "-d", stamp, "--", path],
+                env={**AGENT_ENV, "TZ": "UTC"},
+                user=AGENT_USER,
+            )
+            if not result.success:
+                raise RuntimeError(f"Could not set staged file mtime for {path}: {result.stderr}")
         stock_agent = harness in {"claude-code", "codex"}
         grader_state: dict[str, Any] | None = (
             {} if stock_agent and verifier_endpoint is not None else None
@@ -150,13 +166,15 @@ def sandbox_solver(
                     else []
                 ),
                 max_turns=None if stock_agent else max_turns,
+                timeout_s=timeout_s,
             )
             options = (
                 {"cli_version": harness_version or "", "cli_model": harness_model or ""}
                 if stock_agent
                 else None
             )
-            result = await launch(harness, state, policy, options)
+            with time_limit(timeout_s if stock_agent else None):
+                result = await launch(harness, state, policy, options)
         if isinstance(result, HarnessResult):
             apply_harness_result(state, result)
         elif grader_state is not None:
