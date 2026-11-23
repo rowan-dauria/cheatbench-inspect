@@ -1,0 +1,38 @@
+# Subset Sum on Hawk with GPT-5.6 Luna in the Codex harness.
+#   hawk eval-set run configs/hawk/subset-sum-gpt-5.6-luna.yaml
+# Q4-Q13 use the task defaults; the GPT-6 Sol judge runs at high effort.
+# The original gpt-5.6-luna entry pins Codex 0.154.0 and high reasoning effort with no reasoning summary.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L115-L123
+# Hawk exposes task retries via retry_attempts, not retry_on_error.
+name: subset-sum-gpt-5-6-luna
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@9b3a3bacd63db9c8d617ccaf71c84601a0e6ee43
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_subset_sum
+        args:
+          harness: codex
+          harness_version: "0.154.0"
+          harness_model: gpt-5.6-luna
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-5.6-luna
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: none
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

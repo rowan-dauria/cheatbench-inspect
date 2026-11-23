@@ -1,24 +1,19 @@
-import asyncio
 import json
 from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from inspect_ai.solver import Generate, Solver, TaskState, solver
+from inspect_ai.solver import Solver, TaskState, solver
 from inspect_ai.tool import Tool, ToolDef, ToolError, tool
-from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, sandbox
 
-from cheatbench_inspect.harnesses import HarnessPolicy, run_harness
+from cheatbench_inspect.harnesses import run_harness
 from cheatbench_inspect.harnesses.container import (
-    AGENT_ENV,
-    AGENT_USER,
     SANDBOX_RESOURCES,
-    STREAM_BOOTSTRAP,
     hand_staged_files_to_agent,
 )
-from cheatbench_inspect.harnesses.harness import HarnessResult, apply_harness_result
 from cheatbench_inspect.prime_factorization.resources.verifier import make_verifier
+from cheatbench_inspect.sandbox_task import sandbox_solver, sandbox_verifier_endpoint
 
 # The original README's reference commands use --repeat 1.
 DEFAULT_EPOCHS = 1
@@ -105,43 +100,8 @@ async def verifier_endpoint(
         "task_id": task_id,
         "description": ToolDef(verify_factors(number)).description,
     }
-    process = await sandbox().exec_remote(
-        ["python3", "-I", "-c", STREAM_BOOTSTRAP],
-        ExecRemoteStreamingOptions(
-            input=json.dumps(config) + "\n", stdin_open=True, user=AGENT_USER, env=AGENT_ENV
-        ),
-    )
-    try:
-        # Keep the single-use iterator open through the state snapshot.
-        events = aiter(process)
-        stdout = ""
-        stderr = ""
-        async with asyncio.timeout(30):
-            while "\n" not in stdout:
-                event = await anext(events, None)
-                if event is None:
-                    raise RuntimeError(
-                        f"Verifier exited before reporting its URL: {stderr.strip()}"
-                    )
-                if isinstance(event, ExecStderr):
-                    stderr += event.data
-                elif isinstance(event, ExecStdout):
-                    stdout += event.data
-        url, stdout = stdout.split("\n", 1)
+    async with sandbox_verifier_endpoint(config, grader_state=grader_state) as url:
         yield url
-        if grader_state is not None:
-            async with asyncio.timeout(30):
-                await process.close_stdin()
-                while (event := await anext(events, None)) is not None:
-                    if isinstance(event, ExecStdout):
-                        stdout += event.data
-                    elif isinstance(event, ExecStderr):
-                        stderr += event.data
-                if not stdout.strip():
-                    raise RuntimeError(f"Verifier did not report its state: {stderr.strip()}")
-                grader_state.update(json.loads(stdout))
-    finally:
-        await asyncio.shield(process.kill())
 
 
 # SOLVER
@@ -153,32 +113,20 @@ def prime_factorization_solver(
 ) -> Solver:
     """Solve Prime Factorization with the selected harness and verifier transport."""
 
-    async def solve(state: TaskState, generate: Generate) -> TaskState:
+    def endpoint(
+        state: TaskState, grader_state: dict[str, Any] | None
+    ) -> AbstractAsyncContextManager[str]:
         number = state.metadata["number"]
-        await hand_staged_files_to_agent(state.metadata["staged_files"])
+        if grader_state is None:
+            return verifier_endpoint(number)
+        return verifier_endpoint(number, task_id=str(state.sample_id), grader_state=grader_state)
 
-        grader_state: dict[str, Any] = {}
-        stock_agent = harness in {"claude-code", "codex"}
-        endpoint = (
-            verifier_endpoint(number, task_id=str(state.sample_id), grader_state=grader_state)
-            if stock_agent
-            else verifier_endpoint(number)
-        )
-        async with endpoint as url:
-            policy = HarnessPolicy(
-                mcp_servers=[{"name": "verifier", "transport": "streamable-http", "url": url}],
-                max_turns=None if stock_agent else MAX_TURNS,
-            )
-            options = (
-                {"cli_version": harness_version or "", "cli_model": harness_model or ""}
-                if stock_agent
-                else None
-            )
-            result = await run_harness(harness, state, policy, options)
-        if isinstance(result, HarnessResult):
-            apply_harness_result(state, result)
-        else:
-            state.store.set("harness_artifacts", {"grader_state": grader_state})
-        return state
-
-    return solve
+    return sandbox_solver(
+        harness,
+        harness_version,
+        harness_model,
+        MAX_TURNS,
+        endpoint,
+        stage_files=hand_staged_files_to_agent,
+        launch_harness=run_harness,
+    )

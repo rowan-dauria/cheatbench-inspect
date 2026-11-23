@@ -1,0 +1,32 @@
+# Subset Sum on Hawk with Claude Sonnet 5 in the Claude Code harness.
+#   hawk eval-set run configs/hawk/subset-sum-claude-sonnet-5.yaml
+# Q4-Q13 use the task defaults; the GPT-6 Sol judge runs at high effort.
+# Both models use OpenRouter. The original's claude-sonnet-5 entry sets no
+# generation settings and pins the harness to 2.1.270.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L3-L9
+# Hawk exposes task retries via retry_attempts, not retry_on_error; see LOG.md.
+name: subset-sum-claude-sonnet-5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@9b3a3bacd63db9c8d617ccaf71c84601a0e6ee43
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_subset_sum
+        args:
+          harness: claude-code
+          harness_version: "2.1.270"
+          harness_model: claude-sonnet-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-sonnet-5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
