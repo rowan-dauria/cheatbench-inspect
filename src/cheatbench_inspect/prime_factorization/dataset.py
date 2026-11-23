@@ -1,14 +1,13 @@
 """Load the published Prime Factorization dataset."""
 
-import hashlib
-import tarfile
-import tempfile
 from pathlib import Path
 from typing import Any
 
 from inspect_ai.dataset import Dataset, Sample, json_dataset
 from inspect_evals_utils.cache import INSPECT_EVALS_CACHE_PATH
 from inspect_evals_utils.huggingface import hf_hub_download
+
+from cheatbench_inspect.sandbox_task import fetch_task_dir
 
 # The original builder's output, hosted as a Hugging Face dataset and pinned by
 # commit and checksum. scripts/prime_factorization_dataset.py publishes it.
@@ -40,39 +39,15 @@ def default_task_dir() -> Path:
     builder's output at the pinned commit, packed by
     scripts/prime_factorization_dataset.py.
     """
-    task_dir = INSPECT_EVALS_CACHE_PATH / "cheatbench_inspect" / "prime_factorization"
-    task_dir /= ARCHIVE_SHA256[:12]
-    if (task_dir / "data.jsonl").is_file():
-        return task_dir
-
-    archive = Path(
-        hf_hub_download(
-            repo_id=HF_REPO_ID,
-            filename=ARCHIVE_NAME,
-            repo_type="dataset",
-            revision=HF_REVISION,
-        )
+    return fetch_task_dir(
+        HF_REPO_ID,
+        ARCHIVE_NAME,
+        HF_REVISION,
+        ARCHIVE_SHA256,
+        "prime_factorization",
+        cache_root=INSPECT_EVALS_CACHE_PATH,
+        download=hf_hub_download,
     )
-    digest = hashlib.sha256(archive.read_bytes()).hexdigest()
-    if digest != ARCHIVE_SHA256:
-        raise ValueError(f"{ARCHIVE_NAME} has sha256 {digest}, expected {ARCHIVE_SHA256}")
-    unpack_archive(archive, task_dir)
-    return task_dir
-
-
-def unpack_archive(archive: Path, task_dir: Path) -> None:
-    """Unpack the archive so that task_dir appears complete or not at all."""
-    task_dir.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(dir=task_dir.parent) as staging:
-        unpacked = Path(staging) / "data"
-        with tarfile.open(archive) as tar:
-            tar.extractall(unpacked, filter="data")
-        try:
-            unpacked.rename(task_dir)
-        except OSError:
-            # Another process unpacked the same archive first.
-            if not (task_dir / "data.jsonl").is_file():
-                raise
 
 
 def get_dataset(task_dir: Path, *, limit: int | None = None) -> Dataset:
