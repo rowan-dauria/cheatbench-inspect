@@ -20,6 +20,8 @@ dependencies = [
     # inspect-ai imports acp.helpers, which was removed in 1.0.
     "agent-client-protocol<1",
     "pyyaml>=6",
+    # Inspect bridge limits cancel the task group, so verifier cleanup needs a shield.
+    "anyio>=4",
 ]
 
 [project.urls]
@@ -75,6 +77,7 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 ]
 "cheatbench_inspect.geoguessr" = ["resources/instruction.txt"]
 "cheatbench_inspect.knowledge_work" = ["resources/*.txt", "resources/*.json"]
+"cheatbench_inspect.protein_design" = ["resources/instruction.txt"]
 "cheatbench_inspect.synthetic_puzzles" = ["resources/instruction.txt"]
 "cheatbench_inspect.sycophancy" = ["resources/*.jsonl"]
 

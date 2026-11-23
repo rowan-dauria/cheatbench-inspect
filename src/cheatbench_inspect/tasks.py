@@ -17,6 +17,9 @@ from cheatbench_inspect.knowledge_work.scorers import knowledge_work_scorer
 from cheatbench_inspect.prime_factorization import dataset as prime_dataset
 from cheatbench_inspect.prime_factorization import prime_factorization as prime
 from cheatbench_inspect.prime_factorization import scorers as prime_scorers
+from cheatbench_inspect.protein_design import dataset as protein_dataset
+from cheatbench_inspect.protein_design import protein_design
+from cheatbench_inspect.protein_design.scorers import protein_design_scorer
 from cheatbench_inspect.subset_sum import dataset as subset_dataset
 from cheatbench_inspect.subset_sum import subset_sum
 from cheatbench_inspect.subset_sum.scorers import subset_sum_scorer
@@ -274,5 +277,46 @@ def cheatbench_knowledge_work(
         # One assistant message and one tool message per turn.
         message_limit=2 * _max_turns("knowledge_work"),
         epochs=load_task_defaults("knowledge_work").epochs,
+        version=load_eval_version(__file__),
+    )
+
+
+@task
+def cheatbench_protein_design(
+    task_dir: str | None = None,
+    dataset_limit: int | None = None,
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+) -> Task:
+    """Run Protein Design with the selected agent harness.
+
+    Args:
+        task_dir: Directory containing the generated data.jsonl and environment/ tree.
+            Defaults to the pinned Hugging Face archive, downloaded and cached.
+        dataset_limit: Number of plant targets to load from the start of data.jsonl.
+        harness: Agent harness to run.
+        harness_version: Claude CLI or Codex version, required for claude-code and codex.
+        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+    """
+    validate_harness(harness)
+    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
+    if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
+        raise ValueError("terminus-2 does not accept harness_version or harness_model")
+    if dataset_limit is None:
+        dataset_limit = load_task_defaults("protein_design").dataset_limit
+    assert dataset_limit is not None
+    if dataset_limit < 1:
+        raise ValueError("dataset_limit must be positive.")
+    data_dir = Path(task_dir) if task_dir is not None else protein_dataset.default_task_dir()
+    return Task(
+        dataset=protein_dataset.get_dataset(data_dir, limit=dataset_limit),
+        scorer=protein_design_scorer(),
+        solver=protein_design.protein_design_solver(harness, harness_version, harness_model),
+        sandbox=("docker", str(_OFFLINE_HARNESS_COMPOSE[harness])),
+        # One assistant message and one tool message per turn.
+        message_limit=2 * _max_turns("protein_design"),
+        epochs=load_task_defaults("protein_design").epochs,
         version=load_eval_version(__file__),
     )

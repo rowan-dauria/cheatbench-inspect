@@ -1,0 +1,29 @@
+# Run with hawk eval-set run configs/hawk/protein-design-claude-opus-5.yaml
+# Release claude-code cohort configuration with all 20 targets and the 5400 s episode timeout.
+# The original adaptive thinking object is not sent through OpenRouter.
+name: protein-design-claude-opus-5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3d7a4c11b03d617b98a2f0e3fe959c5768bb5454
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_protein_design
+        args:
+          harness: claude-code
+          dataset_limit: 20
+          harness_version: "2.1.268"
+          harness_model: claude-opus-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-opus-5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
