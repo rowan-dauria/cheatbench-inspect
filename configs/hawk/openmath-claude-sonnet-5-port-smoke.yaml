@@ -2,7 +2,7 @@
 # One-row port smoke test. This model is outside the paper cohorts.
 name: openmath-claude-sonnet-5-port-smoke
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ecf4ee4380c5ebbea7de19cd945991df984e6a47
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@113dfce78a5775b3b803b0935ffe416b1d864275
     name: cheatbench_inspect
     items:
       - name: cheatbench_openmath

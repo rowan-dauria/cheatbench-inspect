@@ -3,7 +3,7 @@
 # The original adaptive thinking object is not sent through OpenRouter.
 name: openmath-claude-fable-5.1
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ecf4ee4380c5ebbea7de19cd945991df984e6a47
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@113dfce78a5775b3b803b0935ffe416b1d864275
     name: cheatbench_inspect
     items:
       - name: cheatbench_openmath
