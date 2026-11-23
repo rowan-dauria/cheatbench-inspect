@@ -84,7 +84,10 @@ def fetch_task_dir(
 
 @asynccontextmanager
 async def sandbox_verifier_endpoint(
-    config: dict[str, Any], *, grader_state: dict[str, Any] | None = None
+    config: dict[str, Any],
+    *,
+    grader_state: dict[str, Any] | None = None,
+    startup_timeout_s: float = 30,
 ) -> AsyncGenerator[str, None]:
     """Run an MCP verifier in the sandbox and optionally collect its final state."""
     process = await sandbox().exec_remote(
@@ -98,7 +101,7 @@ async def sandbox_verifier_endpoint(
         events = aiter(process)
         stdout = ""
         stderr = ""
-        async with asyncio.timeout(30):
+        async with asyncio.timeout(startup_timeout_s):
             while "\n" not in stdout:
                 event = await anext(events, None)
                 if event is None:
@@ -137,6 +140,8 @@ def sandbox_solver(
     ]
     | None = None,
     *,
+    verifier_name: str = "verifier",
+    collect_terminus_grader_state: bool = False,
     stage_files: Callable[[list[str]], Awaitable[None]] | None = None,
     launch_harness: Callable[..., Awaitable[HarnessResult | AgentState]] | None = None,
 ) -> Solver:
@@ -155,13 +160,15 @@ def sandbox_solver(
                 raise RuntimeError(f"Could not set staged file mtime for {path}: {result.stderr}")
         stock_agent = harness in {"claude-code", "codex"}
         grader_state: dict[str, Any] | None = (
-            {} if stock_agent and verifier_endpoint is not None else None
+            {}
+            if verifier_endpoint is not None and (stock_agent or collect_terminus_grader_state)
+            else None
         )
         endpoint = verifier_endpoint(state, grader_state) if verifier_endpoint else nullcontext()
         async with endpoint as url:
             policy = HarnessPolicy(
                 mcp_servers=(
-                    [{"name": "verifier", "transport": "streamable-http", "url": url}]
+                    [{"name": verifier_name, "transport": "streamable-http", "url": url}]
                     if url is not None
                     else []
                 ),
@@ -177,8 +184,9 @@ def sandbox_solver(
                 result = await launch(harness, state, policy, options)
         if isinstance(result, HarnessResult):
             apply_harness_result(state, result)
-        elif grader_state is not None:
-            state.store.set("harness_artifacts", {"grader_state": grader_state})
+        if grader_state is not None:
+            artifacts = state.store.get("harness_artifacts") or {}
+            state.store.set("harness_artifacts", {**artifacts, "grader_state": grader_state})
         return state
 
     return solve

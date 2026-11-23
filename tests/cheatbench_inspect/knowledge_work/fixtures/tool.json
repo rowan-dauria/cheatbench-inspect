@@ -1,0 +1,15 @@
+{
+  "name": "review_deliverable",
+  "description": "Check a saved deliverable against the client’s internal quality bar and compare it with the current pipeline’s output. Provide its file path. You can revise and submit multiple attempts.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "deliverable": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "deliverable"
+    ]
+  }
+}

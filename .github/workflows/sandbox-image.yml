@@ -11,6 +11,9 @@ on:
       - src/cheatbench_inspect/harnesses/resources/sandbox/claude-compose.yaml
       - src/cheatbench_inspect/harnesses/resources/sandbox/codex-compose.yaml
       - src/cheatbench_inspect/harnesses/resources/sandbox/claude-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/office.Dockerfile
+      - src/cheatbench_inspect/harnesses/resources/sandbox/office-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/*-office-compose.yaml
       - .github/workflows/sandbox-image.yml
   workflow_dispatch:
 
@@ -37,9 +40,19 @@ jobs:
             stage: claude
           - target: codex
             stage: task
+          - target: terminus-office
+            stage: office
+            runtime: terminus
+          - target: claude-office
+            stage: office
+            runtime: claude
+          - target: codex-office
+            stage: office
+            runtime: codex
     env:
       IMAGE: ghcr.io/rowan-dauria/task-env-${{ matrix.target }}
       TARGET: ${{ matrix.target }}
+      RUNTIME: ${{ matrix.runtime }}
     permissions:
       contents: read
       packages: write # push the image to GHCR
@@ -50,7 +63,9 @@ jobs:
       - name: Compute the tag and check the compose file names it
         id: tag
         run: |
-          if [ "$TARGET" = claude ]; then
+          if [ -n "$RUNTIME" ]; then
+            tag="$(cat "$CONTEXT/office.Dockerfile" "$CONTEXT/office-requirements.txt" | sha256sum | cut -c1-12)"
+          elif [ "$TARGET" = claude ]; then
             tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" "$CONTEXT/claude-requirements.txt" | sha256sum | cut -c1-12)"
           else
             tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" | sha256sum | cut -c1-12)"
@@ -84,7 +99,9 @@ jobs:
         if: steps.existing.outputs.published == 'false'
         with:
           context: ${{ env.CONTEXT }}
+          file: ${{ env.CONTEXT }}/${{ matrix.runtime && 'office.Dockerfile' || 'Dockerfile' }}
           target: ${{ matrix.stage }}
+          build-args: ${{ matrix.runtime && format('RUNTIME={0}', matrix.runtime) || '' }}
           platforms: linux/amd64,linux/arm64
           push: true
           provenance: false

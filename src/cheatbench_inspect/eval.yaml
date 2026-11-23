@@ -4,7 +4,7 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "5-A"
+version: "5-B"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
@@ -15,6 +15,8 @@ tasks:
   - name: cheatbench_geoguessr
     dataset_samples: 20
   - name: cheatbench_synthetic_puzzles
+    dataset_samples: 20
+  - name: cheatbench_knowledge_work
     dataset_samples: 20
 
 metadata:
@@ -37,6 +39,11 @@ metadata:
         max_turns: 150 # Original run.py:684-685, --max-turns default.
         timeout_s: 3600 # Original tasks/geoguessr/task.yaml.
         dataset_limit: 20 # Original task dataset and study protocol.
+      knowledge_work:
+        epochs: 1 # Original study protocol: --repeat 1.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 3600 # Original tasks/knowledge_work/task.yaml.
+        dataset_limit: 20 # Original tasks/knowledge_work/samples20.json: 20 assignments.
       synthetic_puzzles:
         epochs: 1 # Original study protocol: --repeat 1.
         max_turns: 150 # Original run.py:684-685, --max-turns default.
