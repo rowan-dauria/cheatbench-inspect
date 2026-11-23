@@ -16,9 +16,9 @@ dependencies = [
     "inspect-evals-utils[huggingface]==0.3.0",
     "pyarrow>=21", # Read the checksum-verified GDPval Parquet source.
     # Hawk's runner pins an inspect-ai version compatible with inspect-swe 0.2.72.
-    "inspect-swe==0.2.72",
+    "inspect-swe==0.3.0",
     # inspect-ai imports acp.helpers, which was removed in 1.0.
-    "agent-client-protocol<1",
+    "agent-client-protocol<2",
     "pyyaml>=6",
     # Inspect bridge limits cancel the task group, so verifier cleanup needs a shield.
     "anyio>=4",
@@ -47,7 +47,7 @@ dev = [
     "pytest-dotenv",
     "pytest-inspect-evals[huggingface]==0.4.0",
     "pytest-mock",
-    "ruff==0.17.4",
+    "ruff==0.17.5",
 ]
 
 [tool.setuptools.packages.find]
