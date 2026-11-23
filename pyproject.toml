@@ -58,11 +58,15 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
     "resources/sandbox/Dockerfile",
     "resources/sandbox/compose.yaml",
     "resources/sandbox/claude-compose.yaml",
+    "resources/sandbox/claude-offline-compose.yaml",
     "resources/sandbox/codex-compose.yaml",
+    "resources/sandbox/codex-offline-compose.yaml",
     "resources/sandbox/claude-requirements.txt",
     "resources/sandbox/terminus-compose.yaml",
+    "resources/sandbox/terminus-offline-compose.yaml",
     "resources/sandbox/task-requirements.txt",
 ]
+"cheatbench_inspect.geoguessr" = ["resources/instruction.txt"]
 "cheatbench_inspect.sycophancy" = ["resources/*.jsonl"]
 
 # Layout preset: multi-eval (tests/<package>/, src/<package>/README.md) or

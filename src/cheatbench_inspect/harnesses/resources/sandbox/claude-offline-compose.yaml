@@ -1,0 +1,14 @@
+services:
+  default:
+    # Same published image and local build target as claude-compose.yaml, with
+    # network_mode: none so tasks that deny egress have no outbound network locally
+    # (loopback stays available for Inspect's sandbox agent bridge, and CLI install
+    # runs host-side). On Hawk, the k8s converter maps network_mode: none to
+    # networkIsolated: true.
+    image: ghcr.io/rowan-dauria/task-env-claude:b771f5ffa542
+    build:
+      context: .
+      target: claude
+    network_mode: none
+    init: true
+    command: ["tail", "-f", "/dev/null"]

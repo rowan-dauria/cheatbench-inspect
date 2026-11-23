@@ -32,15 +32,16 @@ STREAM_BOOTSTRAP = 'import sys,json;d=json.loads(sys.stdin.readline());exec(comp
 def agent_owned_roots(staged: list[str]) -> list[str]:
     """The paths to hand to the agent's user after Inspect stages files as root.
 
-    That is /workspace and each home directory a staged file lies under. A staged
-    file anywhere else is handed over alone, so no system directory changes owner.
+    That is /workspace and each home or /tmp subdirectory a staged file lies
+    under. A staged file anywhere else is handed over alone, so no system
+    directory changes owner.
     """
     roots = {"/workspace"}
     for path in staged:
         parts = PurePosixPath(path).parts
         if parts[1] == "workspace":
             continue
-        if parts[1] == "home" and len(parts) > 3:
+        if parts[1] in {"home", "tmp"} and len(parts) > 3:
             roots.add(str(PurePosixPath(*parts[:3])))
         else:
             roots.add(path)
