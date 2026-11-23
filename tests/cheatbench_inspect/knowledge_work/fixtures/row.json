@@ -1,0 +1,19 @@
+{
+  "id": "00000000",
+  "files": {
+    "inputs/draft.pdf": "files/00000000/reference_files/draft.pdf",
+    "inputs/replacement.pptx": "files/00000000/reference_files/replacement.pptx",
+    "brief.md": "files/00000000/brief.md",
+    "README.md": "files/00000000/README.md"
+  },
+  "files_abs": {
+    "/data/cache/artifacts/reference.pptx": "files/00000000/gold_deliverable_files/reference.pptx"
+  },
+  "reference_destination": "/data/cache/artifacts/reference.pptx",
+  "meta": {
+    "task_id": "00000000-0000-0000-0000-000000000001",
+    "sector": "Test",
+    "occupation": "Test",
+    "gold_name": "reference.pptx"
+  }
+}

@@ -11,6 +11,9 @@ from cheatbench_inspect.geoguessr import geoguessr
 from cheatbench_inspect.geoguessr.scorers import geoguessr_scorer
 from cheatbench_inspect.harnesses.harness import validate_harness
 from cheatbench_inspect.harnesses.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.knowledge_work import dataset as work_dataset
+from cheatbench_inspect.knowledge_work import knowledge_work
+from cheatbench_inspect.knowledge_work.scorers import knowledge_work_scorer
 from cheatbench_inspect.prime_factorization import dataset as prime_dataset
 from cheatbench_inspect.prime_factorization import prime_factorization as prime
 from cheatbench_inspect.prime_factorization import scorers as prime_scorers
@@ -60,6 +63,13 @@ _OFFLINE_HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE.with_name("terminus-offline-compose.yaml"),
     "claude-code": TERMINUS_COMPOSE.with_name("claude-offline-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
+}
+
+
+_OFFICE_HARNESS_COMPOSE = {
+    "terminus-2": TERMINUS_COMPOSE.with_name("terminus-office-compose.yaml"),
+    "claude-code": TERMINUS_COMPOSE.with_name("claude-office-compose.yaml"),
+    "codex": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
 }
 
 
@@ -223,5 +233,46 @@ def cheatbench_synthetic_puzzles(
         # One assistant message and one tool message per turn.
         message_limit=2 * _max_turns("synthetic_puzzles"),
         epochs=load_task_defaults("synthetic_puzzles").epochs,
+        version=load_eval_version(__file__),
+    )
+
+
+@task
+def cheatbench_knowledge_work(
+    task_dir: str | None = None,
+    dataset_limit: int | None = None,
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+) -> Task:
+    """Run Knowledge Work with the selected agent harness.
+
+    Args:
+        task_dir: Directory containing the generated data.jsonl and environment/ tree.
+            Defaults to a local build from the pinned GDPval revision.
+        dataset_limit: Number of assignments to load from the start of data.jsonl.
+        harness: Agent harness to run.
+        harness_version: Claude CLI or Codex version, required for claude-code and codex.
+        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+    """
+    validate_harness(harness)
+    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
+    if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
+        raise ValueError("terminus-2 does not accept harness_version or harness_model")
+    if dataset_limit is None:
+        dataset_limit = load_task_defaults("knowledge_work").dataset_limit
+    assert dataset_limit is not None
+    if dataset_limit < 1:
+        raise ValueError("dataset_limit must be positive.")
+    data_dir = Path(task_dir) if task_dir is not None else work_dataset.default_task_dir()
+    return Task(
+        dataset=work_dataset.get_dataset(data_dir, limit=dataset_limit),
+        scorer=knowledge_work_scorer(),
+        solver=knowledge_work.knowledge_work_solver(harness, harness_version, harness_model),
+        sandbox=("docker", str(_OFFICE_HARNESS_COMPOSE[harness])),
+        # One assistant message and one tool message per turn.
+        message_limit=2 * _max_turns("knowledge_work"),
+        epochs=load_task_defaults("knowledge_work").epochs,
         version=load_eval_version(__file__),
     )

@@ -1,0 +1,9 @@
+# Keep the task image's existing Pillow version for ReportLab.
+Pillow==12.3.0
+charset-normalizer==3.5.2
+PyMuPDF==1.27.2.3
+python-docx
+python-pptx
+openpyxl
+pypdf
+reportlab

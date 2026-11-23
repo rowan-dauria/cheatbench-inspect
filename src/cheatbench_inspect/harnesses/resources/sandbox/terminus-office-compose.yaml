@@ -1,0 +1,12 @@
+services:
+  default:
+    image: ghcr.io/rowan-dauria/task-env-terminus-office:0ecbd6f326c8
+    build:
+      context: .
+      dockerfile: office.Dockerfile
+      target: office
+      args:
+        RUNTIME: terminus
+    network_mode: none
+    init: true
+    command: ["tail", "-f", "/dev/null"]

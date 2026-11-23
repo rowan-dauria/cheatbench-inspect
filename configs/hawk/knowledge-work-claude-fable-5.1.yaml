@@ -1,0 +1,32 @@
+# Run with hawk eval-set run configs/hawk/knowledge-work-claude-fable-5.1.yaml
+# Release claude-code cohort configuration with all 20 assignments and the 3600 s episode timeout.
+# The original adaptive thinking object is not sent through OpenRouter.
+name: knowledge-work-claude-fable-5.1
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@0db61ce6222c7ba45a83fcaf28738df10d0bbe62
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_knowledge_work
+        args:
+          harness: claude-code
+          dataset_limit: 20
+          harness_version: "2.1.270"
+          harness_model: claude-fable-5-1
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-fable-5.1
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
