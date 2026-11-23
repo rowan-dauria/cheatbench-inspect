@@ -7,19 +7,20 @@ from unittest.mock import patch
 from inspect_ai import Task
 
 import cheatbench_inspect
-from cheatbench_inspect import prime_factorization as prime
 from cheatbench_inspect import tasks
-from cheatbench_inspect.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.harnesses.terminus import TERMINUS_COMPOSE
+from cheatbench_inspect.prime_factorization import prime_factorization as prime
+from cheatbench_inspect.prime_factorization import scorers
 
 
 def test_task_connects_dataset_solver_scorer_and_sandbox(tmp_path: Path) -> None:
     row = {"id": "q4", "input": "Factor 15.", "number": "15", "files": {}, "files_abs": {}}
     (tmp_path / "data.jsonl").write_text(json.dumps(row) + "\n")
     solver = prime.prime_factorization_solver()
-    scorer = prime.prime_factorization_scorer()
+    scorer = scorers.prime_factorization_scorer()
     with (
         patch.object(prime, "prime_factorization_solver", return_value=solver),
-        patch.object(prime, "prime_factorization_scorer", return_value=scorer),
+        patch.object(scorers, "prime_factorization_scorer", return_value=scorer),
     ):
         task = tasks.cheatbench_prime_factorization(task_dir=str(tmp_path))
 

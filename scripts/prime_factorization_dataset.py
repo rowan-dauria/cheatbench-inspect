@@ -9,7 +9,7 @@ task_dir is given.
     HF_TOKEN=... uv run python scripts/prime_factorization_dataset.py OUT_DIR --upload REPO_ID
 
 Upload prints the Hugging Face commit to pin as HF_REVISION, and the archive's
-sha256 to pin as ARCHIVE_SHA256, both in cheatbench_inspect/prime_factorization.py.
+sha256 to pin as ARCHIVE_SHA256, both in cheatbench_inspect/prime_factorization/dataset.py.
 """
 
 import argparse

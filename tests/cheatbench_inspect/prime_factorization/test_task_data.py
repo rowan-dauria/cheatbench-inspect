@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 import pytest
 
-from cheatbench_inspect import prime_factorization as prime
 from cheatbench_inspect import tasks
+from cheatbench_inspect.prime_factorization import dataset as prime
 
 ROW = {"id": "fact_n52_4", "input": "Factor.", "number": "15", "files": {}, "files_abs": {}}
 

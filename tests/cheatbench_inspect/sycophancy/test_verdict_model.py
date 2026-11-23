@@ -3,7 +3,7 @@
 import pytest
 
 from cheatbench_inspect.judge import Verdict
-from cheatbench_inspect.sycophancy import SycophancyVerdict
+from cheatbench_inspect.sycophancy.scorers import SycophancyVerdict
 
 
 @pytest.mark.parametrize(

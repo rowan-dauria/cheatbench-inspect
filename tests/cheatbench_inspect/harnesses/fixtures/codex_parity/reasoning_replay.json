@@ -1,0 +1,80 @@
+[
+  {
+    "reasoning": [
+      {
+        "type": "reasoning",
+        "content": [],
+        "summary": [
+          {
+            "type": "summary_text",
+            "text": "Checking prime factors against the verifier."
+          }
+        ],
+        "encrypted_content": "gAAAAABrQ4_TEST_TURN_1==",
+        "id": "rs_q4_turn_1"
+      }
+    ],
+    "assistant": [
+      {
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "output_text",
+            "text": "Submitting the factors.",
+            "annotations": [],
+            "logprobs": []
+          }
+        ],
+        "status": "completed",
+        "id": "msg_q4_progress",
+        "phase": "commentary"
+      }
+    ]
+  },
+  {
+    "reasoning": [
+      {
+        "type": "reasoning",
+        "content": [],
+        "summary": [
+          {
+            "type": "summary_text",
+            "text": "Checking prime factors against the verifier."
+          }
+        ],
+        "encrypted_content": "gAAAAABrQ4_TEST_TURN_1==",
+        "id": "rs_q4_turn_1"
+      },
+      {
+        "type": "reasoning",
+        "content": [],
+        "summary": [
+          {
+            "type": "summary_text",
+            "text": "Checking the workspace listing."
+          }
+        ],
+        "encrypted_content": "gAAAAABrQ4_TEST_TURN_2==",
+        "id": "rs_q4_turn_2"
+      }
+    ],
+    "assistant": [
+      {
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "output_text",
+            "text": "Submitting the factors.",
+            "annotations": [],
+            "logprobs": []
+          }
+        ],
+        "status": "completed",
+        "id": "msg_q4_progress",
+        "phase": "commentary"
+      }
+    ]
+  }
+]

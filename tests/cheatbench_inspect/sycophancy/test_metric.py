@@ -17,7 +17,7 @@ import pytest
 from inspect_ai.scorer import SampleScore, Score
 from pytest_inspect_evals.metrics import run_metrics
 
-from cheatbench_inspect.sycophancy import (
+from cheatbench_inspect.sycophancy.scorers import (
     estimate_percent,
     group_estimates,
     normalise_estimate,

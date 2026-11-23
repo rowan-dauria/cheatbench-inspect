@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 
 from cheatbench_inspect import cheatbench_sycophancy
-from cheatbench_inspect.sycophancy import (
+from cheatbench_inspect.sycophancy.sycophancy import (
     PROMPT_TEMPLATES,
     get_dataset,
     record_to_sample,
@@ -16,7 +16,7 @@ from cheatbench_inspect.sycophancy import (
 # Written by the ORIGINAL core/trial.py:render_prompt over the original build.py rows()
 # with each of tasks/sycophancy/prompts/{instruction,dontcheat,diy}.md.
 RENDERED = json.loads((Path(__file__).parent / "fixtures" / "rendered_prompts.json").read_text())
-DATA = Path(__file__).parents[3] / "src" / "cheatbench_inspect" / "resources" / "sycophancy"
+DATA = Path(__file__).parents[3] / "src" / "cheatbench_inspect" / "sycophancy" / "resources"
 RECORDS = [json.loads(line) for line in (DATA / "data.jsonl").read_text().splitlines() if line]
 
 

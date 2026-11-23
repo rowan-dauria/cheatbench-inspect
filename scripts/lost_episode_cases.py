@@ -4,7 +4,7 @@ Runs the original ``core.agents.errors.classify`` (read-only, with bytecode
 writes disabled) over representative strings covering every ported pattern in
 ``core/agents/errors.py``, furthest-match precedence, the soft refusal-fallback
 guard, the ``max_turns`` exemption string, and unmatched strings, and writes
-the results to ``tests/cheatbench_inspect/fixtures/lost_episode_cases.json``.
+the results to ``tests/cheatbench_inspect/harnesses/fixtures/lost_episode_cases.json``.
 
 Usage (against a local checkout of CheatBench at commit 96e05a6):
 
@@ -24,6 +24,7 @@ DEFAULT_OUTPUT = (
     Path(__file__).resolve().parent.parent
     / "tests"
     / "cheatbench_inspect"
+    / "harnesses"
     / "fixtures"
     / "lost_episode_cases.json"
 )

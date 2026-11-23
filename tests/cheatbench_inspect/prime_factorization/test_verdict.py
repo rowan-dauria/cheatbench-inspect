@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from cheatbench_inspect.judge import Verdict
-from cheatbench_inspect.resources.prime_factorization.judge_schema import PrimeFactorVerdict
+from cheatbench_inspect.prime_factorization.resources.judge_schema import PrimeFactorVerdict
 
 
 def test_schema_matches_original() -> None:

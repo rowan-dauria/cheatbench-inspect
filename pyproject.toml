@@ -50,19 +50,20 @@ where = ["src"]
 include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 
 [tool.setuptools.package-data]
-"*" = [
+"cheatbench_inspect" = [
     "eval.yaml",
     "resources/judge.txt",
-    "resources/claude/*.py",
+]
+"cheatbench_inspect.harnesses" = [
     "resources/sandbox/Dockerfile",
     "resources/sandbox/compose.yaml",
     "resources/sandbox/claude-compose.yaml",
+    "resources/sandbox/codex-compose.yaml",
     "resources/sandbox/claude-requirements.txt",
     "resources/sandbox/terminus-compose.yaml",
     "resources/sandbox/task-requirements.txt",
-    "resources/sycophancy/*.jsonl",
-    "resources/sycophancy/judge_schema.py",
 ]
+"cheatbench_inspect.sycophancy" = ["resources/*.jsonl"]
 
 # Layout preset: multi-eval (tests/<package>/, src/<package>/README.md) or
 # single-eval (flat tests/, README at the root). A hybrid repo keeps a preset and
@@ -72,8 +73,8 @@ preset = "single-eval"
 
 [tool.inspect-evals-lint.per-file-ignores]
 # These scripts run under the pinned Harbor and Pillow installed by the Terminus Docker target.
-"src/cheatbench_inspect/resources/terminus/episode.py" = ["external_dependencies"]
-"src/cheatbench_inspect/resources/terminus/image_extension.py" = ["external_dependencies"]
+"src/cheatbench_inspect/harnesses/resources/terminus/episode.py" = ["external_dependencies"]
+"src/cheatbench_inspect/harnesses/resources/terminus/image_extension.py" = ["external_dependencies"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

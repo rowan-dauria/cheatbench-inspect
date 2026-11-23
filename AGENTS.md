@@ -14,10 +14,14 @@ This project uses `uv`. Do not use `pip`, bare `python` or bare `pytest`.
 
 ## Layout
 
-- `src/cheatbench_inspect/sycophancy.py`: the Sycophancy task, its judge scorer and shift metric; `resources/` holds its data and the original judge files.
+- `src/cheatbench_inspect/tasks.py`: registered task entry points.
+- `src/cheatbench_inspect/sycophancy/`: Sycophancy dataset, judge scorer, shift metric and task resources.
+- `src/cheatbench_inspect/prime_factorization/`: Prime Factorization dataset, solver, scorer and task resources.
+- `src/cheatbench_inspect/harnesses/`: agent launchers, lost-episode handling, reasoning replay and sandbox resources.
+- `src/cheatbench_inspect/judge.py`: shared judge schema, trajectory rendering and prompt. The shared prompt and upstream license live in `resources/`.
 - `src/cheatbench_inspect/eval.yaml`: title, description, contributors, version and tasks. Edit it and run `make readmes`.
 - `README.md`: the eval's documentation, including the generated sections.
-- `tests/cheatbench_inspect/sycophancy/`: the Sycophancy tests and fixtures generated from the original.
+- `tests/cheatbench_inspect/`: task and harness tests and fixtures.
 - `src/examples/`: worked examples (gpqa, agentic, llm_judge). They are not part of the eval. Run one by file path: `uv run inspect eval src/examples/<name>/<name>.py`. Remove them with `uvx copier update --defaults --data include_examples=false` followed by `uv sync`.
 - `agent_artefacts/trajectory_analysis/inspect_scout/`: Scout scanners for the transcript audit.
 

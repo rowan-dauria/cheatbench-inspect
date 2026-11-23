@@ -3,8 +3,8 @@
 import subprocess
 import sys
 
-from cheatbench_inspect.resources.prime_factorization import verifier
-from cheatbench_inspect.resources.prime_factorization.verifier import make_verifier
+from cheatbench_inspect.prime_factorization.resources import verifier
+from cheatbench_inspect.prime_factorization.resources.verifier import make_verifier
 
 
 def test_verifier_loads_without_site_packages() -> None:

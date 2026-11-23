@@ -1,15 +1,16 @@
 name: Sandbox image
 
-# Builds and publishes both sandbox targets for amd64 and arm64. Each compose
+# Builds and publishes sandbox targets for amd64 and arm64. Each compose
 # file names a tag derived from its build inputs; published tags are immutable.
 on:
   push:
     paths:
-      - src/cheatbench_inspect/resources/sandbox/Dockerfile
-      - src/cheatbench_inspect/resources/sandbox/task-requirements.txt
-      - src/cheatbench_inspect/resources/sandbox/terminus-compose.yaml
-      - src/cheatbench_inspect/resources/sandbox/claude-compose.yaml
-      - src/cheatbench_inspect/resources/sandbox/claude-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/Dockerfile
+      - src/cheatbench_inspect/harnesses/resources/sandbox/task-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/terminus-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/claude-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/codex-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/claude-requirements.txt
       - .github/workflows/sandbox-image.yml
   workflow_dispatch:
 
@@ -21,7 +22,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CONTEXT: src/cheatbench_inspect/resources/sandbox
+  CONTEXT: src/cheatbench_inspect/harnesses/resources/sandbox
 
 jobs:
   publish:
@@ -29,7 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [terminus, claude]
+        include:
+          - target: terminus
+            stage: terminus
+          - target: claude
+            stage: claude
+          - target: codex
+            stage: task
     env:
       IMAGE: ghcr.io/rowan-dauria/task-env-${{ matrix.target }}
       TARGET: ${{ matrix.target }}
@@ -77,7 +84,7 @@ jobs:
         if: steps.existing.outputs.published == 'false'
         with:
           context: ${{ env.CONTEXT }}
-          target: ${{ matrix.target }}
+          target: ${{ matrix.stage }}
           platforms: linux/amd64,linux/arm64
           push: true
           provenance: false

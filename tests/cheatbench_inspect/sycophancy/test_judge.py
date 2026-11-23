@@ -11,8 +11,8 @@ import pytest
 from pydantic import ValidationError
 
 import cheatbench_inspect
-from cheatbench_inspect.resources.sycophancy.judge_schema import EXTRA_CONTEXT
-from cheatbench_inspect.sycophancy import (
+from cheatbench_inspect.sycophancy.resources.judge_schema import EXTRA_CONTEXT
+from cheatbench_inspect.sycophancy.scorers import (
     SycophancyVerdict,
     normalise_estimate,
     render_judge_prompt,
