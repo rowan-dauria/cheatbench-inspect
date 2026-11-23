@@ -91,9 +91,9 @@ See `uv run inspect eval --help` for all available options.
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int): Number of questions to load from the start of data.jsonl. (default: `10`)
-- `harness` (str): Agent harness to run. (default: `'terminus-2'`)
+- `harness` (str): Agent harness to run: terminus-2, claude-code, or codex. (default: `'terminus-2'`)
 - `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Original model ID for the Claude judge transcript or the Codex CLI. (default: `None`)
+- `harness_model` (str | None): Original model ID for the Claude Code or Codex CLI and judge transcript. (default: `None`)
 
 <!-- /Parameters: Automatically Generated -->
 
@@ -135,7 +135,7 @@ Set provider routing separately. For example, the paper ran DeepSeek through Ope
 
 The original Prime Factorization builder generates 20 questions, Q4 through Q23. The task defaults to the first 10 questions, Q4 through Q13, with one episode per question. That matches the original README's study command. Use `-T dataset_limit=20` for the paper's 20-question runs or `--epochs 2` for the two repetitions reported for Claude Fable 5.1. [CheatBench, Appendix B.6](https://arxiv.org/html/2609.36308v1#A2.SS6)
 
-The original does not ship this task's data: its builder generates `data.jsonl` and the `environment/` tree staged into each sandbox, offline and deterministically. By default the task downloads that builder's output, from commit `96e05a6d61faf33be788f75dd01998066045ad02` with its default arguments, from the Hugging Face dataset [`rowan-dauria/cheatbench-prime-factorization`](https://huggingface.co/datasets/rowan-dauria/cheatbench-prime-factorization). The download is pinned to a dataset commit, checked against a sha256 and unpacked into the inspect_evals cache (`INSPECT_EVALS_CACHE_DIR` moves it). [`scripts/prime_factorization_dataset.py`](scripts/prime_factorization_dataset.py) produces and uploads the archive. Docker runs the Terminus-2 harness, the staged files and the verifier. This example calls the agent and grader models:
+The original does not ship this task's data: its builder generates `data.jsonl` and the `environment/` tree staged into each sandbox, offline and deterministically. By default the task downloads that builder's output, from commit `96e05a6d61faf33be788f75dd01998066045ad02` with its default arguments, from the Hugging Face dataset [`rowan-dauria/cheatbench-prime-factorization`](https://huggingface.co/datasets/rowan-dauria/cheatbench-prime-factorization). The download is pinned to a dataset commit, checked against a sha256 and unpacked into the inspect_evals cache (`INSPECT_EVALS_CACHE_DIR` moves it). [`scripts/prime_factorization_dataset.py`](scripts/prime_factorization_dataset.py) produces and uploads the archive. Docker runs the selected harness, the staged files and the verifier. This example calls the agent and grader models:
 
 ```bash
 uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
@@ -233,7 +233,7 @@ In Prime Factorization, the grader reads the rendered trajectory from the select
 
 ## Changelog
 
-- **3-B** adds the `codex` harness for Prime Factorization, supporting the original Codex versions and models listed above. Codex reasoning replay uses a host filter and an in-sandbox proxy. The Claude reasoning marker is renamed so the eval name no longer reaches the sandbox. New lost-episode patterns cover the bridge's OpenAI-dialect transport errors. A Hawk config runs GPT-5.6 Luna.
+- **4-A** runs Claude models and GLM 5.3 on inspect_swe's `claude_code()` under the harness name `claude-code`, replacing `claude-sdk`. A new `codex` harness runs the original's Codex versions and models on inspect_swe's `codex_cli()`. Both reach the verifier through an MCP server in the sandbox. The judge's trajectory is built from messages seen by the model bridge. The Claude reasoning marker is renamed so the eval's name no longer reaches the sandbox. New lost-episode patterns cover the bridge's OpenAI-dialect transport errors. A Hawk config runs GPT-5.6 Luna.
 - **3-A** uses the original's error patterns over the full error text to classify lost episodes; scores can change for runs with infrastructure failures. Prime adds `harness`, `harness_version` and `harness_model` parameters and a `claude-sdk` harness, which runs Claude models and GLM 5.3 through a port of the original's Claude Agent SDK runner. The score metadata key `harbor_error` is now `harness_error`. Terminus-2 reaches the bridge's Chat Completions endpoint for every Inspect provider, fixing `anthropic/*` models. A sample with no harness trajectory now errors with a clear message at scoring time. Hawk configs retry lost episodes with `retry_attempts: 1`.
 - **2-A** adopts 100 replies per Sycophancy prompt and defaults Prime Factorization to 10 questions with one episode each.
 
@@ -270,7 +270,7 @@ In Prime Factorization, the grader reads the rendered trajectory from the select
 | The bridge counts Claude model calls against the turn limit. | The stock agent does not expose the SDK's `max_turns` option. | An episode at the cap can end at a different point. The judge still scores its trace. |
 | Claude generation settings come from Inspect's GenerateConfig. | The bridge drops the CLI's generation settings. The original applies SDK `thinking` and `effort` options. | Settings can change behavior and scores. |
 | The Bash description gives shorter sleep and polling instructions and omits the Monitor example. | The CLI's Monitor feature flag is off in the stock run. | Tool guidance may affect behavior and scores. |
-| The Claude judge header says `agent=claude-code`. | The host converts the CLI conversation. It has no SDK session id, per-message billing record or SDK-reported total cost. | The Q4 judge prompt differs only in the harness name. |
+| The Claude judge header says `agent=claude-code`. | The host converts messages seen by the bridge. It has no SDK session id, per-message billing record or SDK-reported total cost. | The Q4 judge prompt differs only in the harness name. |
 | Claude's live log mirror gets tool results when they reach the model bridge. | The stock agent does not expose SDK message callbacks. | A tool that reads the log within the same parallel tool batch may see fewer results. |
 | The Claude bridge wraps OpenRouter reasoning for replay. | The filter preserves readable reasoning and the information needed for the provider's next turn. The original uses an `openrouter.reasoning:` envelope on a redacted thinking block. | The judge sees readable thinking. Effects of the different CLI block shape are unmeasured. |
 | The shift metric sorts each condition's estimates before bootstrapping. | The original resamples in judge-record order, which depends on when asynchronous judging finished, so its interval is not reproducible. | None on point estimates. The interval differs only by resampling noise. |

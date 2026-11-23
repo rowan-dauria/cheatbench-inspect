@@ -29,7 +29,7 @@ from cheatbench_inspect.agent_trajectory import message_text, readable_reasoning
 from cheatbench_inspect.container import AGENT_ENV, AGENT_USER
 from cheatbench_inspect.harness import HarnessPolicy, HarnessResult
 from cheatbench_inspect.harness_live_log import live_log
-from cheatbench_inspect.lost_episodes import MAX_TURNS_EXACT_ERROR, is_harness_timeout
+from cheatbench_inspect.lost_episodes import is_harness_timeout
 from cheatbench_inspect.reasoning_replay import responses_reasoning_filter
 
 # No marketplace sync or optional plugin tools in the episode.
@@ -47,10 +47,6 @@ _MCP_ONLY_DISABLED_FEATURES = (
     "tool_suggest",
     "enable_request_compression",
 )
-
-
-class CodexTurnLimitError(Exception):
-    """The CLI requested another model call after the episode's turn budget."""
 
 
 def _config_overrides(policy: HarnessPolicy, config: GenerateConfig) -> dict[str, str]:
@@ -184,11 +180,10 @@ async def _run_codex(
     overrides: dict[str, str],
     mirror: Callable[[list[ChatMessageAssistant | ChatMessageTool]], Awaitable[None]],
 ) -> HarnessResult:
-    turns = 0
+    first_request = True
     observed: list[ChatMessage] = []
     seen_tool_results: set[str | None] = set()
     bridge_error: str | None = None
-    turn_limit = asyncio.Event()
 
     async def filter_request(
         model: Model,
@@ -197,7 +192,7 @@ async def _run_codex(
         tool_choice: ToolChoice | None,
         config: GenerateConfig,
     ) -> ModelOutput:
-        nonlocal turns, bridge_error
+        nonlocal first_request, bridge_error
         tool_results: list[ChatMessageAssistant | ChatMessageTool] = []
         for message in messages:
             if (
@@ -208,10 +203,7 @@ async def _run_codex(
                 tool_results.append(message)
         observed.extend(tool_results)
         await mirror(tool_results)
-        if policy.max_turns is not None and turns >= policy.max_turns:
-            turn_limit.set()
-            raise CodexTurnLimitError(MAX_TURNS_EXACT_ERROR)
-        if turns == 0:
+        if first_request:
             # The first system message is the CLI's top-level instructions.
             # The rollout used for judging begins with the next context item.
             preceding = (
@@ -220,7 +212,7 @@ async def _run_codex(
                 else messages
             )
             observed.extend(preceding)
-        turns += 1
+        first_request = False
         try:
             output = await responses_reasoning_filter(model, messages, tools, tool_choice, config)
         except Exception as exc:
@@ -257,25 +249,14 @@ async def _run_codex(
         ],
     )
     agent_state = AgentState(messages=state.messages.copy())
-    execution = asyncio.create_task(agent(agent_state))
-    capped = asyncio.create_task(turn_limit.wait())
     try:
         async with asyncio.timeout(policy.timeout_s):
-            done, _ = await asyncio.wait((execution, capped), return_when=asyncio.FIRST_COMPLETED)
-            if capped in done:
-                raise CodexTurnLimitError(MAX_TURNS_EXACT_ERROR)
-            agent_state = await execution
+            agent_state = await agent(agent_state)
         error = bridge_error
-    except CodexTurnLimitError as exc:
-        error = str(exc)
     except TimeoutError:
         error = f"timeout after {policy.timeout_s}s"
     except Exception as exc:
         error = "\n".join(dict.fromkeys(filter(None, (str(exc).strip(), bridge_error))))
-    finally:
-        execution.cancel()
-        capped.cancel()
-        await asyncio.gather(execution, capped, return_exceptions=True)
 
     output = agent_state.output
     if error is None and not output.empty and output.stop_reason == "content_filter":

@@ -187,3 +187,33 @@ def test_codex_cli_reasoning_overrides(summary: Literal["detailed", "none"] | No
     assert overrides.get("model_reasoning_summary") == (
         '"detailed"' if summary == "detailed" else None
     )
+
+
+@pytest.mark.asyncio
+async def test_codex_filter_does_not_enforce_max_turns() -> None:
+    from inspect_ai.model import ModelOutput
+
+    calls = 0
+
+    def fake_cli(**kwargs: Any) -> Any:
+        async def agent(state: Any) -> Any:
+            nonlocal calls
+            for _ in range(3):
+                await kwargs["filter"](get_model("mockllm/model"), [], [], None, GenerateConfig())
+                calls += 1
+            return state
+
+        return agent
+
+    policy = HarnessPolicy(mcp_servers=[], max_turns=1, timeout_s=10, observer=None)
+    with (
+        patch.object(codex, "codex_cli", fake_cli),
+        patch.object(
+            codex,
+            "responses_reasoning_filter",
+            AsyncMock(return_value=ModelOutput.from_content("mock", "ok")),
+        ),
+    ):
+        result = await codex._run_codex(_state(), policy, "v", "model", {}, AsyncMock())
+    assert calls == 3
+    assert result.error is None

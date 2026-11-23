@@ -50,9 +50,9 @@ def cheatbench_prime_factorization(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to the published build of the original's builder, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
-        harness: Agent harness to run.
+        harness: Agent harness to run: terminus-2, claude-code, or codex.
         harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Original model ID for the Claude judge transcript or the Codex CLI.
+        harness_model: Original model ID for the Claude Code or Codex CLI and judge transcript.
     """
     validate_harness(harness)
     if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
