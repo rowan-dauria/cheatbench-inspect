@@ -11,4 +11,3 @@ def test_claude_parity_fixtures() -> None:
     assert {"Bash", "Read", "Write", "mcp__verifier__verify_factors"} <= {
         tool["name"] for tool in request["tools"]
     }
-    assert "[init] agent=claude-sdk" in (fixtures / "judge_prompt.txt").read_text()

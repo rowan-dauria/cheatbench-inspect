@@ -67,6 +67,8 @@ def cheatbench_prime_factorization(
         scorer=prime.prime_factorization_scorer(),
         solver=prime.prime_factorization_solver(harness, harness_version, harness_model),
         sandbox=("docker", str(_HARNESS_COMPOSE[harness])),
+        # One assistant message and one tool message per turn.
+        message_limit=2 * prime.MAX_TURNS,
         epochs=prime.DEFAULT_EPOCHS,
         version=load_eval_version(__file__),
     )

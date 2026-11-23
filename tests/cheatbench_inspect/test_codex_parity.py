@@ -1,4 +1,4 @@
-"""Compare the stock Codex episode against the pre-switch wire and judge fixtures."""
+"""Compare the stock Codex episode against the pre-switch wire fixtures."""
 
 import json
 from pathlib import Path
@@ -18,16 +18,13 @@ pytestmark = [pytest.mark.docker, pytest.mark.slow, pytest.mark.dataset_download
 _FIXTURES = Path(__file__).parent / "fixtures/codex_parity"
 
 
-def test_first_request_and_judge_prompt(tmp_path: Path) -> None:
-    log, requests, prompts = run_q4(tmp_path)
+def test_first_request(tmp_path: Path) -> None:
+    log, requests, _ = run_q4(tmp_path)
     assert log.status == "success", log.error
     assert len(requests) == 3
     legacy = json.loads((_FIXTURES / "first_request.json").read_text(encoding="utf-8"))
     first = json.loads(normalize(json.dumps(requests[0], ensure_ascii=False)))
     assert first == legacy
-
-    [judge_prompt] = prompts
-    assert normalize(judge_prompt) == (_FIXTURES / "judge_prompt.txt").read_text(encoding="utf-8")
 
 
 def test_stock_codex_replays_reasoning_and_text(tmp_path: Path) -> None:
@@ -57,7 +54,7 @@ def test_stock_codex_replays_reasoning_and_text(tmp_path: Path) -> None:
 
         return solve
 
-    log, requests, prompts = run_q4(tmp_path, turns=turns, after=capture_rollout())
+    log, requests, _ = run_q4(tmp_path, turns=turns, after=capture_rollout())
     assert log.status == "success", log.error
     assert len(requests) == 3
     replay = [
@@ -86,8 +83,3 @@ def test_stock_codex_replays_reasoning_and_text(tmp_path: Path) -> None:
     assert assistant_text == json.loads(
         (_FIXTURES / "cli_assistant_text.json").read_text(encoding="utf-8")
     )
-    [judge_prompt] = prompts
-    for reasoning, *_ in turns:
-        assert f"THINKING: {reasoning['summary'][0]['text']}" in judge_prompt
-    assert "<think" not in judge_prompt
-    assert "<content-internal" not in judge_prompt

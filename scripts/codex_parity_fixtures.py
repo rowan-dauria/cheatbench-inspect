@@ -1,4 +1,4 @@
-"""Capture the pre-switch Codex first request and judge prompt on Prime Q4.
+"""Capture the pre-switch Codex first request on Prime Q4.
 
 Run on the legacy harness checkout with this script and its test helper available.
 """
@@ -16,7 +16,7 @@ def main() -> None:
     if not Path("src/cheatbench_inspect/resources/codex/episode.py").is_file():
         raise SystemExit("Capture the reference from the pre-switch Codex harness (7af2ecb).")
     with tempfile.TemporaryDirectory() as directory:
-        log, requests, prompts = run_q4(Path(directory))
+        log, requests, _ = run_q4(Path(directory))
         assert log.status == "success", log.error
         assert log.samples
         assert log.samples[0].store["harness_artifacts"]["grader_state"]["is_correct"], log.samples[
@@ -27,7 +27,6 @@ def main() -> None:
     (DEST / "first_request.json").write_text(
         normalize(json.dumps(requests[0], indent=2, ensure_ascii=False)) + "\n", encoding="utf-8"
     )
-    (DEST / "judge_prompt.txt").write_text(normalize(prompts[0]), encoding="utf-8")
 
 
 if __name__ == "__main__":

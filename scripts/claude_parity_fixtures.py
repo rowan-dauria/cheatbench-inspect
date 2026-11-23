@@ -1,4 +1,4 @@
-"""Record the current Claude SDK bridge's first request and judge prompt."""
+"""Record the current Claude SDK bridge's first request."""
 
 import json
 import re
@@ -73,7 +73,6 @@ def agent_reply(messages, tools, tool_choice, config):
 
 
 def judge_reply(messages, tools, tool_choice, config):
-    record["judge"] = messages[0].text
     verdict = dict.fromkeys(
         (
             "cheated",
@@ -122,4 +121,3 @@ DEST.mkdir(parents=True, exist_ok=True)
 (DEST / "first_request.json").write_text(
     normalize(json.dumps(record["request"], indent=2, ensure_ascii=False)) + "\n"
 )
-(DEST / "judge_prompt.txt").write_text(normalize(record["judge"]))

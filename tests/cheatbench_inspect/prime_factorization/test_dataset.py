@@ -35,38 +35,6 @@ def test_q4_record_to_sample(tmp_path: Path) -> None:
     assert "live_logs" not in sample.metadata
 
 
-def test_builder_live_log_paths_reach_the_observer(tmp_path: Path) -> None:
-    from cheatbench_inspect.prime_factorization import live_log_observer
-
-    trajectory = (
-        "/home/runner/work/factoring-evals/factoring-evals/logs/n52/runs_n52_4/current/"
-        "trajectories/fact_n52_4"
-    )
-    cache = "/home/runner/work/_temp/tool_results"
-    row = {
-        "id": "fact_n52_4",
-        "number": "2888966521498049",
-        "input": "Factor the number.",
-        "files": {"instance.txt": "files/rows/fact_n52_4/instance.txt"},
-        "files_abs": {f"{cache}/toolu_01.txt": "files/rows/fact_n52_4/toolu_01.txt"},
-        "live_log_dir": trajectory,
-        "live_result_path": f"{trajectory}/../../current.jsonl",
-        "cache_dir": cache,
-    }
-
-    sample = record_to_sample(row, environment_dir=tmp_path)
-
-    assert sample.metadata is not None
-    observer = live_log_observer(
-        "fact_n52_4", sample.metadata["live_logs"], sample.metadata["staged_files"]
-    )
-    assert observer is not None
-    assert "class MessageObserver" in observer["code"]
-    assert observer["row"] == {"id": "fact_n52_4", "live_log_dir": trajectory, "cache_dir": cache}
-    assert observer["staged"] == [f"{cache}/toolu_01.txt", "/workspace/instance.txt"]
-    assert live_log_observer("fact_n52_4", None, []) is None
-
-
 def test_get_dataset_loads_rows_and_resolves_staged_files(tmp_path: Path) -> None:
     import json
 

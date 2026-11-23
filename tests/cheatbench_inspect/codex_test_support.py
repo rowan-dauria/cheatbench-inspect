@@ -219,6 +219,7 @@ def run_q4(
     env_dir = task_dir / "environment"
     env_dir.mkdir(parents=True)
     (env_dir / "instance.txt").write_text("NUMBER: 2888966521498049\n", encoding="utf-8")
+    (env_dir / "turns.log").write_text("Staged log.\n", encoding="utf-8")
     prompt_path = Path(__file__).parent / "prime_factorization/fixtures/q4_prompt.txt"
     (task_dir / "data.jsonl").write_text(
         json.dumps(
@@ -227,7 +228,7 @@ def run_q4(
                 "number": 2888966521498049,
                 "input": prompt_path.read_text(encoding="utf-8"),
                 "files": {"instance.txt": "instance.txt"},
-                "files_abs": {},
+                "files_abs": {"/home/user/.live-logs/q4/turns.log": "turns.log"},
                 "live_log_dir": "/home/user/.live-logs/q4",
                 "cache_dir": "/home/user/.live-cache/q4",
             }

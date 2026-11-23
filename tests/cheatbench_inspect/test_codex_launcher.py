@@ -9,13 +9,13 @@ from typing import Any, Literal, cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from inspect_ai.agent import AgentState
 from inspect_ai.model import GenerateConfig, Model, ModelName, get_model
 from inspect_ai.solver import TaskState
 
 import cheatbench_inspect.codex as codex
 from cheatbench_inspect.harness import (
     HarnessPolicy,
-    HarnessResult,
     run_harness,
     validate_harness,
 )
@@ -105,15 +105,18 @@ def test_validate_responses_route_rejects_non_responses_models(make_model: Any) 
 async def test_harness_codex_dispatch_and_option_validation() -> None:
     validate_harness("codex")
     state = _state()
-    policy = HarnessPolicy([], 10, 60, None)
-    expected = HarnessResult({"steps": []}, "done", None, {}, None, False)
+    policy = HarnessPolicy([], 10, 60)
+    expected = AgentState(messages=[])
 
     with patch.object(codex, "run_codex", AsyncMock(return_value=expected)) as run:
         result = await run_harness(
             "codex", state, policy, {"cli_version": "0.154.0", "cli_model": "gpt-5.6-luna"}
         )
         assert result is expected
-        run.assert_awaited_once_with(state, policy, cli_version="0.154.0", cli_model="gpt-5.6-luna")
+        run.assert_awaited_once()
+        assert isinstance(run.call_args.args[0], AgentState)
+        assert run.call_args.args[1:] == (policy,)
+        assert run.call_args.kwargs == {"cli_version": "0.154.0", "cli_model": "gpt-5.6-luna"}
 
     with pytest.raises(ValueError, match="codex requires cli_version and cli_model"):
         await run_harness("codex", state, policy)
@@ -179,7 +182,7 @@ def test_prime_task_codex_argument_validation_and_compose(tmp_path: Path) -> Non
 
 @pytest.mark.parametrize("summary", ["detailed", "none", None])
 def test_codex_cli_reasoning_overrides(summary: Literal["detailed", "none"] | None) -> None:
-    policy = HarnessPolicy([], 10, 60, None)
+    policy = HarnessPolicy([], 10, 60)
     overrides = codex._config_overrides(
         policy, GenerateConfig(reasoning_effort="medium", reasoning_summary=summary)
     )
@@ -187,33 +190,3 @@ def test_codex_cli_reasoning_overrides(summary: Literal["detailed", "none"] | No
     assert overrides.get("model_reasoning_summary") == (
         '"detailed"' if summary == "detailed" else None
     )
-
-
-@pytest.mark.asyncio
-async def test_codex_filter_does_not_enforce_max_turns() -> None:
-    from inspect_ai.model import ModelOutput
-
-    calls = 0
-
-    def fake_cli(**kwargs: Any) -> Any:
-        async def agent(state: Any) -> Any:
-            nonlocal calls
-            for _ in range(3):
-                await kwargs["filter"](get_model("mockllm/model"), [], [], None, GenerateConfig())
-                calls += 1
-            return state
-
-        return agent
-
-    policy = HarnessPolicy(mcp_servers=[], max_turns=1, timeout_s=10, observer=None)
-    with (
-        patch.object(codex, "codex_cli", fake_cli),
-        patch.object(
-            codex,
-            "responses_reasoning_filter",
-            AsyncMock(return_value=ModelOutput.from_content("mock", "ok")),
-        ),
-    ):
-        result = await codex._run_codex(_state(), policy, "v", "model", {}, AsyncMock())
-    assert calls == 3
-    assert result.error is None

@@ -273,7 +273,3 @@ def is_lost_episode(error: str) -> bool:
         return False
     reason = classify(error)
     return reason is not None and REASON_LOST.get(reason, False)
-
-
-def is_harness_timeout(error: str | None) -> bool:
-    return bool(error and re.match(r"^\s*timeout after \d+s", error, re.IGNORECASE))

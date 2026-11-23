@@ -34,7 +34,7 @@ def test_harbor_result_preserves_evidence_for_trajectory_judge() -> None:
             {"source": "agent", "message": final_text},
         ],
     }
-    result = HarnessResult(trajectory, final_text, None, None, None)
+    result = HarnessResult(trajectory, final_text, None, None)
 
     apply_harness_result(state, result)
 
@@ -65,7 +65,7 @@ def test_harbor_error_with_trajectory_is_kept_for_the_judge(error: str) -> None:
     state = _state()
     trajectory = {"steps": [{"source": "agent", "message": "Still factoring."}]}
 
-    apply_harness_result(state, HarnessResult(trajectory, "Still factoring.", error, None, None))
+    apply_harness_result(state, HarnessResult(trajectory, "Still factoring.", error, None))
 
     assert state.store.get("trajectory") == trajectory
     assert state.store.get("harness_error") == error
@@ -95,7 +95,7 @@ def test_lost_harbor_episode_fails_the_sample(error: str, trajectory: dict | Non
     state = _state()
 
     with pytest.raises(RuntimeError, match=error.split(":")[0]):
-        apply_harness_result(state, HarnessResult(trajectory, "", error, None, None))
+        apply_harness_result(state, HarnessResult(trajectory, "", error, None))
 
     assert state.store.get("harness_error") == error
 
@@ -125,14 +125,16 @@ async def test_solver_keeps_verifier_open_during_harness_run(harness_fails: bool
         finally:
             events.append(("close", number))
 
-    async def harness(name: str, state: TaskState, policy: HarnessPolicy) -> HarnessResult:
+    async def harness(
+        name: str, state: TaskState, policy: HarnessPolicy, options=None
+    ) -> HarnessResult:
         events.append(("run", state.sample_id))
         assert policy.mcp_servers == [
             {"name": "verifier", "transport": "streamable-http", "url": url}
         ]
         if harness_fails:
             raise RuntimeError("harness failed")
-        return HarnessResult({"steps": []}, "", None, None, None)
+        return HarnessResult({"steps": []}, "", None, None)
 
     with (
         patch.object(prime, "verifier_endpoint", endpoint),
@@ -173,7 +175,7 @@ async def test_run_terminus_2_launches_in_sample_sandbox(success: bool) -> None:
     bridge_open = False
 
     @asynccontextmanager
-    async def bridge():
+    async def bridge(agent_state):
         nonlocal bridge_open
         bridge_open = True
         try:
@@ -208,12 +210,12 @@ async def test_run_terminus_2_launches_in_sample_sandbox(success: bool) -> None:
         patch.object(terminus, "sandbox", return_value=SimpleNamespace(exec=execute)),
     ):
         if success:
-            result = await terminus.run_terminus_2(state, HarnessPolicy(servers, 150, 3600, None))
+            result = await terminus.run_terminus_2(state, HarnessPolicy(servers, 150, 3600))
             assert result.final_text == "3 times 5."
             assert result.trajectory == trajectory
         else:
             with pytest.raises(RuntimeError, match="runner diagnostic"):
-                await terminus.run_terminus_2(state, HarnessPolicy(servers, 150, 3600, None))
+                await terminus.run_terminus_2(state, HarnessPolicy(servers, 150, 3600))
     assert not bridge_open
 
 
@@ -221,22 +223,21 @@ async def test_harness_dispatch_and_validation() -> None:
     from cheatbench_inspect.harness import run_harness
 
     state = _state()
-    policy = HarnessPolicy([], 5, 60, None)
-    expected = HarnessResult({"steps": []}, "done", None, {}, {})
+    policy = HarnessPolicy([], 5, 60)
+    expected = HarnessResult({"steps": []}, "done", None, {})
     with patch.object(terminus, "run_terminus_2", AsyncMock(return_value=expected)) as run:
         assert await run_harness("terminus-2", state, policy) is expected
         run.assert_awaited_once_with(state, policy)
     with pytest.raises(ValueError, match="terminus-2"):
         await run_harness("nope", state, policy)
     with pytest.raises(ValueError, match="mcp_only"):
-        await terminus.run_terminus_2(state, HarnessPolicy([], 5, 60, None, mcp_only=True))
+        await terminus.run_terminus_2(state, HarnessPolicy([], 5, 60, mcp_only=True))
 
 
 def test_result_stores_all_evidence() -> None:
     state = _state()
-    apply_harness_result(state, HarnessResult({"steps": []}, "done", None, {"a": 1}, {"b": 2}))
+    apply_harness_result(state, HarnessResult({"steps": []}, "done", None, {"a": 1}))
     assert state.store.get("harness_artifacts") == {"a": 1}
-    assert state.store.get("live_logs") == {"b": 2}
 
 
 def test_unknown_task_harness() -> None:

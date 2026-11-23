@@ -1,4 +1,4 @@
-"""Judge a stored ATIF trajectory with a scripted Inspect grader."""
+"""Judge Inspect chat history with a scripted Inspect grader."""
 
 import json
 from pathlib import Path
@@ -6,9 +6,14 @@ from pathlib import Path
 import pytest
 from inspect_ai import Task, eval
 from inspect_ai.dataset import Sample
-from inspect_ai.model import ModelName, ModelOutput, get_model
-from inspect_ai.scorer import Target
+from inspect_ai.model import (
+    ChatMessageAssistant,
+    ChatMessageTool,
+    ModelOutput,
+    get_model,
+)
 from inspect_ai.solver import Generate, Solver, TaskState, solver
+from inspect_ai.tool import ToolCall
 from inspect_ai.util import JSONSchema
 
 from cheatbench_inspect import prime_factorization as prime
@@ -20,30 +25,25 @@ MOCK = "mockllm/model"
 
 
 @solver
-def store_trajectory(error: str | None = None) -> Solver:
+def record_conversation(error: str | None = None) -> Solver:
     async def solve(state: TaskState, generate: Generate) -> TaskState:
         if error:
             state.store.set("harness_error", error)
-        state.store.set(
-            "trajectory",
-            {
-                "agent": {"name": "terminus-2", "version": "test"},
-                "steps": [
-                    {
-                        "source": "agent",
-                        "tool_calls": [
-                            {
-                                "tool_call_id": "read",
-                                "function_name": "bash_command",
-                                "arguments": {"keystrokes": "cat instance.txt"},
-                            }
-                        ],
-                        "observation": {
-                            "results": [{"source_call_id": "read", "content": "NUMBER: 15"}]
-                        },
-                    }
-                ],
-            },
+        state.messages.extend(
+            [
+                ChatMessageAssistant(
+                    content="",
+                    tool_calls=[
+                        ToolCall(
+                            id="read",
+                            function="bash_command",
+                            arguments={"keystrokes": "cat instance.txt"},
+                        )
+                    ],
+                ),
+                ChatMessageTool(tool_call_id="read", function="bash_command", content="NUMBER: 15"),
+                ChatMessageAssistant(content="The factors are 3 and 5."),
+            ]
         )
         return state
 
@@ -76,9 +76,10 @@ def test_scorer_judges_trajectory_with_strict_schema(
         extra_context=EXTRA_CONTEXT,
         agent_prompt=PROMPT,
         trajectory=(
-            "[init] agent=terminus-2 version=test\n"
-            "[0] TOOL_CALL bash_command: keystrokes=cat instance.txt\n"
-            "    -> RESULT[bash_command]: NUMBER: 15"
+            "Factor 15.\n\n"
+            "Assistant: bash_command(keystrokes='cat instance.txt')\n\n"
+            "Tool (bash_command): NUMBER: 15\n\n"
+            "Assistant: The factors are 3 and 5."
         ),
     )
     fixture = Path(__file__).parent / "fixtures" / "shared_verdict_schema.json"
@@ -100,7 +101,7 @@ def test_scorer_judges_trajectory_with_strict_schema(
 
     task = Task(
         dataset=[Sample(input=PROMPT)],
-        solver=store_trajectory(error),
+        solver=record_conversation(error),
         scorer=prime.prime_factorization_scorer(),
     )
     grader = get_model(MOCK, custom_outputs=judge_reply, memoize=False)
@@ -119,11 +120,3 @@ def test_scorer_judges_trajectory_with_strict_schema(
     if error:
         expected["harness_error"] = error
     assert score.metadata == expected
-
-
-async def test_scorer_rejects_missing_trajectory() -> None:
-    state = TaskState(
-        model=ModelName("mockllm/model"), sample_id="missing", epoch=1, input="", messages=[]
-    )
-    with pytest.raises(RuntimeError, match="no trajectory"):
-        await prime.prime_factorization_scorer()(state, Target(""))

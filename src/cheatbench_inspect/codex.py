@@ -1,35 +1,19 @@
 # Codex feature settings adapted from https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/core/agents/codex.py
 # Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
-"""Run inspect_swe's Codex CLI agent and capture its judge trajectory."""
+"""Run inspect_swe's Codex CLI agent."""
 
-import asyncio
 import json
-from collections.abc import Awaitable, Callable
-from typing import Any
 
 from inspect_ai.agent import AgentState
-from inspect_ai.model import (
-    ChatMessage,
-    ChatMessageAssistant,
-    ChatMessageSystem,
-    ChatMessageTool,
-    GenerateConfig,
-    Model,
-    ModelOutput,
-    get_model,
-)
+from inspect_ai.model import GenerateConfig, Model, get_model
 from inspect_ai.model._generate_config import (
     active_generate_config,  # inspect-evals-lint: ignore[private_api_imports] -- No public accessor for the active eval config.
 )
-from inspect_ai.solver import TaskState
-from inspect_ai.tool import MCPServerConfigHTTP, ToolChoice, ToolInfo
+from inspect_ai.tool import MCPServerConfigHTTP
 from inspect_swe import codex_cli
 
-from cheatbench_inspect.agent_trajectory import message_text, readable_reasoning, to_trajectory
 from cheatbench_inspect.container import AGENT_ENV, AGENT_USER
-from cheatbench_inspect.harness import HarnessPolicy, HarnessResult
-from cheatbench_inspect.harness_live_log import live_log
-from cheatbench_inspect.lost_episodes import is_harness_timeout
+from cheatbench_inspect.harness import HarnessPolicy
 from cheatbench_inspect.reasoning_replay import responses_reasoning_filter
 
 # No marketplace sync or optional plugin tools in the episode.
@@ -110,124 +94,14 @@ def _config_overrides(policy: HarnessPolicy, config: GenerateConfig) -> dict[str
     return overrides
 
 
-def _mirror_records(
-    message: ChatMessageAssistant | ChatMessageTool, custom_calls: set[str]
-) -> list[dict[str, Any]]:
-    """Adapt bridge messages to the Codex live log format."""
-    items: list[dict[str, Any]] = []
-    if isinstance(message, ChatMessageAssistant):
-        if thinking := readable_reasoning(message):
-            items.append(
-                {"type": "reasoning", "summary": [{"type": "summary_text", "text": thinking}]}
-            )
-        if text := message_text(message):
-            items.append(
-                {
-                    "type": "message",
-                    "role": "assistant",
-                    "content": [{"type": "output_text", "text": text}],
-                }
-            )
-        for call in message.tool_calls or []:
-            payload = {"call_id": call.id, "name": call.function}
-            if call.type == "custom":
-                custom_calls.add(call.id)
-                items.append(
-                    {**payload, "type": "custom_tool_call", "input": call.arguments["input"]}
-                )
-            else:
-                items.append(
-                    {**payload, "type": "function_call", "arguments": json.dumps(call.arguments)}
-                )
-    else:
-        items.append(
-            {
-                "type": "custom_tool_call_output"
-                if message.tool_call_id in custom_calls
-                else "function_call_output",
-                "call_id": message.tool_call_id,
-                "output": message_text(message) or (message.error.message if message.error else ""),
-            }
-        )
-    return [{"type": "response_item", "payload": item} for item in items]
-
-
 async def run_codex(
-    state: TaskState, policy: HarnessPolicy, *, cli_version: str, cli_model: str
-) -> HarnessResult:
+    state: AgentState, policy: HarnessPolicy, *, cli_version: str, cli_model: str
+) -> AgentState:
     """Run one pinned Codex CLI episode inside the sample sandbox."""
     model = get_model()  # inspect-evals-lint: ignore[IEBP001] -- Binds the active model.
     validate_responses_route(model)
     config = model.config.merge(active_generate_config())
     overrides = _config_overrides(policy, config)
-    report: dict[str, Any] = {}
-    custom_calls: set[str] = set()
-
-    def records(message: ChatMessageAssistant | ChatMessageTool) -> list[dict[str, Any]]:
-        return _mirror_records(message, custom_calls)
-
-    async with live_log(policy, report, records) as mirror:
-        result = await _run_codex(state, policy, cli_version, cli_model, overrides, mirror)
-    result.live_logs = report or None
-    return result
-
-
-async def _run_codex(
-    state: TaskState,
-    policy: HarnessPolicy,
-    cli_version: str,
-    cli_model: str,
-    overrides: dict[str, str],
-    mirror: Callable[[list[ChatMessageAssistant | ChatMessageTool]], Awaitable[None]],
-) -> HarnessResult:
-    first_request = True
-    observed: list[ChatMessage] = []
-    seen_tool_results: set[str | None] = set()
-    bridge_error: str | None = None
-
-    async def filter_request(
-        model: Model,
-        messages: list[ChatMessage],
-        tools: list[ToolInfo],
-        tool_choice: ToolChoice | None,
-        config: GenerateConfig,
-    ) -> ModelOutput:
-        nonlocal first_request, bridge_error
-        tool_results: list[ChatMessageAssistant | ChatMessageTool] = []
-        for message in messages:
-            if (
-                isinstance(message, ChatMessageTool)
-                and message.tool_call_id not in seen_tool_results
-            ):
-                seen_tool_results.add(message.tool_call_id)
-                tool_results.append(message)
-        observed.extend(tool_results)
-        await mirror(tool_results)
-        if first_request:
-            # The first system message is the CLI's top-level instructions.
-            # The rollout used for judging begins with the next context item.
-            preceding = (
-                messages[1:]
-                if messages and isinstance(messages[0], ChatMessageSystem)
-                else messages
-            )
-            observed.extend(preceding)
-        first_request = False
-        try:
-            output = await responses_reasoning_filter(model, messages, tools, tool_choice, config)
-        except Exception as exc:
-            # The model retry wrapper keeps the provider status and message on the cause.
-            cause = exc.__cause__ or exc
-            bridge_error = f"{type(exc).__name__}: {exc}"
-            if cause is not exc:
-                bridge_error += f"\n{type(cause).__name__}: {cause}"
-            raise
-        bridge_error = None
-        if not output.empty:
-            observed.append(output.message)
-            await mirror([output.message])
-        return output
-
     slug = cli_model.rsplit("/", 1)[-1]
     agent = codex_cli(
         version=cli_version,
@@ -242,42 +116,13 @@ async def _run_codex(
         retry_refusals=0,
         sandbox_mode="read-only" if policy.mcp_only else "danger-full-access",
         config_overrides=overrides,
-        filter=filter_request,
+        filter=responses_reasoning_filter,
         mcp_servers=[
             MCPServerConfigHTTP(name=server["name"], url=server["url"], type="http")
             for server in policy.mcp_servers
         ],
     )
-    agent_state = AgentState(messages=state.messages.copy())
-    try:
-        async with asyncio.timeout(policy.timeout_s):
-            agent_state = await agent(agent_state)
-        error = bridge_error
-    except TimeoutError:
-        error = f"timeout after {policy.timeout_s}s"
-    except Exception as exc:
-        error = "\n".join(dict.fromkeys(filter(None, (str(exc).strip(), bridge_error))))
-
-    output = agent_state.output
-    if error is None and not output.empty and output.stop_reason == "content_filter":
-        error = "model_refusal_no_fallback"
-    final_text = (
-        output.completion.strip() if not output.empty and output.stop_reason != "tool_calls" else ""
-    )
-    trajectory = to_trajectory(
-        observed,
-        agent="codex",
-        version=cli_version,
-        model=slug,
-        details={"originator": "codex_exec", "cwd": "/workspace"},
-        final_text=final_text,
-        include_initial_context=True,
-    )
-    if trajectory is None and error is None:
-        error = "Codex produced no model response"
-    return HarnessResult(
-        trajectory, final_text, error, {}, None, lost=False if is_harness_timeout(error) else None
-    )
+    return await agent(state)
 
 
 def validate_responses_route(model: Model) -> None:

@@ -11,6 +11,9 @@ from typing import Any
 from inspect_ai.dataset import Dataset, Sample, json_dataset
 from inspect_ai.model import GenerateConfig, ResponseSchema, get_model
 from inspect_ai.scorer import Score, Scorer, Target, mean, scorer
+from inspect_ai.scorer._model import (
+    chat_history,  # inspect-evals-lint: ignore[private_api_imports] -- Inspect has no public chat history renderer.
+)
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.tool import Tool, ToolDef, ToolError, tool
 from inspect_ai.util import ExecRemoteStreamingOptions, ExecStderr, ExecStdout, json_schema, sandbox
@@ -24,8 +27,13 @@ from cheatbench_inspect.container import (
     STREAM_BOOTSTRAP,
     hand_staged_files_to_agent,
 )
-from cheatbench_inspect.harness import HarnessPolicy, apply_harness_result, run_harness
-from cheatbench_inspect.judge import build_judge_prompt, render_trajectory
+from cheatbench_inspect.harness import (
+    HarnessPolicy,
+    HarnessResult,
+    apply_harness_result,
+    run_harness,
+)
+from cheatbench_inspect.judge import build_judge_prompt
 from cheatbench_inspect.resources.prime_factorization.judge_schema import (
     EXTRA_CONTEXT,
     PrimeFactorVerdict,
@@ -57,12 +65,6 @@ def record_to_sample(record: dict[str, Any], *, environment_dir: Path) -> Sample
         files[destination] = str(environment_dir / source)
 
     metadata: dict[str, Any] = {"number": int(record["number"]), "staged_files": sorted(files)}
-    # The builder's rows name the live log mirror that skills.md tells the agent to read.
-    if "live_log_dir" in record:
-        metadata["live_logs"] = {
-            "live_log_dir": record["live_log_dir"],
-            "cache_dir": record["cache_dir"],
-        }
     return Sample(id=record["id"], input=record["input"], metadata=metadata, files=files)
 
 
@@ -237,25 +239,6 @@ async def verifier_endpoint(
 
 
 # SOLVER
-def live_log_observer(
-    sample_id: str, live_logs: dict[str, Any] | None, staged: list[str]
-) -> dict[str, Any] | None:
-    """The live log observer's code and arguments for the harness, if the row has one."""
-    if live_logs is None:
-        return None
-    return {
-        "code": (Path(__file__).parent / "resources/prime_factorization/observer.py").read_text(
-            encoding="utf-8"
-        ),
-        "row": {
-            "id": sample_id,
-            "live_log_dir": live_logs["live_log_dir"],
-            "cache_dir": live_logs["cache_dir"],
-        },
-        "staged": staged,
-    }
-
-
 @solver
 def prime_factorization_solver(
     harness: str = "terminus-2",
@@ -269,40 +252,27 @@ def prime_factorization_solver(
         await hand_staged_files_to_agent(state.metadata["staged_files"])
 
         grader_state: dict[str, Any] = {}
-
-        @asynccontextmanager
-        async def servers_for_harness() -> AsyncGenerator[list[dict[str, str]], None]:
-            endpoint = (
-                verifier_endpoint(number, task_id=str(state.sample_id), grader_state=grader_state)
-                if harness in {"claude-code", "codex"}
-                else verifier_endpoint(number)
-            )
-            async with endpoint as url:
-                yield [{"name": "verifier", "transport": "streamable-http", "url": url}]
-
-        async with servers_for_harness() as servers:
+        stock_agent = harness in {"claude-code", "codex"}
+        endpoint = (
+            verifier_endpoint(number, task_id=str(state.sample_id), grader_state=grader_state)
+            if stock_agent
+            else verifier_endpoint(number)
+        )
+        async with endpoint as url:
             policy = HarnessPolicy(
-                mcp_servers=servers,
-                max_turns=MAX_TURNS,
-                timeout_s=3600,
-                observer=live_log_observer(
-                    str(state.sample_id),
-                    state.metadata.get("live_logs"),
-                    state.metadata.get("staged_files", []),
-                ),
+                mcp_servers=[{"name": "verifier", "transport": "streamable-http", "url": url}],
+                max_turns=None if stock_agent else MAX_TURNS,
             )
-            if harness in {"claude-code", "codex"}:
-                result = await run_harness(
-                    harness,
-                    state,
-                    policy,
-                    {"cli_version": harness_version or "", "cli_model": harness_model or ""},
-                )
-            else:
-                result = await run_harness(harness, state, policy)
-        if harness in {"claude-code", "codex"}:
-            result.artifacts["grader_state"] = grader_state
-        apply_harness_result(state, result)
+            options = (
+                {"cli_version": harness_version or "", "cli_model": harness_model or ""}
+                if stock_agent
+                else None
+            )
+            result = await run_harness(harness, state, policy, options)
+        if isinstance(result, HarnessResult):
+            apply_harness_result(state, result)
+        else:
+            state.store.set("harness_artifacts", {"grader_state": grader_state})
         return state
 
     return solve
@@ -312,13 +282,9 @@ def prime_factorization_solver(
 @scorer(metrics=[mean()])
 def prime_factorization_scorer() -> Scorer:
     async def score(state: TaskState, target: Target) -> Score:
-        trajectory = state.store.get("trajectory")
-        if trajectory is None:
-            raise RuntimeError("no trajectory to judge for this sample")
-        rendered_trajectory = render_trajectory(trajectory)
         judge_prompt = build_judge_prompt(
             extra_context=EXTRA_CONTEXT,
-            trajectory=rendered_trajectory,
+            trajectory=chat_history(state),
             agent_prompt=state.input_text,
         )
 
