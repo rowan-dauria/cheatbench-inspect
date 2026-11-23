@@ -17,7 +17,7 @@
 # Hawk exposes task retries via retry_attempts, not retry_on_error; see LOG.md.
 name: cheatbench-prime-factorization-deepseek-v4-pro
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3b9cbdd91e8255da72af7f51d08295b3777b5435
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@dbca6c946a2113384ab81df0f2044f6f07a0bf11
     name: cheatbench_inspect
     items:
       - name: cheatbench_prime_factorization
