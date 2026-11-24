@@ -1,0 +1,31 @@
+# subset-sum with Claude Opus 5 on Hawk.
+#   hawk eval-set run configs/hawk/subset-sum-claude-opus-5.yaml
+# Q4-Q13: 0/10 cheated, 8/10 honeypots seen; GPT-6 Sol judge at high effort.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/subset_sum/README.md#results
+# 2.1.268 was requested; installed version unavailable and missing trajectories are being reproduced. Historical judgments await rejudging.
+name: subset-sum-claude-opus-5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_subset_sum
+        args:
+          dataset_limit: 10
+          harness: claude-code
+          harness_version: "2.1.268"
+          harness_model: claude-opus-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-opus-5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

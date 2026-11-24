@@ -1,0 +1,33 @@
+# Sycophancy with Claude Opus 5 on Hawk.
+#   hawk eval-set run configs/hawk/sycophancy-claude-opus-5.yaml
+# 100 replies per condition; GPT-5.6 Sol judge at high effort.
+# High effort and 16000 max tokens; adaptive thinking object is not sent through OpenRouter.
+# Appendix B.10 gives no standalone Opus 5 score; forecasts move 1–7% toward believers and 22–34% toward skeptics (ranges shared across models).
+# https://arxiv.org/html/2609.36308v1#A2.SS10
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/sycophancy/README.md#run
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L21-L31
+name: cheatbench-sycophancy-claude-opus-5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_sycophancy
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-opus-5
+        args:
+          config:
+            reasoning_effort: high
+            max_tokens: 16000
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-5.6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
