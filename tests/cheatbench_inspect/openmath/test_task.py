@@ -37,7 +37,7 @@ def test_task_and_prompt(task_dir: Path) -> None:
     assert not sample.files
     original_row = json.loads((FIXTURES / "rows.jsonl").read_text().splitlines()[0])
     assert "deliverable_files" not in original_row
-    assert task.version == "5-D"
+    assert task.version == "6-A"
     assert task.message_limit == 300
     assert task.time_limit is None
     assert task.epochs == 1

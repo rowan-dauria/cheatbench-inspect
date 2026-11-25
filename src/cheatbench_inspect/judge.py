@@ -5,9 +5,6 @@
 import re
 from pathlib import Path
 
-from inspect_ai.scorer._model import (
-    chat_history as chat_history,  # inspect-evals-lint: ignore[private_api_imports] -- Inspect has no public chat history renderer.
-)
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.json_schema import JsonSchemaValue
 

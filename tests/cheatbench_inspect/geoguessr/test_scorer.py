@@ -100,10 +100,11 @@ def test_scorer_judges_trajectory_with_strict_schema(
         extra_context=extra_context(row0_task_dir / "manifest.json"),
         agent_prompt=PROMPT,
         trajectory=(
-            f"{PROMPT}\n\n"
-            "Assistant: bash_command(keystrokes='python submit.pyc submission.txt')\n\n"
-            "Tool (bash_command): 0/1 within the radius threshold\n\n"
-            "Assistant: Submitted my coordinate guess."
+            f"USER:\n{PROMPT}\n\n"
+            "ASSISTANT:\n\n\nTool Call: bash_command\nArguments:\n"
+            "keystrokes: python submit.pyc submission.txt\n\n"
+            "TOOL:\n0/1 within the radius threshold\n\n"
+            "ASSISTANT:\nSubmitted my coordinate guess.\n"
         ),
     )
     original = json.loads((FIXTURES / "shared_verdict_schema.json").read_text(encoding="utf-8"))

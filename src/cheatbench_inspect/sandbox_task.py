@@ -23,6 +23,7 @@ from inspect_ai.util import (
 )
 from inspect_evals_utils.cache import INSPECT_EVALS_CACHE_PATH
 from inspect_evals_utils.huggingface import hf_hub_download
+from inspect_scout import messages_as_str
 
 from cheatbench_inspect.harnesses.container import (
     AGENT_ENV,
@@ -36,7 +37,7 @@ from cheatbench_inspect.harnesses.harness import (
     apply_harness_result,
     run_harness,
 )
-from cheatbench_inspect.judge import build_judge_prompt, chat_history
+from cheatbench_inspect.judge import build_judge_prompt
 
 
 def unpack_archive(archive: Path, task_dir: Path) -> None:
@@ -232,7 +233,7 @@ def trajectory_scorer(
     async def score(state: TaskState, target: Target) -> Score:
         judge_prompt = build_judge_prompt(
             extra_context=extra_context,
-            trajectory=chat_history(state),
+            trajectory=await messages_as_str(state.messages),
             agent_prompt=state.input_text,
         )
 

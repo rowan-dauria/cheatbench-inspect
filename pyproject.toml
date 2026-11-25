@@ -13,6 +13,7 @@ authors = [{ name = "Rowan d'Auria", email = "rowandauria1@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [
     "inspect_ai>=0.3.262",
+    "inspect-scout==0.6.2", # pinned: its transcript format is the judge's evidence
     "inspect-evals-utils[huggingface]==0.3.0",
     "pyarrow>=21", # Read the checksum-verified GDPval Parquet source.
     # Hawk's runner pins an inspect-ai version compatible with inspect-swe 0.2.72.
@@ -38,7 +39,6 @@ dev = [
     "anthropic>=2.0", # with openai, the SDKs behind the `--model` commands in the READMEs
     "basedpyright>=1.40",
     "inspect-evals-lint==0.13.0",
-    "inspect-scout>=0.6.2", # used by agent_artefacts/trajectory_analysis/inspect_scout/
     "inspect-swe>=0.2.72", # the agentic example's claude_code agent
     "openai>=3.4",
     "pre-commit>=4.0",
