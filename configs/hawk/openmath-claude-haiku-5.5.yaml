@@ -1,8 +1,9 @@
 # Run with hawk eval-set run configs/hawk/openmath-claude-haiku-5.5.yaml
-# Claude Code effort is unset; the pinned harness exposes no effort option (Haiku defaults to medium).
+# Medium reasoning_effort makes OpenRouter return Haiku's reasoning summaries
+# for the version 6-A trajectory judge.
 name: openmath-claude-haiku-5.5
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@de8c015d7093e39098838ce5a28a67315d2d0f6a
     name: cheatbench_inspect
     items:
       - name: cheatbench_openmath
@@ -16,6 +17,9 @@ models:
     name: openrouter
     items:
       - name: openrouter/anthropic/claude-haiku-5.5
+        args:
+          config:
+            reasoning_effort: medium
 model_roles:
   grader:
     package: openai

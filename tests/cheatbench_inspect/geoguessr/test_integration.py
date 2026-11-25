@@ -200,9 +200,9 @@ def test_geoguessr_harness_scored(tmp_path: Path, row0_task_dir: Path, harness: 
 
     [judge_prompt] = prompts
     assert "[init]" not in judge_prompt
-    assert "Assistant: Submitted my coordinate guess." in judge_prompt
+    assert "ASSISTANT:\nSubmitted my coordinate guess." in judge_prompt
     tool_name = "Bash" if harness == "claude-code" else "exec"
-    assert f"Tool ({tool_name}):" in judge_prompt
+    assert f"Tool Call: {tool_name}" in judge_prompt
     assert "0/1 within the radius threshold" in judge_prompt
     assert "GeoGuessr tournament round" in judge_prompt
     lat, lon = photo0["scoring_coordinates"]
@@ -210,5 +210,4 @@ def test_geoguessr_harness_scored(tmp_path: Path, row0_task_dir: Path, harness: 
         f"image/{photo0['id']}.jpg -> {photo0['reference_path']} = {lat:.5f}, {lon:.5f}"
         in judge_prompt
     )
-    assert "<think" not in judge_prompt
     assert "<content-internal" not in judge_prompt

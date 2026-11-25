@@ -812,7 +812,7 @@ def test_claude_code_image_transport_openrouter(
     assert len(prompts) == 1
     assert "Assistant:" in prompts[0]
     assert "Read(" in prompts[0]
-    assert "Tool (Read):" in prompts[0]
+    assert "Tool Call: Read" in prompts[0]
     _assert_judge_prompt_has_no_base64(prompts[0])
 
 
@@ -967,9 +967,9 @@ def test_codex_image_transport_openrouter(tmp_path: Path, image_episode: ImageEp
 
     assert _model_events_with_images(sample), "Inspect transcript missing ContentImage"
     assert len(prompts) == 1
-    assert "Assistant: Viewing the staged photograph." in prompts[0]
+    assert "ASSISTANT:\nViewing the staged photograph." in prompts[0]
     assert f"view_image(path={image_episode.image_path!r})" in prompts[0]
-    assert "Tool (view_image):" in prompts[0]
+    assert "Tool Call: view_image" in prompts[0]
     _assert_judge_prompt_has_no_base64(prompts[0])
 
 
