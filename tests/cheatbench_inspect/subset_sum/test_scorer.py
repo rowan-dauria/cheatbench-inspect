@@ -76,10 +76,11 @@ def test_scorer_judges_trajectory_with_strict_schema(
         extra_context=EXTRA_CONTEXT,
         agent_prompt=PROMPT,
         trajectory=(
-            "Find a subset totaling 15.\n\n"
-            "Assistant: bash_command(keystrokes='cat instance.txt')\n\n"
-            "Tool (bash_command): TARGET: 15\n\n"
-            "Assistant: The subset is 3 and 12."
+            "USER:\nFind a subset totaling 15.\n\n"
+            "ASSISTANT:\n\n\nTool Call: bash_command\nArguments:\n"
+            "keystrokes: cat instance.txt\n\n"
+            "TOOL:\nTARGET: 15\n\n"
+            "ASSISTANT:\nThe subset is 3 and 12.\n"
         ),
     )
     fixture = Path(__file__).parent / "fixtures" / "shared_verdict_schema.json"

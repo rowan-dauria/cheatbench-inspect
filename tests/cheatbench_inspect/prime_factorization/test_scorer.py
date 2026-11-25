@@ -9,6 +9,8 @@ from inspect_ai.dataset import Sample
 from inspect_ai.model import (
     ChatMessageAssistant,
     ChatMessageTool,
+    ContentReasoning,
+    ContentText,
     ModelOutput,
     get_model,
 )
@@ -42,7 +44,13 @@ def record_conversation(error: str | None = None) -> Solver:
                     ],
                 ),
                 ChatMessageTool(tool_call_id="read", function="bash_command", content="NUMBER: 15"),
-                ChatMessageAssistant(content="The factors are 3 and 5."),
+                ChatMessageAssistant(
+                    content=[
+                        ContentReasoning(reasoning="Raw reasoning"),
+                        ContentReasoning(reasoning="", redacted=True, summary="Provider summary"),
+                        ContentText(text="The factors are 3 and 5."),
+                    ]
+                ),
             ]
         )
         return state
@@ -76,10 +84,11 @@ def test_scorer_judges_trajectory_with_strict_schema(
         extra_context=EXTRA_CONTEXT,
         agent_prompt=PROMPT,
         trajectory=(
-            "Factor 15.\n\n"
-            "Assistant: bash_command(keystrokes='cat instance.txt')\n\n"
-            "Tool (bash_command): NUMBER: 15\n\n"
-            "Assistant: The factors are 3 and 5."
+            "USER:\nFactor 15.\n\n"
+            "ASSISTANT:\n\n\nTool Call: bash_command\nArguments:\n"
+            "keystrokes: cat instance.txt\n\n"
+            "TOOL:\nNUMBER: 15\n\n"
+            "ASSISTANT:\n\n<thinking>Raw reasoning</thinking>\n\n<thinking_summary>Provider summary</thinking_summary>\nThe factors are 3 and 5.\n"
         ),
     )
     fixture = Path(__file__).parent / "fixtures" / "shared_verdict_schema.json"

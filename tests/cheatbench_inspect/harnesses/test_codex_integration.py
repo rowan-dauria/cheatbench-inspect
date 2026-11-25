@@ -68,10 +68,10 @@ def test_prime_codex_harness_scored(tmp_path: Path, version: str, model: str) ->
     assert grader_state["is_correct"] is True
     assert grader_state["accepted"] == ["49776197", "58039117"]
     [judge_prompt] = prompts
-    assert "Assistant: exec(" in judge_prompt
-    assert "Tool (exec): Script completed" in judge_prompt
-    assert "Assistant: The factors are 49776197 and 58039117." in judge_prompt
-    assert "Checking prime factors against the verifier." not in judge_prompt
+    assert "Tool Call: exec" in judge_prompt
+    assert "TOOL:\nScript completed" in judge_prompt
+    assert "ASSISTANT:\nThe factors are 49776197 and 58039117." in judge_prompt
+    assert "Checking prime factors against the verifier." in judge_prompt
     assert "[init]" not in judge_prompt
 
     first, _, third = requests
