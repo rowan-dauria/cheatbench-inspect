@@ -1,0 +1,29 @@
+# subset-sum with Claude Haiku 5.5 on Hawk.
+# Claude Code effort is unset; the pinned harness exposes no effort option (Haiku defaults to medium).
+#   hawk eval-set run configs/hawk/subset-sum-claude-haiku-5.5.yaml
+name: subset-sum-claude-haiku-5.5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_subset_sum
+        args:
+          dataset_limit: 10
+          harness: claude-code
+          harness_version: "2.1.268"
+          harness_model: claude-haiku-5-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-haiku-5.5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
