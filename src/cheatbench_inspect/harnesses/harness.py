@@ -51,8 +51,23 @@ async def _codex(state: AgentState, policy: HarnessPolicy, options: dict[str, st
     )
 
 
-_HARNESSES = {"terminus-2": _terminus_2, "claude-code": _claude_code, "codex": _codex}
-_CLI_HARNESSES = {"claude-code", "codex"}
+async def _gemini_cli(
+    state: AgentState, policy: HarnessPolicy, options: dict[str, str]
+) -> AgentState:
+    from cheatbench_inspect.harnesses.gemini_cli import run_gemini_cli
+
+    return await run_gemini_cli(
+        state, policy, cli_version=options["cli_version"], cli_model=options["cli_model"]
+    )
+
+
+_HARNESSES = {
+    "terminus-2": _terminus_2,
+    "claude-code": _claude_code,
+    "codex": _codex,
+    "gemini-cli": _gemini_cli,
+}
+CLI_HARNESSES = {"claude-code", "codex", "gemini-cli"}
 _CLI_OPTIONS = {"cli_version", "cli_model"}
 
 
@@ -65,7 +80,7 @@ async def run_harness(
     name: str, state: TaskState, policy: HarnessPolicy, options: dict[str, str] | None = None
 ) -> HarnessResult | AgentState:
     validate_harness(name)
-    if name in _CLI_HARNESSES:
+    if name in CLI_HARNESSES:
         if not options or not options.get("cli_version") or not options.get("cli_model"):
             raise ValueError(f"{name} requires cli_version and cli_model")
         unknown = sorted(set(options) - _CLI_OPTIONS)
@@ -73,7 +88,7 @@ async def run_harness(
             raise ValueError(f"Unknown options for {name}: {', '.join(unknown)}")
         agent_state = AgentState(messages=state.messages)
         try:
-            launch = _claude_code if name == "claude-code" else _codex
+            launch = _HARNESSES[name]
             agent_state = await launch(agent_state, policy, options)
             return agent_state
         finally:

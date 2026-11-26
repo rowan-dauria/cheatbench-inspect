@@ -24,6 +24,8 @@ dependencies = [
     # Inspect bridge limits cancel the task group, so verifier cleanup needs a shield.
     "anyio>=4",
     "zstandard>=0.25",
+    # Gemini CLI uses Inspect's Google API bridge on the host.
+    "google-genai>=3.6.1",
 ]
 
 [project.urls]

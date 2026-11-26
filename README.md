@@ -97,57 +97,57 @@ See `uv run inspect eval --help` for all available options.
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the published build of the original's builder, downloaded and cached. (default: `None`)
 - `dataset_limit` (int | None): Number of questions to load from the start of data.jsonl. (default: `None`)
-- `harness` (str): Agent harness to run: terminus-2, claude-code, or codex. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Original model ID for the Claude Code or Codex CLI and judge transcript. (default: `None`)
+- `harness` (str): Agent harness to run: terminus-2, claude-code, codex, or gemini-cli. (default: `'terminus-2'`)
+- `harness_version` (str | None): Pinned CLI version, required for CLI harnesses. (default: `None`)
+- `harness_model` (str | None): Original model ID for the CLI and judge transcript. (default: `None`)
 
 ### `cheatbench_subset_sum`
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the pinned Hugging Face archive, downloaded and cached. (default: `None`)
 - `dataset_limit` (int | None): Number of questions to load from the start of data.jsonl. (default: `None`)
-- `harness` (str): Agent harness to run: terminus-2, claude-code, or codex. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-code and codex. (default: `None`)
+- `harness` (str): Agent harness to run: terminus-2, claude-code, codex, or gemini-cli. (default: `'terminus-2'`)
+- `harness_version` (str | None): Pinned CLI version, required for CLI harnesses. (default: `None`)
+- `harness_model` (str | None): CLI model ID, required for CLI harnesses. (default: `None`)
 
 ### `cheatbench_geoguessr`
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl, manifest.json and environment/ tree. Defaults to the pinned Hugging Face archive, downloaded and cached. (default: `None`)
 - `dataset_limit` (int | None): Number of photographs to load from the start of data.jsonl. (default: `None`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-code and codex. (default: `None`)
+- `harness_version` (str | None): Pinned CLI version, required for CLI harnesses. (default: `None`)
+- `harness_model` (str | None): CLI model ID, required for CLI harnesses. (default: `None`)
 
 ### `cheatbench_synthetic_puzzles`
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the pinned Hugging Face archive, downloaded and cached. (default: `None`)
 - `dataset_limit` (int | None): Number of puzzles to load from the start of data.jsonl. (default: `None`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-code and codex. (default: `None`)
+- `harness_version` (str | None): Pinned CLI version, required for CLI harnesses. (default: `None`)
+- `harness_model` (str | None): CLI model ID, required for CLI harnesses. (default: `None`)
 
 ### `cheatbench_knowledge_work`
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to a local build from the pinned GDPval revision. (default: `None`)
 - `dataset_limit` (int | None): Number of assignments to load from the start of data.jsonl. (default: `None`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-code and codex. (default: `None`)
+- `harness_version` (str | None): Pinned CLI version, required for CLI harnesses. (default: `None`)
+- `harness_model` (str | None): CLI model ID, required for CLI harnesses. (default: `None`)
 
 ### `cheatbench_protein_design`
 
 - `task_dir` (str | None): Directory containing the generated data.jsonl and environment/ tree. Defaults to the pinned Hugging Face archive, downloaded and cached. (default: `None`)
 - `dataset_limit` (int | None): Number of plant targets to load from the start of data.jsonl. (default: `None`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-code and codex. (default: `None`)
+- `harness_version` (str | None): Pinned CLI version, required for CLI harnesses. (default: `None`)
+- `harness_model` (str | None): CLI model ID, required for CLI harnesses. (default: `None`)
 
 ### `cheatbench_openmath`
 
 - `task_dir` (str | None): Directory containing the prepared data.jsonl, site.tar.xz and row responses. Defaults to a cached build from the pinned upstream capture and builder. (default: `None`)
 - `dataset_limit` (int | None): Number of problems to load from the start of data.jsonl. (default: `None`)
 - `harness` (str): Agent harness to run. (default: `'terminus-2'`)
-- `harness_version` (str | None): Claude CLI or Codex version, required for claude-code and codex. (default: `None`)
-- `harness_model` (str | None): Claude CLI or Codex model ID, required for claude-code and codex. (default: `None`)
+- `harness_version` (str | None): Pinned CLI version, required for CLI harnesses. (default: `None`)
+- `harness_model` (str | None): CLI model ID, required for CLI harnesses. (default: `None`)
 
 <!-- /Parameters: Automatically Generated -->
 
@@ -402,6 +402,7 @@ In OpenMath, the score is the composed judge verdict's cheating flag. Executed a
 | GeoGuessr images in `claude-code` and `codex` tool results move to the following user message, leaving "Image content is included below." in the tool result. | Inspect's OpenRouter provider does not support images in tool results. | The model sees different message boundaries and text. |
 | GeoGuessr's `submit.pyc` has a PEP 552 checked-hash header instead of a build-time timestamp. | This makes the build reproducible; the code is unchanged. | None expected. |
 | GeoGuessr's sandbox has no network. The original denies general egress but allows model API and install access. | The bridge and installers work without sandbox network access. | Network-dependent behavior may differ. |
+| Gemini CLI runs through inspect-swe’s stock agent and Google bridge. | The stock agent cannot set the native turn limit or thinking alias; MCP-only policies are rejected. Inspect applies its task message limit and provider generation settings. | Generation settings and limits can affect behavior and scores. |
 | Codex runs through inspect-swe's `codex_cli()`. | The stock agent launches the pinned CLI and connects it to the model bridge. The original launches Codex through its own runner. | Launcher differences may affect agent behavior. |
 | Codex uses local compaction. | The stock bridge provider is named `OpenAI Proxy`. Codex uses remote compaction for the built-in OpenAI provider. | After compaction, Codex works from a locally generated summary. |
 | The Codex bridge sends earlier reasoning to the CLI as `<think>` text with a signature and a readable `<summary>`. It carries assistant message metadata in `<content-internal>` tags. | The host filter restores readable summaries alongside encrypted reasoning in later provider requests. | The provider receives native reasoning items. |

@@ -142,10 +142,12 @@ def test_harbor_records_terminal_observation_and_verifier_url(
     assert steps[0]["reasoning_content"] == f"{draft}\n\n{summary}"
     assert sample.output.completion == steps[-1]["message"]
     [judge_prompt] = prompts
-    assert "Assistant:" in judge_prompt
+    assert "ASSISTANT:" in judge_prompt
     assert "Your answer is accepted." in judge_prompt
     assert "The pair was accepted." in judge_prompt
-    assert all(text not in judge_prompt for text in ("[init]", draft, summary, signature, redacted))
+    assert draft in judge_prompt
+    assert summary in judge_prompt
+    assert all(text not in judge_prompt for text in ("[init]", signature, redacted))
 
 
 HANDOFF_CHECK = """

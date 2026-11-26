@@ -13,7 +13,7 @@ from inspect_ai.solver import solver
 from cheatbench_inspect.sandbox_task import sandbox_solver
 
 
-@pytest.mark.parametrize("harness", ["claude-code", "codex"])
+@pytest.mark.parametrize("harness", ["claude-code", "codex", "gemini-cli"])
 def test_timeout_preserves_trajectory_for_scorer(harness: str, tmp_path: Path) -> None:
     seen = []
 
