@@ -1,0 +1,31 @@
+# prime-factorization on Gemini CLI; default Q4-Q13 samples.
+# Original model, harness version and generation settings:
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L259-L269
+name: prime-factorization-gemini-4-argon-gemini-cli
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@4f1e74226df9b170e226c8f0b95e23bac076a8ee
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_prime_factorization
+        args:
+          harness: gemini-cli
+          harness_version: "0.64.0"
+          harness_model: gemini-4-argon
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/google/gemini-4-argon
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
