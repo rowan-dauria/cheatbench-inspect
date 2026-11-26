@@ -583,6 +583,7 @@ dependencies = [
     { name = "inspect-evals-utils", extra = ["huggingface"] },
     { name = "inspect-scout" },
     { name = "inspect-swe" },
+    { name = "nodejs-wheel" },
     { name = "pyarrow" },
     { name = "pyyaml" },
     { name = "zstandard" },
@@ -613,6 +614,7 @@ requires-dist = [
     { name = "inspect-evals-utils", extras = ["huggingface"], specifier = "==0.3.0" },
     { name = "inspect-scout", specifier = "==0.6.2" },
     { name = "inspect-swe", specifier = "==0.2.72" },
+    { name = "nodejs-wheel", specifier = ">=24.19.0" },
     { name = "pyarrow", specifier = ">=21" },
     { name = "pyyaml", specifier = ">=6" },
     { name = "zstandard", specifier = ">=0.25" },
@@ -2122,6 +2124,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e6/99/d27cfc9518f49e4cbc25c683ec7cf8704a9d31311341c291c0e78ddf791b/nodeenv-1.12.0.tar.gz", hash = "sha256:4ea7f88339310afebc3253f2c7a91b94bacf97d73a36a5c108962abdfaca501e", size = 131292, upload-time = "2026-10-31T19:03:18.847Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2d/6a/8a9ac7d5e2f7cf53c459bfef90ebc17a2f8cd54b665af96799d4c534840e/nodeenv-1.12.0-py3-none-any.whl", hash = "sha256:80644d65c10cc2be12e3e4b54b3367ff288c7ad24ae75c2dcc65454fc7449d4d", size = 39442, upload-time = "2026-10-31T19:03:17.427Z" },
+]
+
+[[package]]
+name = "nodejs-wheel"
+version = "24.19.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nodejs-wheel-binaries" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/23/4e/90211cc219742505baea0cbaac86d18fd9cc78b89e4a8695b05238ef5446/nodejs_wheel-24.19.0.tar.gz", hash = "sha256:ff479430d3ed9b964e7c44dce7a8b40aaa58c7fe8466acc883195477a93f0c44", size = 2968, upload-time = "2026-08-19T21:47:18.844Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/94/b29c133f65bb75e62b27f8a88237d70ec46b1a471ca356d66bad1111e542/nodejs_wheel-24.19.0-py3-none-any.whl", hash = "sha256:9bec7369a0b364e041bd129be385fdb29fb77efb7a8fbf0eb35752e8f841a9a8", size = 3986, upload-time = "2026-08-19T21:46:40.072Z" },
 ]
 
 [[package]]
