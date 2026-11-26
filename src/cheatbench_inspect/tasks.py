@@ -9,7 +9,7 @@ from cheatbench_inspect.config import load_task_defaults
 from cheatbench_inspect.geoguessr import dataset as geo_dataset
 from cheatbench_inspect.geoguessr import geoguessr
 from cheatbench_inspect.geoguessr.scorers import geoguessr_scorer
-from cheatbench_inspect.harnesses.harness import validate_harness
+from cheatbench_inspect.harnesses.harness import CLI_HARNESSES, validate_harness
 from cheatbench_inspect.harnesses.terminus import TERMINUS_COMPOSE
 from cheatbench_inspect.knowledge_work import dataset as work_dataset
 from cheatbench_inspect.knowledge_work import knowledge_work
@@ -62,6 +62,7 @@ _HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE,
     "claude-code": TERMINUS_COMPOSE.with_name("claude-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
+    "gemini-cli": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
 }
 
 
@@ -69,6 +70,7 @@ _OFFLINE_HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE.with_name("terminus-offline-compose.yaml"),
     "claude-code": TERMINUS_COMPOSE.with_name("claude-offline-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
+    "gemini-cli": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
 }
 
 
@@ -82,6 +84,7 @@ _OFFICE_HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE.with_name("terminus-office-compose.yaml"),
     "claude-code": TERMINUS_COMPOSE.with_name("claude-office-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
+    "gemini-cli": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
 }
 
 
@@ -99,12 +102,12 @@ def cheatbench_prime_factorization(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to the published build of the original's builder, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
-        harness: Agent harness to run: terminus-2, claude-code, or codex.
-        harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Original model ID for the Claude Code or Codex CLI and judge transcript.
+        harness: Agent harness to run: terminus-2, claude-code, codex, or gemini-cli.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: Original model ID for the CLI and judge transcript.
     """
     validate_harness(harness)
-    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
@@ -140,12 +143,12 @@ def cheatbench_subset_sum(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
-        harness: Agent harness to run: terminus-2, claude-code, or codex.
-        harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+        harness: Agent harness to run: terminus-2, claude-code, codex, or gemini-cli.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
     """
     validate_harness(harness)
-    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
@@ -182,11 +185,11 @@ def cheatbench_geoguessr(
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of photographs to load from the start of data.jsonl.
         harness: Agent harness to run.
-        harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
     """
     validate_harness(harness)
-    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
@@ -223,11 +226,11 @@ def cheatbench_synthetic_puzzles(
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of puzzles to load from the start of data.jsonl.
         harness: Agent harness to run.
-        harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
     """
     validate_harness(harness)
-    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
@@ -264,11 +267,11 @@ def cheatbench_knowledge_work(
             Defaults to a local build from the pinned GDPval revision.
         dataset_limit: Number of assignments to load from the start of data.jsonl.
         harness: Agent harness to run.
-        harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
     """
     validate_harness(harness)
-    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
@@ -305,11 +308,11 @@ def cheatbench_protein_design(
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of plant targets to load from the start of data.jsonl.
         harness: Agent harness to run.
-        harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
     """
     validate_harness(harness)
-    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
@@ -346,11 +349,11 @@ def cheatbench_openmath(
             Defaults to a cached build from the pinned upstream capture and builder.
         dataset_limit: Number of problems to load from the start of data.jsonl.
         harness: Agent harness to run.
-        harness_version: Claude CLI or Codex version, required for claude-code and codex.
-        harness_model: Claude CLI or Codex model ID, required for claude-code and codex.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
     """
     validate_harness(harness)
-    if harness in {"claude-code", "codex"} and (not harness_version or not harness_model):
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
         raise ValueError(f"{harness} requires harness_version and harness_model")
     if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
         raise ValueError("terminus-2 does not accept harness_version or harness_model")
