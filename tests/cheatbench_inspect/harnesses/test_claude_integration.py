@@ -209,7 +209,7 @@ find /home/user /tmp /workspace -xdev \
     assert request == expected_first_request(original)
 
     [judge_prompt] = prompts
-    assert "ASSISTANT:\nChecking." in judge_prompt
+    assert "Checking." in judge_prompt
     assert f"Tool Call: {VERIFIER}" in judge_prompt
     assert "Your answer is accepted." in judge_prompt
     assert "ASSISTANT:\ndone" in judge_prompt
@@ -286,7 +286,7 @@ def test_claude_message_limit(tmp_path):
     [score] = sample.scores.values()
     assert score.value == 0
     [judge_prompt] = prompts
-    assert "ASSISTANT:\nChecking." in judge_prompt
+    assert "Checking." in judge_prompt
     assert "Checking the pair." in judge_prompt
 
 

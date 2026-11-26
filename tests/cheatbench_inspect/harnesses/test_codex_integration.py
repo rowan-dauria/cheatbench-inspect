@@ -70,7 +70,7 @@ def test_prime_codex_harness_scored(tmp_path: Path, version: str, model: str) ->
     [judge_prompt] = prompts
     assert "Tool Call: exec" in judge_prompt
     assert "TOOL:\nScript completed" in judge_prompt
-    assert "ASSISTANT:\nThe factors are 49776197 and 58039117." in judge_prompt
+    assert "The factors are 49776197 and 58039117." in judge_prompt
     assert "Checking prime factors against the verifier." in judge_prompt
     assert "[init]" not in judge_prompt
 

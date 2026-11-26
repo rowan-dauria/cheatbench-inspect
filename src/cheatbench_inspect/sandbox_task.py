@@ -32,6 +32,7 @@ from cheatbench_inspect.harnesses.container import (
     hand_staged_files_to_agent,
 )
 from cheatbench_inspect.harnesses.harness import (
+    CLI_HARNESSES,
     HarnessPolicy,
     HarnessResult,
     apply_harness_result,
@@ -186,7 +187,7 @@ def sandbox_solver(
             )
             if not result.success:
                 raise RuntimeError(f"Could not set staged file mtime for {path}: {result.stderr}")
-        stock_agent = harness in {"claude-code", "codex"}
+        stock_agent = harness in CLI_HARNESSES
         grader_state: dict[str, Any] | None = (
             {}
             if verifier_endpoint is not None and (stock_agent or collect_terminus_grader_state)

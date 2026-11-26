@@ -24,6 +24,10 @@ dependencies = [
     # Inspect bridge limits cancel the task group, so verifier cleanup needs a shield.
     "anyio>=4",
     "zstandard>=0.25",
+    # Gemini CLI uses Inspect's Google API bridge on the host.
+    "google-genai>=3.6.1",
+    # inspect-swe bundles the pinned Gemini CLI with npm on the runner.
+    "nodejs-wheel>=24.19.0",
 ]
 
 [project.urls]
