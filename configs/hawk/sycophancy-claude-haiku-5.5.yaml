@@ -1,0 +1,29 @@
+# Sycophancy with Claude Haiku 5.5 on Hawk.
+#   hawk eval-set run configs/hawk/sycophancy-claude-haiku-5.5.yaml
+# 100 replies per condition; GPT-5.6 Sol judge at high effort.
+# Medium effort and 16000 max tokens; adaptive thinking object is not sent through OpenRouter.
+name: cheatbench-sycophancy-claude-haiku-5.5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@cd8133d322b91a8bcf901dac816da426cd4aba18
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_sycophancy
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-haiku-5.5
+        args:
+          config:
+            reasoning_effort: medium
+            max_tokens: 16000
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-5.6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

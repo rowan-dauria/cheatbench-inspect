@@ -278,7 +278,7 @@ uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
   -T harness=claude-code -T harness_version=2.1.270 -T harness_model=claude-sonnet-5
 ```
 
-See the Hawk configs for [Claude Opus 5](configs/hawk/prime-factorization-claude-opus-5.yaml), [Claude Sonnet 5](configs/hawk/prime-factorization-claude-sonnet-5.yaml) and [GLM 5.3](configs/hawk/prime-factorization-glm-5.3.yaml).
+See the Hawk configs for [Claude Haiku 5.5](configs/hawk/prime-factorization-claude-haiku-5.5.yaml), [Claude Opus 5](configs/hawk/prime-factorization-claude-opus-5.yaml), [Claude Sonnet 5](configs/hawk/prime-factorization-claude-sonnet-5.yaml) and [GLM 5.3](configs/hawk/prime-factorization-glm-5.3.yaml).
 
 ### Running Codex models
 

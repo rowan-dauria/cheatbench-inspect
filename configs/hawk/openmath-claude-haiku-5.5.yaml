@@ -1,0 +1,33 @@
+# Run with hawk eval-set run configs/hawk/openmath-claude-haiku-5.5.yaml
+# Medium reasoning_effort makes OpenRouter return Haiku's reasoning summaries
+# for the version 6-A trajectory judge.
+name: openmath-claude-haiku-5.5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@de8c015d7093e39098838ce5a28a67315d2d0f6a
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_openmath
+        args:
+          harness: claude-code
+          dataset_limit: 20
+          harness_version: "2.1.270"
+          harness_model: claude-haiku-5-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-haiku-5.5
+        args:
+          config:
+            reasoning_effort: medium
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard
