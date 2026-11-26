@@ -1,0 +1,28 @@
+# openmath: Gemini CLI 0.59.0, provider-default settings and task default rows.
+name: openmath-gemini-3.8-flash-gemini-cli
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@a9dd5f0f66686e1cbbbd352081dee121883203f3
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_openmath
+        args:
+          harness: gemini-cli
+          dataset_limit: 20
+          harness_version: "0.59.0"
+          harness_model: gemini-3.8-flash
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/google/gemini-3.8-flash
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard
