@@ -12,7 +12,7 @@ from cheatbench_inspect.harnesses.harness import HarnessResult
 from cheatbench_inspect.subset_sum import subset_sum
 
 
-@pytest.mark.parametrize("harness", ["terminus-2", "claude-code", "codex"])
+@pytest.mark.parametrize("harness", ["terminus-2", "claude-code", "codex", "gemini-cli"])
 @pytest.mark.parametrize("fail", [False, True])
 async def test_subset_sum_solver(harness: str, fail: bool) -> None:
     state = TaskState(
