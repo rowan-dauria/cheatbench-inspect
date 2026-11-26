@@ -3,7 +3,7 @@
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/configs/models.yaml#L147-L153
 name: prime-factorization-gemini-3.8-flash-gemini-cli-smoke
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@4f1e74226df9b170e226c8f0b95e23bac076a8ee
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@e9314918eec9f29065c7e3ad3e7cb12ccb638590
     name: cheatbench_inspect
     items:
       - name: cheatbench_prime_factorization
