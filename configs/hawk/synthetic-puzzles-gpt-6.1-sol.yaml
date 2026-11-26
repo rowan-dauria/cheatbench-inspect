@@ -1,0 +1,36 @@
+# Synthetic Puzzles on Hawk with GPT-6.1 Sol in the Codex harness.
+#   hawk eval-set run configs/hawk/synthetic-puzzles-gpt-6.1-sol.yaml
+# Port test with 20 rows and the task default 1800 s timeout. The paper reports no GPT-6.1 Sol results.
+name: synthetic-puzzles-gpt-6-1-sol
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@a674bd3873a5b058a8f4714c4b1756380dee3c93
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_synthetic_puzzles
+        args:
+          harness: codex
+          dataset_limit: 20
+          harness_version: "0.159.1"
+          harness_model: gpt-6.1-sol
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6.1-sol
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

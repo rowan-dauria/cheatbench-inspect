@@ -1,0 +1,37 @@
+# The sandbox has no network: network_mode: none maps to Hawk networkIsolated.
+# GeoGuessr on Hawk with GPT-6.1 Sol in the Codex harness.
+#   hawk eval-set run configs/hawk/geoguessr-gpt-6.1-sol.yaml
+# Port test with 20 photographs and one epoch. The paper reports no GPT-6.1 Sol results.
+# The GPT-6 Sol judge runs at high effort. Hawk exposes task retries via retry_attempts.
+name: geoguessr-gpt-6-1-sol
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@a674bd3873a5b058a8f4714c4b1756380dee3c93
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_geoguessr
+        args:
+          harness: codex
+          harness_version: "0.159.1"
+          harness_model: gpt-6.1-sol
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6.1-sol
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
