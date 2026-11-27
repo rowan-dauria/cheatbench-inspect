@@ -270,7 +270,7 @@ Pin the [one-row Sonnet 5 config](configs/hawk/openmath-claude-sonnet-5-port-smo
 
 ### Running Claude models
 
-Use `-T harness=claude-code` with the pinned Claude Code version and the original model id for the judge transcript. Set reasoning effort and other generation settings through Inspect's generation config.
+Use `-T harness=claude-code` to run the pinned Claude Code CLI through inspect-swe's `claude_code()` with the original model id for the judge transcript. The launcher restricts built-in tools to `Bash`, `Read` and `Write`, keeps the original six `disallowed_tools`, and enables `strict_mcp_config=True` so workspace `.mcp.json` files cannot inject MCP tools. Set reasoning effort and other generation settings through Inspect's generation config.
 
 ```bash
 uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \

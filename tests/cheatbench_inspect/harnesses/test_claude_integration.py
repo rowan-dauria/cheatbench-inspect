@@ -91,10 +91,24 @@ def normalize(text):
     )
 
 
+def capture_request(messages, tools, tool_choice, config):
+    return {
+        "messages": [
+            {"role": m.role, "content": m.model_dump(mode="json")["content"]} for m in messages
+        ],
+        "tools": [tool.model_dump(mode="json") for tool in tools],
+        "tool_choice": tool_choice.model_dump(mode="json")
+        if hasattr(tool_choice, "model_dump")
+        else tool_choice,
+        "config": config.model_dump(mode="json"),
+    }
+
+
 def run_episode(
     tmp_path,
     agent_reply,
     *,
+    before_solver: Solver | None = None,
     extra_solver: Solver | None = None,
     message_limit: int | None = None,
     harness_version=VERSION,
@@ -106,6 +120,7 @@ def run_episode(
         return ModelOutput.from_content("mockllm/model", json.dumps(VERDICT))
 
     solve = prime.prime_factorization_solver("claude-code", harness_version, MODEL)
+    solvers = [step for step in (before_solver, solve, extra_solver) if step is not None]
     staged_log = tmp_path / "turns.log"
     staged_log.write_text("Staged log.\n")
     task = Task(
@@ -117,7 +132,7 @@ def run_episode(
                 files={TURNS_LOG: str(staged_log)},
             ),
         ],
-        solver=chain(solve, extra_solver) if extra_solver else solve,
+        solver=chain(*solvers) if len(solvers) > 1 else solve,
         scorer=prime_factorization_scorer(),
         message_limit=message_limit,
         sandbox=("docker", str(COMPOSE)),
@@ -143,19 +158,7 @@ def test_prime_claude_harness_parity(tmp_path):
     def agent_reply(messages, tools, tool_choice, config):
         nonlocal turns
         if not requests:
-            requests.append(
-                {
-                    "messages": [
-                        {"role": m.role, "content": m.model_dump(mode="json")["content"]}
-                        for m in messages
-                    ],
-                    "tools": [tool.model_dump(mode="json") for tool in tools],
-                    "tool_choice": tool_choice.model_dump(mode="json")
-                    if hasattr(tool_choice, "model_dump")
-                    else tool_choice,
-                    "config": config.model_dump(mode="json"),
-                }
-            )
+            requests.append(capture_request(messages, tools, tool_choice, config))
         if not tools:
             return ModelOutput.from_content("mockllm/model", "Factorization")
         turns += 1
@@ -249,19 +252,173 @@ def test_claude_tools_and_skills(tmp_path, harness_version):
 
     def agent_reply(messages, tools, tool_choice, config):
         if not requests:
-            requests.append((messages, tools))
+            requests.append(
+                (messages, tools, capture_request(messages, tools, tool_choice, config))
+            )
         return ModelOutput.from_content("mockllm/model", "done")
 
     sample, _ = run_episode(tmp_path, agent_reply, harness_version=harness_version)
     assert sample.error is None, sample.error
     assert requests
-    messages, tools = requests[0]
+    messages, tools, raw_request = requests[0]
     assert {tool.name for tool in tools} == {"Bash", "Read", "Write", VERIFIER}
     assert not any(
         "skills are available" in message.text.lower()
         for message in messages
         if message.role == "system"
     )
+    request = json.loads(normalize(json.dumps(raw_request)))
+    expected = expected_first_request(
+        json.loads(normalize((FIXTURES / "first_request.json").read_text()))
+    )
+    if harness_version != VERSION:
+        assert re.fullmatch(
+            rf"x-anthropic-billing-header: cc_version={re.escape(harness_version)}\.[0-9a-f]{{3}}; cc_entrypoint=sdk-py;",
+            request["messages"][0]["content"],
+        )
+        request["messages"][0]["content"] = expected["messages"][0]["content"]
+    assert request == expected
+
+
+_ROGUE_MCP_SERVER = """
+import http.server, json, socketserver
+
+TOOLS = [
+    {
+        "name": "rogue_ping",
+        "description": "Unauthorized workspace MCP tool.",
+        "inputSchema": {"type": "object", "properties": {}, "required": []},
+    }
+]
+
+
+class Handler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def log_message(self, *args):
+        pass
+
+    def do_GET(self):
+        self.send_response(405)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def do_DELETE(self):
+        self.send_response(405)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def do_POST(self):
+        length = int(self.headers.get("Content-Length") or 0)
+        req = json.loads(self.rfile.read(length) or b"{}")
+        if req.get("id") is None:
+            self.send_response(202)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        method = req.get("method")
+        if method == "initialize":
+            res = {
+                "protocolVersion": (req.get("params") or {}).get("protocolVersion")
+                or "2025-06-18",
+                "capabilities": {"tools": {"listChanged": False}},
+                "serverInfo": {"name": "rogue", "version": "1.0.0"},
+            }
+        elif method == "tools/list":
+            res = {"tools": TOOLS}
+        elif method == "tools/call":
+            res = {"content": [{"type": "text", "text": "rogue"}], "isError": False}
+        else:
+            res = {}
+        body = json.dumps({"jsonrpc": "2.0", "id": req["id"], "result": res}).encode()
+        if "text/event-stream" in (self.headers.get("Accept") or ""):
+            payload = b"event: message\\ndata: " + body + b"\\n\\n"
+            content_type = "text/event-stream"
+        else:
+            payload = body
+            content_type = "application/json"
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+
+class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    daemon_threads = True
+
+
+Server(("127.0.0.1", 19191), Handler).serve_forever()
+"""
+
+
+_ROGUE_MCP_CHECK = """
+import json, time, urllib.request
+
+req = urllib.request.Request(
+    "http://127.0.0.1:19191/mcp",
+    data=json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}).encode(),
+    headers={"Content-Type": "application/json"},
+)
+for _ in range(30):
+    try:
+        data = json.loads(urllib.request.urlopen(req).read())
+        assert data["result"]["tools"][0]["name"] == "rogue_ping"
+        break
+    except Exception:
+        time.sleep(0.1)
+else:
+    raise SystemExit("rogue MCP server did not start")
+"""
+
+
+def test_claude_ignores_workspace_mcp_json(tmp_path):
+    requests = []
+
+    def agent_reply(messages, tools, tool_choice, config):
+        if not requests:
+            requests.append(capture_request(messages, tools, tool_choice, config))
+        return ModelOutput.from_content("mockllm/model", "done")
+
+    @solver
+    def plant_rogue_mcp() -> Solver:
+        async def solve(state: TaskState, generate: Generate) -> TaskState:
+            box = sandbox()
+            await box.write_file("/tmp/rogue_mcp.py", _ROGUE_MCP_SERVER)
+            await box.write_file("/tmp/check_rogue_mcp.py", _ROGUE_MCP_CHECK)
+            started = await box.exec(
+                [
+                    "bash",
+                    "-c",
+                    "nohup python3 /tmp/rogue_mcp.py >/tmp/rogue_mcp.log 2>&1 & python3 /tmp/check_rogue_mcp.py",
+                ],
+                user="root",
+            )
+            assert started.success, started.stderr
+            await box.write_file(
+                "/workspace/.mcp.json",
+                json.dumps(
+                    {"mcpServers": {"rogue": {"type": "http", "url": "http://127.0.0.1:19191/mcp"}}}
+                ),
+            )
+            chowned = await box.exec(["chown", "user:user", "/workspace/.mcp.json"], user="root")
+            assert chowned.success, chowned.stderr
+            return state
+
+        return solve
+
+    sample, _ = run_episode(tmp_path, agent_reply, before_solver=plant_rogue_mcp())
+    assert sample.error is None, sample.error
+    assert len(requests) == 1
+    [raw_request] = requests
+    tool_names = {tool["name"] for tool in raw_request["tools"]}
+    assert tool_names == {"Bash", "Read", "Write", VERIFIER}
+    assert not any("rogue" in name for name in tool_names)
+    request = json.loads(normalize(json.dumps(raw_request)))
+    expected = expected_first_request(
+        json.loads(normalize((FIXTURES / "first_request.json").read_text()))
+    )
+    assert request == expected
 
 
 def test_claude_message_limit(tmp_path):

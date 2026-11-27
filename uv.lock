@@ -610,10 +610,10 @@ requires-dist = [
     { name = "agent-client-protocol", specifier = "<1" },
     { name = "anyio", specifier = ">=4" },
     { name = "google-genai", specifier = ">=3.6.1" },
-    { name = "inspect-ai", specifier = ">=0.3.262" },
+    { name = "inspect-ai", specifier = ">=0.3.291" },
     { name = "inspect-evals-utils", extras = ["huggingface"], specifier = "==0.3.0" },
     { name = "inspect-scout", specifier = "==0.6.2" },
-    { name = "inspect-swe", specifier = "==0.2.72" },
+    { name = "inspect-swe", specifier = "==0.3.3" },
     { name = "nodejs-wheel", specifier = ">=24.19.0" },
     { name = "pyarrow", specifier = ">=21" },
     { name = "pyyaml", specifier = ">=6" },
@@ -625,7 +625,7 @@ dev = [
     { name = "anthropic", specifier = ">=2.0" },
     { name = "basedpyright", specifier = ">=1.40" },
     { name = "inspect-evals-lint", specifier = "==0.13.0" },
-    { name = "inspect-swe", specifier = ">=0.2.72" },
+    { name = "inspect-swe", specifier = ">=0.3.3" },
     { name = "openai", specifier = ">=3.4" },
     { name = "pre-commit", specifier = ">=4.0" },
     { name = "pytest", specifier = ">=8.4" },
@@ -1245,7 +1245,7 @@ wheels = [
 
 [[package]]
 name = "inspect-ai"
-version = "0.3.290"
+version = "0.3.292"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "agent-client-protocol" },
@@ -1289,9 +1289,9 @@ dependencies = [
     { name = "zipp" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b2/a1/07c1eec7ae724eaa07c6f28ce3b8c8031e53bac18569a6dcde833f4ac2eb/inspect_ai-0.3.290.tar.gz", hash = "sha256:1e26aa90723996df2812adf634d5a14794d3f4dd56c30864e035a5842e7cea3a", size = 7793640, upload-time = "2026-11-14T21:16:02.572Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6e/b8/c6aa885727a59b81cb622a5decab2dd8f322c36637cc247b93cc80e93700/inspect_ai-0.3.292.tar.gz", hash = "sha256:7018003b842dfc15dff0fad5c0da1a5423575e016e3270aa307921ca559de25d", size = 8038052, upload-time = "2026-11-23T17:59:47.057Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ea/4a/cde5661cae598ea8cbfe6c5da465ea144a81474534620e657a860328b1c0/inspect_ai-0.3.290-py3-none-any.whl", hash = "sha256:72f3d164ec04cea71ab3f17c27bc3650fd772815e70b2a672ca79f11bfd0509d", size = 35737576, upload-time = "2026-11-14T21:15:59.346Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/6c/90ce10511dc40dfa997cfd90b0443a7d6b19f710fab0cfaf23773bc0309e/inspect_ai-0.3.292-py3-none-any.whl", hash = "sha256:65f33bf73612367a547c87ae5b96f81318e72dd9efdcd92c8e0e95aa3525e2d7", size = 35899179, upload-time = "2026-11-23T17:59:44.273Z" },
 ]
 
 [[package]]
@@ -1374,7 +1374,7 @@ wheels = [
 
 [[package]]
 name = "inspect-swe"
-version = "0.2.72"
+version = "0.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "agent-client-protocol" },
@@ -1388,9 +1388,9 @@ dependencies = [
     { name = "sniffio" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/fe/5d4f4a049a65a97c846702ca6fc537948e9798a36c32dc5d87fb8c195e52/inspect_swe-0.2.72.tar.gz", hash = "sha256:85c329780f166632ce6777a3ffea554c1a52baaa2c38baf37839987674e2b289", size = 156351, upload-time = "2026-10-20T19:11:43.997Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/1b/867291209d839a3a52670571d8654ddd5cb1887a94cc79c0c150bdd66774/inspect_swe-0.3.3.tar.gz", hash = "sha256:7e95a43f3eb2d5a48e869e7057a3fbf5d97071d30285b160354d0792ab5052e4", size = 209465, upload-time = "2026-11-27T12:28:38.096Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/14/9ad5ccf9fb101ca8f1d89e00cd2a6f0e26f0d6bf8657961a5842411c9faf/inspect_swe-0.2.72-py3-none-any.whl", hash = "sha256:f72354c71a1cb5ab611284dc973be2a75d0657020d6c56abe4a3450fed322ed4", size = 198696, upload-time = "2026-10-20T19:11:42.342Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/f2/9c829e883797aeffa1f54f5cea7b01338de7ca804c4033bc24416d8abb85/inspect_swe-0.3.3-py3-none-any.whl", hash = "sha256:0512c2bc7084b9a51f1aeb3372cd47a52872fec09d8605955e2e194d99f123fb", size = 251473, upload-time = "2026-11-27T12:28:36.645Z" },
 ]
 
 [[package]]
