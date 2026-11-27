@@ -2,7 +2,7 @@
 # https://arxiv.org/html/2609.36308v1
 name: creative-writings-claude-opus-5.5
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@aa25da3355a8b932ee50b3801b51f224d6e6d7cd
     name: cheatbench_inspect
     items:
       - name: cheatbench_creative_writings
