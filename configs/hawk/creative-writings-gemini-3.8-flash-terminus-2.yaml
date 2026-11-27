@@ -1,0 +1,35 @@
+# Table 3 general-harness cohort. Appendix B.4 interviewer rows.
+# https://arxiv.org/html/2609.36308v1
+name: creative-writings-gemini-3.8-flash-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@aa25da3355a8b932ee50b3801b51f224d6e6d7cd
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_creative_writings
+        args:
+          dataset_limit: 20
+          harness: terminus-2
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/google/gemini-3.8-flash
+model_roles:
+  reviewer:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-5.6-luna
+        args:
+          config:
+            reasoning_effort: medium
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

@@ -1,0 +1,37 @@
+# Appendix A.2 and Table 4 earlier-model cohort. Appendix B.4 interviewer rows.
+# https://arxiv.org/html/2609.36308v1
+name: creative-writings-gemini-2.5-pro-gemini-cli
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@aa25da3355a8b932ee50b3801b51f224d6e6d7cd
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_creative_writings
+        args:
+          dataset_limit: 20
+          harness: gemini-cli
+          harness_version: "0.59.0"
+          harness_model: gemini-2.5-pro
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/google/gemini-2.5-pro
+model_roles:
+  reviewer:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-5.6-luna
+        args:
+          config:
+            reasoning_effort: medium
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard
