@@ -13,7 +13,7 @@ from cheatbench_inspect.harnesses.container import (
     BOOTSTRAP,
     SANDBOX_RESOURCES,
 )
-from cheatbench_inspect.harnesses.harness import HarnessPolicy, HarnessResult
+from cheatbench_inspect.harnesses.harness import HarnessPolicy, HarnessResult, mcp_only_tools
 
 _RESOURCES = Path(__file__).parent / "resources/terminus"
 TERMINUS_COMPOSE = SANDBOX_RESOURCES / "terminus-compose.yaml"
@@ -27,8 +27,13 @@ payload = PAYLOAD
 with contextlib.redirect_stdout(sys.stderr):
     extension, runner = {}, {}
     exec(compile(payload["extension"], "image_extension.py", "exec"), extension)
+    if payload.get("mcp_extension"):
+        exec(compile(payload["mcp_extension"], "mcp_extension.py", "exec"), extension)
+        agent_class = extension["MCPImageTerminus2"]
+    else:
+        agent_class = extension["ImageTerminus2"]
     exec(compile(payload["runner"], "episode.py", "exec"), runner)
-    result = asyncio.run(runner["episode"](payload["config"], extension["ImageTerminus2"]))
+    result = asyncio.run(runner["episode"](payload["config"], agent_class))
 print(json.dumps(result))
 """
 
@@ -42,29 +47,35 @@ def prepare_harbor(
     mcp_servers: list[dict[str, str]],
     max_turns: int | None = None,
     timeout_s: int = 3600,
+    mcp_only: bool = False,
+    mcp_tools: dict[str, tuple[str, ...]] | None = None,
 ) -> tuple[list[str], str]:
     """Return the sandbox command and the JSON document to send on its stdin."""
-    payload = {
-        "code": _START,
-        "config": {
-            "id": sample_id,
-            "prompt": prompt,
-            "model": model,
-            "api_base": api_base,
-            "mcp_servers": mcp_servers,
-            "max_turns": max_turns,
-            "timeout_s": timeout_s,
-        },
-        "extension": (_RESOURCES / "image_extension.py").read_text(),
-        "runner": (_RESOURCES / "episode.py").read_text(),
+    config: dict[str, object] = {
+        "id": sample_id,
+        "prompt": prompt,
+        "model": model,
+        "api_base": api_base,
+        "mcp_servers": mcp_servers,
+        "max_turns": max_turns,
+        "timeout_s": timeout_s,
     }
+    payload: dict[str, object] = {
+        "code": _START,
+        "config": config,
+        "extension": (_RESOURCES / "image_extension.py").read_text(encoding="utf-8"),
+        "runner": (_RESOURCES / "episode.py").read_text(encoding="utf-8"),
+    }
+    if mcp_only:
+        config["mcp_only"] = True
+        config["mcp_tools"] = {name: list(tools) for name, tools in (mcp_tools or {}).items()}
+        payload["mcp_extension"] = (_RESOURCES / "mcp_extension.py").read_text(encoding="utf-8")
     return ["/opt/terminus-runtime/.venv/bin/python", "-I", "-c", BOOTSTRAP], json.dumps(payload)
 
 
 async def run_terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResult:
     """Run the pinned Harbor harness in the sample sandbox."""
-    if policy.mcp_only:
-        raise ValueError("Terminus-2 does not support mcp_only")
+    allowed = mcp_only_tools(policy) if policy.mcp_only else None
     agent_state = AgentState(messages=state.messages)
     try:
         async with sandbox_agent_bridge(agent_state) as bridge:
@@ -76,6 +87,8 @@ async def run_terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResu
                 mcp_servers=policy.mcp_servers,
                 max_turns=policy.max_turns,
                 timeout_s=policy.timeout_s,
+                mcp_only=policy.mcp_only,
+                mcp_tools=allowed,
             )
             result = await sandbox().exec(
                 command,

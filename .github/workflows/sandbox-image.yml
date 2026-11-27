@@ -14,6 +14,10 @@ on:
       - src/cheatbench_inspect/harnesses/resources/sandbox/office.Dockerfile
       - src/cheatbench_inspect/harnesses/resources/sandbox/office-requirements.txt
       - src/cheatbench_inspect/harnesses/resources/sandbox/*-office-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/chess.Dockerfile
+      - src/cheatbench_inspect/harnesses/resources/sandbox/chess-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/chess-debs-*.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/*-chess-compose.yaml
       - .github/workflows/sandbox-image.yml
   workflow_dispatch:
 
@@ -49,10 +53,20 @@ jobs:
           - target: codex-office
             stage: office
             runtime: codex
+          - target: terminus-chess
+            stage: chess
+            runtime: terminus
+          - target: claude-chess
+            stage: chess
+            runtime: claude
+          - target: codex-chess
+            stage: chess
+            runtime: codex
     env:
       IMAGE: ghcr.io/rowan-dauria/task-env-${{ matrix.target }}
       TARGET: ${{ matrix.target }}
       RUNTIME: ${{ matrix.runtime }}
+      STAGE: ${{ matrix.stage }}
     permissions:
       contents: read
       packages: write # push the image to GHCR
@@ -63,7 +77,9 @@ jobs:
       - name: Compute the tag and check the compose file names it
         id: tag
         run: |
-          if [ -n "$RUNTIME" ]; then
+          if [ "$STAGE" = chess ]; then
+            tag="$(cat "$CONTEXT/chess.Dockerfile" "$CONTEXT/chess-requirements.txt" "$CONTEXT/chess-debs-amd64.txt" "$CONTEXT/chess-debs-arm64.txt" | sha256sum | cut -c1-12)"
+          elif [ -n "$RUNTIME" ]; then
             tag="$(cat "$CONTEXT/office.Dockerfile" "$CONTEXT/office-requirements.txt" | sha256sum | cut -c1-12)"
           elif [ "$TARGET" = claude ]; then
             tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" "$CONTEXT/claude-requirements.txt" | sha256sum | cut -c1-12)"
@@ -99,7 +115,7 @@ jobs:
         if: steps.existing.outputs.published == 'false'
         with:
           context: ${{ env.CONTEXT }}
-          file: ${{ env.CONTEXT }}/${{ matrix.runtime && 'office.Dockerfile' || 'Dockerfile' }}
+          file: ${{ env.CONTEXT }}/${{ matrix.runtime && format('{0}.Dockerfile', matrix.stage) || 'Dockerfile' }}
           target: ${{ matrix.stage }}
           build-args: ${{ matrix.runtime && format('RUNTIME={0}', matrix.runtime) || '' }}
           platforms: linux/amd64,linux/arm64

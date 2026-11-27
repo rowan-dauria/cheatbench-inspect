@@ -86,13 +86,26 @@ async def episode(config, agent_class):
     with TemporaryDirectory(prefix="terminal-session-") as directory:
         logs = Path(directory)
         environment = EpisodeEnvironment("/workspace", logs, config["id"], dict(os.environ))
+        mcp_only = bool(config.get("mcp_only", False))
+        mcp_kwargs = (
+            {
+                "mcp_only": True,
+                "mcp_endpoints": config["mcp_servers"],
+                "mcp_tools": config["mcp_tools"],
+            }
+            if mcp_only
+            else {}
+        )
         agent = agent_class(
             logs_dir=logs,
             model_name=config["model"],
             api_base=config["api_base"],
             llm_kwargs={"api_key": "inspect", "timeout": 930, "custom_llm_provider": "openai"},
-            mcp_servers=[MCPServerConfig(**server) for server in config["mcp_servers"]],
+            mcp_servers=[]
+            if mcp_only
+            else [MCPServerConfig(**server) for server in config["mcp_servers"]],
             max_turns=config["max_turns"],
+            **mcp_kwargs,
         )
         agent.options.llm_kwargs = {}
         error = None

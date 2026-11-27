@@ -5,7 +5,7 @@ from inspect_ai.tool import MCPServerConfigHTTP
 from inspect_swe import claude_code
 
 from cheatbench_inspect.harnesses.container import AGENT_ENV, AGENT_USER
-from cheatbench_inspect.harnesses.harness import HarnessPolicy
+from cheatbench_inspect.harnesses.harness import HarnessPolicy, mcp_only_tools
 from cheatbench_inspect.harnesses.reasoning_replay import anthropic_reasoning_filter
 
 _TOOLS = ["Bash", "Read", "Write"]
@@ -17,12 +17,25 @@ _DISALLOWED_TOOLS = [
     "WebSearch",
     "WebFetch",
 ]
+_MCP_ONLY_DISALLOWED_TOOLS = [
+    *_DISALLOWED_TOOLS,
+    "Bash",
+    "Read",
+    "Write",
+    "Agent",
+    "Glob",
+    "Grep",
+    "Skill",
+    "ToolSearch",
+]
 
 
 async def run_claude_code(
     state: AgentState, policy: HarnessPolicy, *, cli_version: str, cli_model: str
 ) -> AgentState:
     """Run one pinned Claude Code episode inside the sample sandbox."""
+    if policy.mcp_only:
+        mcp_only_tools(policy)
     agent = claude_code(
         version=cli_version,
         model_config=cli_model,
@@ -40,8 +53,8 @@ async def run_claude_code(
         retry_refusals=0,
         retry_uncaught_errors=0,
         filter=anthropic_reasoning_filter,
-        tools=_TOOLS,
-        disallowed_tools=_DISALLOWED_TOOLS,
+        tools=[] if policy.mcp_only else _TOOLS,
+        disallowed_tools=_MCP_ONLY_DISALLOWED_TOOLS if policy.mcp_only else _DISALLOWED_TOOLS,
         strict_mcp_config=True,
         replace_system_prompt="",
         mcp_servers=[

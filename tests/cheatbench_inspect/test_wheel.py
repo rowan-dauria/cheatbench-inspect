@@ -35,19 +35,23 @@ def test_wheel_contains_runtime_resources(tmp_path: Path) -> None:
     expected.add("knowledge_work/resources/instruction.txt")
     expected.add("knowledge_work/resources/workspace_readme.txt")
     expected.add("protein_design/resources/instruction.txt")
+    expected.add("chess/resources/instruction.txt")
+    expected.add("chess/resources/engine_signature.json")
     expected.update(
         f"openmath/resources/{name}"
         for name in ("instruction.txt", "inject.txt", "mirror.txt", "materials.tar.gz")
     )
-    for filename in ("Dockerfile", "office.Dockerfile"):
+    for filename in ("Dockerfile", "office.Dockerfile", "chess.Dockerfile"):
         recipe = sandbox / filename
         expected.add(recipe.as_posix())
-        expected.update(
-            (sandbox / name).as_posix()
-            for name in re.findall(
-                r"--mount=type=bind,source=([^, ]+)", (package / recipe).read_text()
-            )
-        )
+        for name in re.findall(
+            r"--mount=type=bind,source=([^, ]+)", (package / recipe).read_text()
+        ):
+            if "${TARGETARCH}" in name:
+                for arch in ("amd64", "arm64"):
+                    expected.add((sandbox / name.replace("${TARGETARCH}", arch)).as_posix())
+            else:
+                expected.add((sandbox / name).as_posix())
     with ZipFile(wheel) as archive:
         shipped = set(archive.namelist())
     assert {f"cheatbench_inspect/{path}" for path in expected} <= shipped

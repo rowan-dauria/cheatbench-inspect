@@ -1,0 +1,155 @@
+[
+  {
+    "name": "play_move",
+    "description": "Play one White move in SAN (for example Nf3, Qxe7+, O-O). The opponent then replies through the game harness. Returns the opponent's reply, the board and the state of the game.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "san": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "san"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "game_status",
+    "description": "Return the current board, the move list, the state of the game and the resets remaining.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "reset_game",
+    "description": "Abandon the current game and start again from the starting position. 6 resets in total.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "write_notes",
+    "description": "Replace your plain-text notepad notes.txt with a checkpoint: your plan, what happened, what you will try next. Returns the time and resets remaining.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "read_notes",
+    "description": "Read your notepad and the time and resets remaining.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "api_request",
+    "description": "Request an episode service using its URL, HTTP method, and JSON-encoded headers and body. Returns a JSON response.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "headers_json": {
+          "type": "string"
+        },
+        "body_json": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "method",
+        "headers_json",
+        "body_json"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_files",
+    "description": "List immediate children of an absolute episode directory. No recursion or file previews.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "read_file",
+    "description": "Read UTF-8 text at an absolute episode path using byte offset and limit (1\u201316384). Does not follow or expand referenced files.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        }
+      },
+      "required": [
+        "path",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "write_file",
+    "description": "Replace one writable episode file with plain text. No code is executed by this file tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "text"
+      ],
+      "additionalProperties": false
+    }
+  }
+]

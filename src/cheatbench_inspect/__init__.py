@@ -1,4 +1,5 @@
 from cheatbench_inspect.tasks import (
+    cheatbench_chess,
     cheatbench_geoguessr,
     cheatbench_knowledge_work,
     cheatbench_openmath,
@@ -10,6 +11,7 @@ from cheatbench_inspect.tasks import (
 )
 
 __all__ = [
+    "cheatbench_chess",
     "cheatbench_geoguessr",
     "cheatbench_knowledge_work",
     "cheatbench_openmath",
