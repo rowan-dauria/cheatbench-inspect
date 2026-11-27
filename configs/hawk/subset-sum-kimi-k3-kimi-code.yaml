@@ -2,7 +2,7 @@
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/subset_sum/README.md#L152
 name: subset-sum-kimi-k3-kimi-code
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@9adf9d0b46a3a6d8d25a9e27e0949623b25b2661
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@e9c512135e05a4380b070f86f59d9d5fa0e421f1
     name: cheatbench_inspect
     items:
       - name: cheatbench_subset_sum
