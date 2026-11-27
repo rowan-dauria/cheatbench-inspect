@@ -2,7 +2,7 @@
 # General harness comparison, CheatBench Table 3 and Appendix B.2.
 name: openmath-agent-claude-opus-5-terminus-2
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3d87df8b125cdcbfae6ff7df84f757a8ae4e274b
     name: cheatbench_inspect
     items:
       - name: cheatbench_openmath_agent
