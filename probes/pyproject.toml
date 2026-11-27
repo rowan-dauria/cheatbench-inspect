@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cb-hawk-probe"
+version = "0.0.1"
+description = "Command-only Hawk Go and Software Engineering feasibility probes"
+
+[project.entry-points.inspect_ai]
+cb_hawk_probe = "cb_hawk_probe"
+
+[tool.setuptools.package-data]
+cb_hawk_probe = ["*.yaml", "*.sh", "*.c", "*.gz", "data/*/*", "LICENSE-cheatbench"]

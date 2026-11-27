@@ -1,0 +1,15 @@
+services:
+  default:
+    image: python:3.11-slim
+    command: ["sleep", "infinity"]
+  engine:
+    image: nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04@sha256:810756cab1c28ce693499a5c2ebb66f6d10a61d026998c8606bad449643a4c49
+    command: ["sleep", "infinity"]
+    nodeSelector:
+      kubernetes.io/arch: amd64
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+    ports:
+      - port: 8765
+        protocol: TCP
