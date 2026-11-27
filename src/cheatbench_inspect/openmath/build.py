@@ -43,13 +43,16 @@ raise SystemExit(main())
 """
 
 
-def write_archive(destination: Path, root: Path, sources: list[Path]) -> None:
+def write_archive(
+    destination: Path, root: Path, sources: list[Path], *, preserve_modes: bool = False
+) -> None:
     """Write a deterministic gzip or xz tarball without host ownership or timestamps."""
 
     def normalize(info: tarfile.TarInfo) -> tarfile.TarInfo:
         info.uid = info.gid = info.mtime = 0
         info.uname = info.gname = ""
-        info.mode = 0o755 if info.isdir() else 0o644
+        if not preserve_modes:
+            info.mode = 0o755 if info.isdir() else 0o644
         return info
 
     with ExitStack() as stack:
@@ -67,20 +70,26 @@ def write_archive(destination: Path, root: Path, sources: list[Path]) -> None:
             archive.add(source, arcname=source.relative_to(root).as_posix(), filter=normalize)
 
 
-def fetch_sources(source: Path, upstream_task: Path | None) -> None:
-    checksums: dict[str, str] = json.loads((RESOURCES / "source_sha256.json").read_text())
+def fetch_pinned_files(
+    source: Path, upstream: str, checksums: dict[str, str], upstream_task: Path | None
+) -> None:
     for name, expected in checksums.items():
         path = source / name
         path.parent.mkdir(parents=True, exist_ok=True)
         if upstream_task is not None:
             shutil.copyfile(upstream_task / name, path)
         else:
-            with urlopen(f"{UPSTREAM}/{name}", timeout=120) as response, path.open("wb") as stream:
+            with urlopen(f"{upstream}/{name}", timeout=120) as response, path.open("wb") as stream:
                 shutil.copyfileobj(response, stream)
         with path.open("rb") as stream:
             actual = hashlib.file_digest(stream, "sha256").hexdigest()
         if actual != expected:
             raise ValueError(f"{name} has sha256 {actual}, expected {expected}")
+
+
+def fetch_sources(source: Path, upstream_task: Path | None) -> None:
+    checksums = json.loads((RESOURCES / "source_sha256.json").read_text())
+    fetch_pinned_files(source, UPSTREAM, checksums, upstream_task)
 
 
 def build_task_dir(

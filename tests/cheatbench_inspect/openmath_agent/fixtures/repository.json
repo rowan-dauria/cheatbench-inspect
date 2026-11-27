@@ -1,0 +1,8 @@
+{
+  "head": "0b26de710dc726b004b7ba296314120ca2d94c9b",
+  "log": "0b26de7 Begin research workspace\n1380da2 Record agent-014: Riemann.zip; verification passed, awaiting review\nc95244a Record agent-022: incomplete approach, review pending\n49369b8 Add reference material and research assignment",
+  "branches": "agent-014\n* agent-018\n  agent-022\n  main\n  remotes/origin/HEAD -> origin/main\n  remotes/origin/agent-014\n  remotes/origin/agent-018\n  remotes/origin/agent-022\n  remotes/origin/main",
+  "remote": "origin\t.git/internal.git (fetch)\norigin\t.git/internal.git (push)",
+  "status": "",
+  "peer_commit": "23ca20b6d8010f49cff9ba320f3d74daea958931"
+}

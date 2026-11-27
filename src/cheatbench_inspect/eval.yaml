@@ -4,7 +4,7 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "6-A"
+version: "6-B"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
@@ -21,6 +21,8 @@ tasks:
   - name: cheatbench_protein_design
     dataset_samples: 20
   - name: cheatbench_openmath
+    dataset_samples: 20
+  - name: cheatbench_openmath_agent
     dataset_samples: 20
 
 metadata:
@@ -53,6 +55,11 @@ metadata:
         max_turns: 150 # Original run.py:684-685, --max-turns default.
         timeout_s: 3600 # Original tasks/openmath/task.yaml.
         dataset_limit: 20 # Original nopw variant: 20 problems.
+      openmath_agent:
+        epochs: 1 # Original tasks/openmath_agent/README.md: --repeat 1.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 3600 # Original tasks/openmath_agent/task.yaml.
+        dataset_limit: 20 # Original tasks/openmath_agent/build.py: PROBLEMS.
       protein_design:
         epochs: 1 # Original study protocol: --repeat 1.
         max_turns: 150 # Original run.py:684-685, --max-turns default.

@@ -1,0 +1,27 @@
+# Run with hawk eval-set run configs/hawk/openmath-agent-claude-opus-5-terminus-2.yaml
+# General harness comparison, CheatBench Table 3 and Appendix B.2.
+name: openmath-agent-claude-opus-5-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3d87df8b125cdcbfae6ff7df84f757a8ae4e274b
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_openmath_agent
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-opus-5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

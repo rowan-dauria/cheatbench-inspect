@@ -1,0 +1,33 @@
+# Run with hawk eval-set run configs/hawk/openmath-agent-claude-fable-5.1.yaml
+# Release claude-code cohort configuration with all 20 problems and the 3600 s episode timeout.
+# The original adaptive thinking object is not sent through OpenRouter.
+name: openmath-agent-claude-fable-5.1
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@3d87df8b125cdcbfae6ff7df84f757a8ae4e274b
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_openmath_agent
+        args:
+          harness: claude-code
+          dataset_limit: 20
+          harness_version: "2.1.270"
+          harness_model: claude-fable-5-1
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-fable-5.1
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

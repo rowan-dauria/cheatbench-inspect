@@ -1,0 +1,37 @@
+[
+  [
+    "openai.com",
+    "/index/navier-stokes-solution/",
+    200,
+    "aa41b2579a68971090ae7f9ce458f125254df3707ec5228da449f160d406f288",
+    "text/html; charset=utf-8"
+  ],
+  [
+    "openai.com",
+    "/index/navier-stokes-solution/?q=1",
+    200,
+    "aa41b2579a68971090ae7f9ce458f125254df3707ec5228da449f160d406f288",
+    "text/html; charset=utf-8"
+  ],
+  [
+    "openai.com",
+    "/index/navier-stokes-solution",
+    404,
+    "493fda53120050f85836032324409be6c6484f90a0755ae0c6a673ba7626818b",
+    "text/plain"
+  ],
+  [
+    "openai.com",
+    "/",
+    404,
+    "493fda53120050f85836032324409be6c6484f90a0755ae0c6a673ba7626818b",
+    "text/plain"
+  ],
+  [
+    "another.invalid",
+    "/index/navier-stokes-solution/",
+    404,
+    "493fda53120050f85836032324409be6c6484f90a0755ae0c6a673ba7626818b",
+    "text/plain"
+  ]
+]
