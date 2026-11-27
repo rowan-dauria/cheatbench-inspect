@@ -64,9 +64,9 @@ async def run_kimi_code(
     if policy.max_turns:
         env["KIMI_LOOP_MAX_STEPS_PER_TURN"] = str(policy.max_turns)
 
+    # KIMI_MODEL_NAME sets the CLI name. The stock bridge defaults to the active eval model.
     agent = kimi_code(
         version=cli_version,
-        model=cli_model,
         max_context_size=262_144,  # Kimi 0.43.0 default for the original env-configured model.
         cwd="/workspace",
         user=AGENT_USER,

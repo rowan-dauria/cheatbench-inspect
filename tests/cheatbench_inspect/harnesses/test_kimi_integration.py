@@ -1,4 +1,12 @@
-"""Exercise Kimi Code, the Chat Completions bridge and the verifier."""
+r"""Exercise Kimi Code, the Chat Completions bridge and the verifier.
+
+The Prime episode covers plain OpenRouter and the double-prefixed name used by Hawk.
+Run the Kimi Docker tests with Hawk's Inspect AI revision without changing the lock:
+
+    uv run --with 'inspect-ai @ git+https://github.com/UKGovernmentBEIS/inspect_ai@48c35e6f0' \
+        pytest --runslow tests/cheatbench_inspect/harnesses/test_kimi_integration.py \
+        tests/cheatbench_inspect/geoguessr/test_image_transport.py::test_kimi_code_image_transport_openrouter
+"""
 
 import json
 import re
@@ -17,6 +25,10 @@ from cheatbench_inspect.harnesses.reasoning_replay import anthropic_reasoning_fi
 pytestmark = [pytest.mark.docker, pytest.mark.slow, pytest.mark.dataset_download]
 
 _ROUTE = "moonshotai/kimi-k3"
+# Hawk serves the model as `openrouter/<Hawk model name>`, so the Inspect model name keeps a
+# second `openrouter/` and differs from the CLI's `_ROUTE`.
+_HAWK_MODEL = f"openrouter/openrouter/{_ROUTE}"
+_PLAIN_MODEL = f"openrouter/{_ROUTE}"
 _PROVIDER = {"order": ["moonshotai"], "allow_fallbacks": False}
 _FINAL = "The factors are 49776197 and 58039117."
 _PROCESS_PROBE = r"""
@@ -92,8 +104,14 @@ def post(self: support._FakeOpenRouterHandler) -> None:
     self.wfile.write(encoded)
 
 
-@pytest.mark.parametrize("use_filter", [False, True], ids=["stock", "reasoning-filter"])
-def test_kimi_prime_q4(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_filter: bool) -> None:
+@pytest.mark.parametrize(
+    ("use_filter", "active_model"),
+    [(False, _PLAIN_MODEL), (False, _HAWK_MODEL), (True, _HAWK_MODEL)],
+    ids=["stock-plain-name", "stock-hawk-name", "reasoning-filter-hawk-name"],
+)
+def test_kimi_prime_q4(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_filter: bool, active_model: str
+) -> None:
     original_task = support.cheatbench_prime_factorization
     original_model = support.get_model
     original_agent = launcher.kimi_code
@@ -115,7 +133,7 @@ def test_kimi_prime_q4(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_filt
 
     def model(name: str, **kwargs: Any) -> Any:
         if name.startswith("openrouter/"):
-            name = f"openrouter/{_ROUTE}"
+            name = active_model
             kwargs["responses_api"] = False
             kwargs["config"] = GenerateConfig(
                 reasoning_effort="high", extra_body={"provider": _PROVIDER}, max_retries=0
@@ -147,7 +165,8 @@ def test_kimi_prime_q4(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_filt
 
     first, second, third, fourth = requests
     for request in requests:
-        assert request["model"] == _ROUTE
+        # The CLI asks for `_ROUTE`; the bridge serves the active model under its own name.
+        assert request["model"] == active_model.removeprefix("openrouter/")
         assert request["reasoning"]["effort"] == "high"
         assert request["provider"] == _PROVIDER
         assert "thinking" not in request
@@ -184,6 +203,7 @@ def test_kimi_prime_q4(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_filt
     assert "kimi" in processes
     expected_port = 3115 if use_filter else 3101
     assert f"KIMI_MODEL_BASE_URL=http://localhost:{expected_port}/v1" in listing
+    assert f"KIMI_MODEL_NAME={_ROUTE}" in listing
     assert "KIMI_LOOP_MAX_STEPS_PER_TURN=150" in listing
     assert "/home/user/.kimi-code/config.toml" in probe
     assert "/workspace/instance.txt" in probe

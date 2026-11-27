@@ -56,7 +56,6 @@ async def test_launcher(max_turns: int | None) -> None:
         env["KIMI_LOOP_MAX_STEPS_PER_TURN"] = str(max_turns)
     factory.assert_called_once_with(
         version="0.43.0",
-        model="moonshotai/kimi-k3",
         max_context_size=262_144,
         cwd="/workspace",
         user="user",
