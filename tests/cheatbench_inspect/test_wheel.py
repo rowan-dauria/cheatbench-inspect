@@ -35,6 +35,16 @@ def test_wheel_contains_runtime_resources(tmp_path: Path) -> None:
     expected.add("knowledge_work/resources/instruction.txt")
     expected.add("knowledge_work/resources/workspace_readme.txt")
     expected.add("protein_design/resources/instruction.txt")
+    expected.update(f"svgs/resources/{name}" for name in ("instruction.txt", "render_worker.txt"))
+    expected.update(
+        (sandbox / name).as_posix()
+        for name in (
+            "svg.Dockerfile",
+            "svg-requirements.txt",
+            "svg-debs-amd64.txt",
+            "svg-debs-arm64.txt",
+        )
+    )
     expected.update(
         f"openmath/resources/{name}"
         for name in ("instruction.txt", "inject.txt", "mirror.txt", "materials.tar.gz")

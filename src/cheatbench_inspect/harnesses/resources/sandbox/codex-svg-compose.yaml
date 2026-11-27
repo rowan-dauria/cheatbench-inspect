@@ -1,0 +1,12 @@
+services:
+  default:
+    image: ghcr.io/rowan-dauria/task-env-codex-svg:11e5f2c06a63
+    build:
+      context: .
+      dockerfile: svg.Dockerfile
+      target: svg
+      args:
+        RUNTIME: codex
+    network_mode: bridge
+    init: true
+    command: ["tail", "-f", "/dev/null"]

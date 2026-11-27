@@ -9,6 +9,7 @@ from zipfile import ZipFile
 import pytest
 from inspect_ai.scorer import Scorer
 from inspect_ai.solver import Solver
+from inspect_evals_utils.metadata import load_eval_version
 from tests.cheatbench_inspect.openmath.conftest import (
     API,
     ARCHIVES,
@@ -21,7 +22,7 @@ from tests.cheatbench_inspect.openmath.conftest import (
     TITLES,
 )
 
-from cheatbench_inspect import cheatbench_openmath
+from cheatbench_inspect import cheatbench_openmath, tasks
 from cheatbench_inspect.openmath.build import SITE_BUNDLE
 from cheatbench_inspect.openmath.dataset import default_task_dir, row_responses
 from cheatbench_inspect.openmath.openmath import openmath_solver
@@ -37,7 +38,7 @@ def test_task_and_prompt(task_dir: Path) -> None:
     assert not sample.files
     original_row = json.loads((FIXTURES / "rows.jsonl").read_text().splitlines()[0])
     assert "deliverable_files" not in original_row
-    assert task.version == "6-A"
+    assert task.version == load_eval_version(tasks.__file__)
     assert task.message_limit == 300
     assert task.time_limit is None
     assert task.epochs == 1

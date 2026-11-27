@@ -5,6 +5,7 @@ from cheatbench_inspect.tasks import (
     cheatbench_prime_factorization,
     cheatbench_protein_design,
     cheatbench_subset_sum,
+    cheatbench_svgs,
     cheatbench_sycophancy,
     cheatbench_synthetic_puzzles,
 )
@@ -16,6 +17,7 @@ __all__ = [
     "cheatbench_prime_factorization",
     "cheatbench_protein_design",
     "cheatbench_subset_sum",
+    "cheatbench_svgs",
     "cheatbench_sycophancy",
     "cheatbench_synthetic_puzzles",
 ]

@@ -1,0 +1,17 @@
+3003e98a5debfdeadc7040a7f715fe9fe6fb67f68deacf6049b54e30f07fc014 pool/main/f/fonts-dejavu/fonts-dejavu-mono_2.37-8_all.deb
+86635b3d25b3655fc11cb3ecc3af59f0bf19643b02b94f2de48bd10253cdba12 pool/main/f/fonts-dejavu/fonts-dejavu-core_2.37-8_all.deb
+0475c00d02660c07a15085051818625331bb502e053242106aaaa1f2ddb41225 pool/main/f/fontconfig/fontconfig-config_2.15.0-2.3_amd64.deb
+0f8034d1c2547760430c81e8d87e5d6acd533a3493c80cf76dbecd0343b6773c pool/main/libp/libpng1.6/libpng16-16t64_1.6.48-1+deb13u6_amd64.deb
+b57a449c874f2cc126a48149daa27b8d1a8935fbf1609ccfe28ca1610d00ee29 pool/main/f/freetype/libfreetype6_2.13.3+dfsg-1+deb13u2_amd64.deb
+7ae91ec59857cc8e375eb2bdd371a4a69daea38f7787d06d474a847867d852b1 pool/main/f/fontconfig/libfontconfig1_2.15.0-2.3_amd64.deb
+3862c87596f6b4b60fc916395fd69aa10af28a875a8e5c081a8cf30ddd120bd6 pool/main/p/pixman/libpixman-1-0_0.44.0-3_amd64.deb
+689a9f0e0ba3e2c65431f864871e303ee904de69dd28abfc462663fae030227f pool/main/libx/libxau/libxau6_1.0.11-1_amd64.deb
+0740dc760916b2008b45417a42a8fd7dd5de370fb57d31373f15034cda8acf0b pool/main/libx/libxdmcp/libxdmcp6_1.1.5-1_amd64.deb
+5c222a72d11b866447da31693254f738430726e3e065a384e82687b2fd2f978b pool/main/libx/libxcb/libxcb1_1.17.0-2+b1_amd64.deb
+c54f87069888f80ba4da586da6147d74c7598ccdd8b90906dbc4271fa414c738 pool/main/libx/libx11/libx11-data_1.8.12-1_all.deb
+b5a3fd3bf8c8fd0364bfb9bea00dcba7fc301229bd02dded084632d31f5b0fb3 pool/main/libx/libx11/libx11-6_1.8.12-1_amd64.deb
+7f6e36978e0f70a590fbad4042a692c70b50ca7cbcdc53fa7e9d9ab87933acc6 pool/main/libx/libxcb/libxcb-render0_1.17.0-2+b1_amd64.deb
+d1777a813f484e89f3dcaadd1d5f2b1a13e9313b6bf70eded16d8ce743208fef pool/main/libx/libxcb/libxcb-shm0_1.17.0-2+b1_amd64.deb
+fc618ec40465e5ce48622606299cb47833efc3fb235ba15543b81f850722f443 pool/main/libx/libxext/libxext6_1.3.4-1+b3_amd64.deb
+9d042dfd5e613be1e02e6ddd0c5c4adef19c5eb08f6db838c2eba672c496dca4 pool/main/libx/libxrender/libxrender1_0.9.12-1_amd64.deb
+01390b049661e4cc8bd39cef78b41c2587d4035619d3b00d6c7846f43d80bbba pool/main/c/cairo/libcairo2_1.18.4-1+b1_amd64.deb
