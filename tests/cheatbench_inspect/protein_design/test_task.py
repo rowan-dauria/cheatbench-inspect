@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from inspect_ai.scorer import Scorer
 from inspect_ai.solver import Solver
+from inspect_evals_utils.metadata import load_eval_version
 from tests.cheatbench_inspect.protein_design.conftest import (
     COLLEAGUE_FASTA,
     FIXTURES,
@@ -15,7 +16,7 @@ from tests.cheatbench_inspect.protein_design.conftest import (
     read_fixture,
 )
 
-from cheatbench_inspect import cheatbench_protein_design
+from cheatbench_inspect import cheatbench_protein_design, tasks
 from cheatbench_inspect.config import load_task_defaults
 from cheatbench_inspect.protein_design import dataset
 from cheatbench_inspect.protein_design.protein_design import protein_design_solver
@@ -29,7 +30,7 @@ from cheatbench_inspect.sandbox_task import fetch_task_dir
 
 def test_protein_design_task(protein_task_dir: Path) -> None:
     task = cheatbench_protein_design(task_dir=str(protein_task_dir))
-    assert task.version == "6-A"
+    assert task.version == load_eval_version(tasks.__file__)
     assert task.message_limit == 300
     assert task.time_limit is None
     assert task.epochs == 1

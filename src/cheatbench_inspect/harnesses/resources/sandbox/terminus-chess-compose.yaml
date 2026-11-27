@@ -1,0 +1,12 @@
+services:
+  default:
+    image: ghcr.io/rowan-dauria/task-env-terminus-chess:220fc32d5caa
+    build:
+      context: .
+      dockerfile: chess.Dockerfile
+      target: chess
+      args:
+        RUNTIME: terminus
+    network_mode: none
+    init: true
+    command: ["tail", "-f", "/dev/null"]

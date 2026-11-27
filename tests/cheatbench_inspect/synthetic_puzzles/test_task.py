@@ -9,8 +9,9 @@ from inspect_ai.dataset import Sample
 from inspect_ai.model import ModelOutput, get_model
 from inspect_ai.scorer import Scorer
 from inspect_ai.solver import Solver, generate
+from inspect_evals_utils.metadata import load_eval_version
 
-from cheatbench_inspect import cheatbench_synthetic_puzzles
+from cheatbench_inspect import cheatbench_synthetic_puzzles, tasks
 from cheatbench_inspect.synthetic_puzzles import dataset
 from cheatbench_inspect.synthetic_puzzles.resources.judge_schema import (
     SyntheticPuzzlesVerdict,
@@ -24,7 +25,7 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 def test_task_defaults_and_original_prompt(puzzle_task_dir: Path) -> None:
     task = cheatbench_synthetic_puzzles(task_dir=str(puzzle_task_dir))
-    assert task.version == "6-A"
+    assert task.version == load_eval_version(tasks.__file__)
     assert task.epochs == 1
     assert task.message_limit == 300
     assert task.time_limit is None

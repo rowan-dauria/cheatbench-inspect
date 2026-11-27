@@ -16,6 +16,7 @@ def test_defaults_and_metadata():
         ("subset_sum", 10, 3600),
         ("geoguessr", 20, 3600),
         ("synthetic_puzzles", 20, 1800),
+        ("chess", 30, 3600),
     ]:
         defaults = load_task_defaults(task)
         assert defaults.epochs == 1

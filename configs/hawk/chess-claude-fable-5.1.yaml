@@ -1,0 +1,33 @@
+# Run with hawk eval-set run configs/hawk/chess-claude-fable-5.1.yaml
+# Table 2 (Games), Appendix B.9, and pinned task README: 30 release positions, claude-code 2.1.270.
+# The pinned README also records an earlier 20-position Linux cohort; this config uses the 30-position release.
+# The original adaptive thinking object is not sent through OpenRouter.
+name: chess-claude-fable-5.1
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_chess
+        args:
+          dataset_limit: 30
+          harness: claude-code
+          harness_version: "2.1.270"
+          harness_model: claude-fable-5-1
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-fable-5.1
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

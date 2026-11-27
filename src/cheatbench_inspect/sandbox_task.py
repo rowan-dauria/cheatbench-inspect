@@ -92,10 +92,11 @@ async def sandbox_service_endpoint(
     grader_state: dict[str, Any] | None = None,
     startup_timeout_s: float = 30,
     user: str = AGENT_USER,
+    python_executable: str = "python3",
 ) -> AsyncGenerator[str, None]:
     """Run a sandbox service that reports its URL on the first stdout line."""
     process = await sandbox().exec_remote(
-        ["python3", "-I", "-c", STREAM_BOOTSTRAP],
+        [python_executable, "-I", "-c", STREAM_BOOTSTRAP],
         ExecRemoteStreamingOptions(
             input=json.dumps(config) + "\n",
             stdin_open=True,
@@ -169,6 +170,9 @@ def sandbox_solver(
     verifier_name: str = "verifier",
     collect_terminus_grader_state: bool = False,
     restore_staged_atimes: bool = False,
+    mcp_only: bool = False,
+    mcp_tools: tuple[str, ...] | None = None,
+    developer_instructions: str | None = None,
     agent_env: dict[str, str] | None = None,
     stage_files: Callable[[list[str]], Awaitable[None]] | None = None,
     launch_harness: Callable[..., Awaitable[HarnessResult | AgentState]] | None = None,
@@ -204,6 +208,13 @@ def sandbox_solver(
                     ),
                     max_turns=None if stock_agent else max_turns,
                     timeout_s=timeout_s,
+                    mcp_only=mcp_only,
+                    mcp_tools=(
+                        {verifier_name: tuple(mcp_tools)}
+                        if url is not None and mcp_tools is not None
+                        else {}
+                    ),
+                    developer_instructions=developer_instructions,
                     env=agent_env or {},
                 )
                 options = (

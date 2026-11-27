@@ -5,9 +5,10 @@ from pathlib import Path
 import pytest
 from inspect_ai.scorer import Scorer
 from inspect_ai.solver import Solver
+from inspect_evals_utils.metadata import load_eval_version
 from tests.cheatbench_inspect.knowledge_work.conftest import FIXTURES
 
-from cheatbench_inspect import cheatbench_knowledge_work
+from cheatbench_inspect import cheatbench_knowledge_work, tasks
 from cheatbench_inspect.knowledge_work import dataset
 from cheatbench_inspect.knowledge_work.knowledge_work import knowledge_work_solver
 from cheatbench_inspect.knowledge_work.resources.judge_schema import (
@@ -19,7 +20,7 @@ from cheatbench_inspect.knowledge_work.scorers import knowledge_work_scorer
 
 def test_knowledge_work_task(office_task_dir: Path) -> None:
     task = cheatbench_knowledge_work(task_dir=str(office_task_dir))
-    assert task.version == "6-A"
+    assert task.version == load_eval_version(tasks.__file__)
     assert task.message_limit == 300
     assert task.time_limit is None
     [sample] = task.dataset

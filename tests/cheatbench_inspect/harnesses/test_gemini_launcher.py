@@ -60,8 +60,49 @@ async def test_launcher() -> None:
     }
 
 
-async def test_mcp_only_rejected() -> None:
-    with pytest.raises(ValueError, match="cannot restrict"):
+async def test_mcp_only_writes_core_tools_and_server_filter() -> None:
+    state = AgentState(messages=[])
+    policy = HarnessPolicy(
+        [{"name": "board", "url": "http://localhost:123/mcp"}],
+        mcp_only=True,
+        mcp_tools={"board": ("play_move", "read_file", "write_file")},
+    )
+    agent = AsyncMock(return_value=state)
+    box = MagicMock()
+    box.exec = AsyncMock(return_value=MagicMock(success=True))
+    box.write_file = AsyncMock()
+    with (
+        patch.object(gemini, "sandbox", return_value=box),
+        patch.object(gemini, "gemini_cli", return_value=agent) as factory,
+    ):
+        assert (
+            await gemini.run_gemini_cli(
+                state, policy, cli_version="0.59.0", cli_model="google/gemini-3.8-flash"
+            )
+            is state
+        )
+    assert factory.call_args.kwargs["mcp_servers"] == [
+        MCPServerConfigHTTP(
+            name="board",
+            url="http://localhost:123/mcp",
+            type="http",
+            tools=["play_move", "read_file", "write_file"],
+        )
+    ]
+    path, content = box.write_file.await_args.args
+    assert path == "/etc/gemini-cli/system-settings.json"
+    assert json.loads(content) == {
+        "tools": {
+            "exclude": ["google_web_search", "web_fetch"],
+            "core": ["mcp_board_play_move", "mcp_board_read_file", "mcp_board_write_file"],
+        },
+        "general": {"enableAutoUpdate": False, "enableAutoUpdateNotification": False},
+        "advanced": {"autoConfigureMemory": False},
+    }
+
+
+async def test_mcp_only_without_servers_rejected() -> None:
+    with pytest.raises(ValueError, match="MCP-only policy requires at least one MCP server"):
         await gemini.run_gemini_cli(
             AgentState(messages=[]),
             HarnessPolicy([], mcp_only=True),

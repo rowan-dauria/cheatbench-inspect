@@ -16,7 +16,36 @@ class HarnessPolicy:
     max_turns: int | None = None
     timeout_s: int = 3600
     mcp_only: bool = False
+    mcp_tools: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    developer_instructions: str | None = None
     env: dict[str, str] = field(default_factory=dict)
+
+
+def mcp_only_tools(policy: HarnessPolicy) -> dict[str, tuple[str, ...]]:
+    """Validate and return the per-server tool allowlist for an MCP-only policy."""
+    if not policy.mcp_servers:
+        raise ValueError("MCP-only policy requires at least one MCP server")
+    server_names: list[str] = []
+    for server in policy.mcp_servers:
+        name = server.get("name")
+        url = server.get("url")
+        if not name or not url:
+            raise ValueError("Each MCP server must declare nonempty name and url")
+        if name in server_names:
+            raise ValueError(f"Duplicate MCP server name {name!r}")
+        server_names.append(name)
+    unknown = sorted(set(policy.mcp_tools) - set(server_names))
+    if unknown:
+        raise ValueError(f"MCP tool allowlist names unknown server(s): {', '.join(unknown)}")
+    allowed: dict[str, tuple[str, ...]] = {}
+    for name in server_names:
+        tools = tuple(policy.mcp_tools.get(name, ()))
+        if not tools or any(not isinstance(tool, str) or not tool for tool in tools):
+            raise ValueError(f"MCP-only policy requires nonempty allowed tools for server {name!r}")
+        if len(tools) != len(set(tools)):
+            raise ValueError(f"Duplicate allowed tool names for MCP server {name!r}")
+        allowed[name] = tools
+    return allowed
 
 
 @dataclass

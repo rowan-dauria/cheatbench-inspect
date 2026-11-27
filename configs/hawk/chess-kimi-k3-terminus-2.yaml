@@ -1,0 +1,33 @@
+# Run with hawk eval-set run configs/hawk/chess-kimi-k3-terminus-2.yaml
+# Table 3 (general harness / Terminus-2) and Appendix B.9: 30 release positions.
+name: chess-kimi-k3-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_chess
+        args:
+          dataset_limit: 30
+          harness: terminus-2
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/moonshotai/kimi-k3
+        args:
+          config:
+            reasoning_effort: high
+            extra_body:
+              provider:
+                order: [moonshotai]
+                allow_fallbacks: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

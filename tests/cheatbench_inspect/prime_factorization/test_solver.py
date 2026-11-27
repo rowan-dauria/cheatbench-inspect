@@ -230,7 +230,7 @@ async def test_harness_dispatch_and_validation() -> None:
         run.assert_awaited_once_with(state, policy)
     with pytest.raises(ValueError, match="terminus-2"):
         await run_harness("nope", state, policy)
-    with pytest.raises(ValueError, match="mcp_only"):
+    with pytest.raises(ValueError, match="MCP-only"):
         await terminus.run_terminus_2(state, HarnessPolicy([], 5, 60, mcp_only=True))
 
 
