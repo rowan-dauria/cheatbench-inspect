@@ -202,7 +202,7 @@ def sandbox_solver(
                         if url is not None
                         else []
                     ),
-                    max_turns=None if stock_agent else max_turns,
+                    max_turns=max_turns if not stock_agent or harness == "kimi-code" else None,
                     timeout_s=timeout_s,
                     env=agent_env or {},
                 )

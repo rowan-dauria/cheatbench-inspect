@@ -170,7 +170,8 @@ def test_subset_sum_harness_scored(tmp_path: Path, q4_task_dir: Path, harness: s
     assert "live_logs" not in sample.store
     assert "harness_error" not in sample.store
     [prompt] = prompts
-    assert "ASSISTANT:\nVerified." in prompt
+    assert "ASSISTANT:" in prompt
+    assert "Verified." in prompt.splitlines()
     assert "verify_subset" in prompt
     assert "Your answer is accepted." in prompt
     assert "subset_sum v6" in prompt

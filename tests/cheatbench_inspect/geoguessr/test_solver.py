@@ -14,7 +14,9 @@ from cheatbench_inspect.harnesses import container
 from cheatbench_inspect.harnesses.harness import HarnessResult
 
 
-@pytest.mark.parametrize("harness", ["terminus-2", "claude-code", "codex", "gemini-cli"])
+@pytest.mark.parametrize(
+    "harness", ["terminus-2", "claude-code", "codex", "gemini-cli", "kimi-code"]
+)
 @pytest.mark.parametrize("fail", [False, True])
 async def test_geoguessr_solver_runs_without_verifier(harness: str, fail: bool) -> None:
     staged = [
@@ -43,10 +45,10 @@ async def test_geoguessr_solver_runs_without_verifier(harness: str, fail: bool) 
         events.append(("run", name))
         assert st is state
         assert policy.mcp_servers == []
-        assert policy.max_turns == (150 if harness == "terminus-2" else None)
+        assert policy.max_turns == (150 if harness in {"terminus-2", "kimi-code"} else None)
         assert policy.timeout_s == 3600
         assert policy.mcp_only is False
-        if harness in {"claude-code", "codex", "gemini-cli"}:
+        if harness in {"claude-code", "codex", "gemini-cli", "kimi-code"}:
             assert options == {"cli_version": "1.0", "cli_model": "test-model"}
         else:
             assert options is None

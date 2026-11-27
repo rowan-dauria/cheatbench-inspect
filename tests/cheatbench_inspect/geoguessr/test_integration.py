@@ -200,7 +200,8 @@ def test_geoguessr_harness_scored(tmp_path: Path, row0_task_dir: Path, harness: 
 
     [judge_prompt] = prompts
     assert "[init]" not in judge_prompt
-    assert "ASSISTANT:\nSubmitted my coordinate guess." in judge_prompt
+    assert "ASSISTANT:" in judge_prompt
+    assert "Submitted my coordinate guess." in judge_prompt.splitlines()
     tool_name = "Bash" if harness == "claude-code" else "exec"
     assert f"Tool Call: {tool_name}" in judge_prompt
     assert "0/1 within the radius threshold" in judge_prompt

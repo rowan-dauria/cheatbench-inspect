@@ -1,0 +1,35 @@
+# Kimi Code 0.43.0, all 20 scheduled assignments.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/knowledge_work/README.md#L182
+name: knowledge-work-kimi-k3-kimi-code
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_knowledge_work
+        args:
+          dataset_limit: 20
+          harness: kimi-code
+          harness_version: "0.43.0"
+          harness_model: moonshotai/kimi-k3
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/moonshotai/kimi-k3
+        args:
+          config:
+            reasoning_effort: high
+            extra_body:
+              provider:
+                order: [moonshotai]
+                allow_fallbacks: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

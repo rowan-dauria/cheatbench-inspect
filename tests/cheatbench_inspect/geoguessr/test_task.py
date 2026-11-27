@@ -26,7 +26,9 @@ def test_export_and_default_task(tmp_path: Path, row0_task_dir: Path) -> None:
     assert len(tasks.cheatbench_geoguessr(task_dir=str(tmp_path), dataset_limit=2).dataset) == 2
 
 
-@pytest.mark.parametrize("harness", ["terminus-2", "claude-code", "codex", "gemini-cli"])
+@pytest.mark.parametrize(
+    "harness", ["terminus-2", "claude-code", "codex", "gemini-cli", "kimi-code"]
+)
 def test_compose_selection(row0_task_dir: Path, harness: str) -> None:
     version = None if harness == "terminus-2" else "1"
     model = None if harness == "terminus-2" else "model"

@@ -8,23 +8,14 @@ import pytest
 from inspect_ai.solver import Generate, Solver, TaskState, solver
 from inspect_ai.util import sandbox
 from tests.cheatbench_inspect.harnesses.codex_test_support import (
+    ANONYMITY_IDENTIFIERS,
+    ANONYMITY_PROBE,
     response_message,
     run_q4,
     scripted_turns,
 )
 
 pytestmark = [pytest.mark.docker, pytest.mark.slow, pytest.mark.dataset_download]
-
-# Q4 contains an intentional planted /eval/ path. Codex's own instructions
-# also use "inspect" as a verb. Look for the actual benchmark/framework names.
-_IDENTIFIERS = r"cheatbench|inspect[-_ ](ai|swe|evals?)|\bINSPECT_[A-Z_]+"
-_ANONYMITY_PROBE = r"""
-env
-find /home/user /tmp /workspace -xdev -print
-printf '\n--- content matches ---\n'
-find /home/user /tmp /workspace -xdev -type f \
-    -exec sh -c 'grep -IilE "cheat""bench|ins""pect[-_ ](ai|swe|evals?)|INS""PECT_[A-Z_]+" "$@"; test "$?" -lt 2' sh {} +
-"""
 
 
 @pytest.mark.parametrize(
@@ -38,7 +29,7 @@ find /home/user /tmp /workspace -xdev -type f \
 def test_prime_codex_harness_scored(tmp_path: Path, version: str, model: str) -> None:
     turns = scripted_turns()
     turns[1][-1]["input"] = (
-        f"const r = await tools.exec_command({{cmd: {json.dumps(_ANONYMITY_PROBE)}, max_output_tokens: 12000}}); "
+        f"const r = await tools.exec_command({{cmd: {json.dumps(ANONYMITY_PROBE)}, max_output_tokens: 12000}}); "
         "text(r.output);"
     )
     observed: dict[str, str] = {}
@@ -78,7 +69,7 @@ def test_prime_codex_harness_scored(tmp_path: Path, version: str, model: str) ->
     tools = {tool["name"] for entry in first["tools"] for tool in entry.get("tools", [entry])}
     assert "exec" in tools
     assert "web__run" not in tools
-    assert not re.search(_IDENTIFIERS, json.dumps(first), re.IGNORECASE)
+    assert not re.search(ANONYMITY_IDENTIFIERS, json.dumps(first), re.IGNORECASE)
     [probe] = [
         item["output"]
         for item in third["input"]
@@ -92,9 +83,9 @@ def test_prime_codex_harness_scored(tmp_path: Path, version: str, model: str) ->
     assert "HOME=/home/user" in listing
     assert "/workspace/instance.txt" in listing
     assert "/tmp/codex-home/config.toml" in listing
-    assert not re.search(_IDENTIFIERS, listing, re.IGNORECASE)
+    assert not re.search(ANONYMITY_IDENTIFIERS, listing, re.IGNORECASE)
     assert not matches.strip(), matches
-    assert not re.search(_IDENTIFIERS, observed["config"], re.IGNORECASE)
+    assert not re.search(ANONYMITY_IDENTIFIERS, observed["config"], re.IGNORECASE)
     assert 'model_provider = "openai-proxy"' in observed["config"]
     assert "live_logs" not in sample.store
     assert observed["turns_log"] == "Staged log.\n"

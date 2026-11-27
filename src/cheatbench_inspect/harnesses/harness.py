@@ -61,13 +61,24 @@ async def _gemini_cli(
     )
 
 
+async def _kimi_code(
+    state: AgentState, policy: HarnessPolicy, options: dict[str, str]
+) -> AgentState:
+    from cheatbench_inspect.harnesses.kimi_code import run_kimi_code
+
+    return await run_kimi_code(
+        state, policy, cli_version=options["cli_version"], cli_model=options["cli_model"]
+    )
+
+
 _HARNESSES = {
     "terminus-2": _terminus_2,
     "claude-code": _claude_code,
     "codex": _codex,
     "gemini-cli": _gemini_cli,
+    "kimi-code": _kimi_code,
 }
-CLI_HARNESSES = {"claude-code", "codex", "gemini-cli"}
+CLI_HARNESSES = {"claude-code", "codex", "gemini-cli", "kimi-code"}
 _CLI_OPTIONS = {"cli_version", "cli_model"}
 
 

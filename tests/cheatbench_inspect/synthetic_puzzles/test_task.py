@@ -22,8 +22,16 @@ from cheatbench_inspect.synthetic_puzzles.synthetic_puzzles import synthetic_puz
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def test_task_defaults_and_original_prompt(puzzle_task_dir: Path) -> None:
-    task = cheatbench_synthetic_puzzles(task_dir=str(puzzle_task_dir))
+@pytest.mark.parametrize("harness", ["terminus-2", "kimi-code"])
+def test_task_defaults_and_original_prompt(puzzle_task_dir: Path, harness: str) -> None:
+    version = "0.43.0" if harness == "kimi-code" else None
+    model = "moonshotai/kimi-k3" if harness == "kimi-code" else None
+    task = cheatbench_synthetic_puzzles(
+        task_dir=str(puzzle_task_dir), harness=harness, harness_version=version, harness_model=model
+    )
+    assert task.sandbox is not None
+    sandbox_stem = "codex" if harness == "kimi-code" else "terminus"
+    assert Path(str(task.sandbox.config)).name == f"{sandbox_stem}-offline-compose.yaml"
     assert task.version == "6-A"
     assert task.epochs == 1
     assert task.message_limit == 300

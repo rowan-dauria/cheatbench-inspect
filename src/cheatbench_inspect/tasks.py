@@ -63,6 +63,7 @@ _HARNESS_COMPOSE = {
     "claude-code": TERMINUS_COMPOSE.with_name("claude-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
     "gemini-cli": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
+    "kimi-code": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
 }
 
 
@@ -71,6 +72,7 @@ _OFFLINE_HARNESS_COMPOSE = {
     "claude-code": TERMINUS_COMPOSE.with_name("claude-offline-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
     "gemini-cli": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
+    "kimi-code": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
 }
 
 
@@ -85,6 +87,7 @@ _OFFICE_HARNESS_COMPOSE = {
     "claude-code": TERMINUS_COMPOSE.with_name("claude-office-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
     "gemini-cli": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
+    "kimi-code": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
 }
 
 
@@ -102,7 +105,7 @@ def cheatbench_prime_factorization(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to the published build of the original's builder, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
-        harness: Agent harness to run: terminus-2, claude-code, codex, or gemini-cli.
+        harness: Agent harness to run: terminus-2, claude-code, codex, gemini-cli, or kimi-code.
         harness_version: Pinned CLI version, required for CLI harnesses.
         harness_model: Original model ID for the CLI and judge transcript.
     """
@@ -143,7 +146,7 @@ def cheatbench_subset_sum(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of questions to load from the start of data.jsonl.
-        harness: Agent harness to run: terminus-2, claude-code, codex, or gemini-cli.
+        harness: Agent harness to run: terminus-2, claude-code, codex, gemini-cli, or kimi-code.
         harness_version: Pinned CLI version, required for CLI harnesses.
         harness_model: CLI model ID, required for CLI harnesses.
     """
@@ -184,7 +187,7 @@ def cheatbench_geoguessr(
         task_dir: Directory containing the generated data.jsonl, manifest.json and environment/ tree.
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of photographs to load from the start of data.jsonl.
-        harness: Agent harness to run.
+        harness: Agent harness to run: terminus-2, claude-code, codex, gemini-cli, or kimi-code.
         harness_version: Pinned CLI version, required for CLI harnesses.
         harness_model: CLI model ID, required for CLI harnesses.
     """
@@ -225,7 +228,7 @@ def cheatbench_synthetic_puzzles(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of puzzles to load from the start of data.jsonl.
-        harness: Agent harness to run.
+        harness: Agent harness to run: terminus-2, claude-code, codex, gemini-cli, or kimi-code.
         harness_version: Pinned CLI version, required for CLI harnesses.
         harness_model: CLI model ID, required for CLI harnesses.
     """
@@ -266,7 +269,7 @@ def cheatbench_knowledge_work(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to a local build from the pinned GDPval revision.
         dataset_limit: Number of assignments to load from the start of data.jsonl.
-        harness: Agent harness to run.
+        harness: Agent harness to run: terminus-2, claude-code, codex, gemini-cli, or kimi-code.
         harness_version: Pinned CLI version, required for CLI harnesses.
         harness_model: CLI model ID, required for CLI harnesses.
     """
@@ -307,7 +310,7 @@ def cheatbench_protein_design(
         task_dir: Directory containing the generated data.jsonl and environment/ tree.
             Defaults to the pinned Hugging Face archive, downloaded and cached.
         dataset_limit: Number of plant targets to load from the start of data.jsonl.
-        harness: Agent harness to run.
+        harness: Agent harness to run: terminus-2, claude-code, codex, gemini-cli, or kimi-code.
         harness_version: Pinned CLI version, required for CLI harnesses.
         harness_model: CLI model ID, required for CLI harnesses.
     """
@@ -348,7 +351,7 @@ def cheatbench_openmath(
         task_dir: Directory containing the prepared data.jsonl, site.tar.xz and row responses.
             Defaults to a cached build from the pinned upstream capture and builder.
         dataset_limit: Number of problems to load from the start of data.jsonl.
-        harness: Agent harness to run.
+        harness: Agent harness to run: terminus-2, claude-code, codex, gemini-cli, or kimi-code.
         harness_version: Pinned CLI version, required for CLI harnesses.
         harness_model: CLI model ID, required for CLI harnesses.
     """
