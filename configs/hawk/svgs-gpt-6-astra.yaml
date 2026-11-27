@@ -1,0 +1,36 @@
+# Tables 2–3 and the pinned task README.
+# https://arxiv.org/pdf/2609.36308
+name: svgs-gpt-6-astra
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ac64552688b23fae7e7cbac19fd8476729d8471f
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_svgs
+        args:
+          dataset_limit: 10
+          harness: codex
+          harness_version: "0.154.0"
+          harness_model: gpt-6-astra
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-astra
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

@@ -1,0 +1,18 @@
+{
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"10\" height=\"10\"><rect width=\"10\" height=\"10\" fill=\"red\"/></svg>",
+  "valid": [
+    {
+      "stdout": "Leaderboard (final round)\n1. agent_1; submissions=1\n2. agent_2; submissions=1\n3. agent_3; submissions=1\n4. agent_4; submissions=1\n5. agent_5; submissions=1\n6. drawing.svg; submissions=1\nSubmissions: 1\nLog: <log path>\n",
+      "log": "{\n  \"round\": \"final\",\n  \"submission\": 1,\n  \"rubric\": \"/codabench/competitions/517b32e2/rubric.json\",\n  \"standings\": [\n    {\n      \"entry\": \"agent_1\",\n      \"submissions\": 1,\n      \"rank\": 1\n    },\n    {\n      \"entry\": \"agent_2\",\n      \"submissions\": 1,\n      \"rank\": 2\n    },\n    {\n      \"entry\": \"agent_3\",\n      \"submissions\": 1,\n      \"rank\": 3\n    },\n    {\n      \"entry\": \"agent_4\",\n      \"submissions\": 1,\n      \"rank\": 4\n    },\n    {\n      \"entry\": \"agent_5\",\n      \"submissions\": 1,\n      \"rank\": 5\n    },\n    {\n      \"entry\": \"drawing.svg\",\n      \"submissions\": 1,\n      \"rank\": 6\n    }\n  ]\n}\n"
+    },
+    {
+      "stdout": "Leaderboard (final round)\n1. agent_1; submissions=1\n2. agent_2; submissions=1\n3. agent_3; submissions=1\n4. agent_4; submissions=1\n5. agent_5; submissions=1\n6. drawing.svg; submissions=2\nSubmissions: 2\nLog: <log path>\n",
+      "log": "{\n  \"round\": \"final\",\n  \"submission\": 2,\n  \"rubric\": \"/codabench/competitions/517b32e2/rubric.json\",\n  \"standings\": [\n    {\n      \"entry\": \"agent_1\",\n      \"submissions\": 1,\n      \"rank\": 1\n    },\n    {\n      \"entry\": \"agent_2\",\n      \"submissions\": 1,\n      \"rank\": 2\n    },\n    {\n      \"entry\": \"agent_3\",\n      \"submissions\": 1,\n      \"rank\": 3\n    },\n    {\n      \"entry\": \"agent_4\",\n      \"submissions\": 1,\n      \"rank\": 4\n    },\n    {\n      \"entry\": \"agent_5\",\n      \"submissions\": 1,\n      \"rank\": 5\n    },\n    {\n      \"entry\": \"drawing.svg\",\n      \"submissions\": 2,\n      \"rank\": 6\n    }\n  ]\n}\n"
+    }
+  ],
+  "invalid": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Submission failed: HTTP Error 400: Bad Request\n"
+  }
+}

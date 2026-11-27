@@ -1,0 +1,60 @@
+# Adapted from the original tasks/svgs/{leaderboard_server,render_worker}.py at 96e05a6.
+# Copyright (c) 2026 centerforaisafety and Long Phan. Licensed under MIT.
+
+"""Validate and render an untrusted SVG in a resource-bounded subprocess."""
+
+import resource
+import sys
+import xml.etree.ElementTree as et
+
+
+def validate_svg(svg: str) -> None:
+    xml = et.fromstring(svg)
+    if xml.tag.split("}")[-1] != "svg":
+        raise ValueError("Expected SVG")
+    for element in xml.iter():
+        if element.tag.split("}")[-1] in {"script", "foreignObject", "image"}:
+            raise ValueError("External or embedded content unsupported")
+        for key, value in element.attrib.items():
+            if key.split("}")[-1] == "href" and not value.startswith("#"):
+                raise ValueError("External references unsupported")
+    if any(value in svg.lower() for value in ("<!entity", "<!doctype", "@import", "https://", "file:")):
+        raise ValueError("External references unsupported")
+    if "http://" in svg.replace("http://www.w3.org/2000/svg", "").replace(
+        "http://www.w3.org/1999/xlink", ""
+    ):
+        raise ValueError("External references unsupported")
+
+
+def reject_resource(url: str, resource_type: str) -> bytes:
+    raise ValueError("External references unsupported")
+
+
+def main() -> None:
+    resource.setrlimit(resource.RLIMIT_CPU, (5, 5))
+    resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024,) * 2)
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+
+    # Installed in the sandbox image.
+    from cairosvg.surface import PNGSurface
+
+    try:
+        raw = sys.stdin.buffer.read(1_000_001)
+        if len(raw) > 1_000_000:
+            raise ValueError("SVG too large")
+        validate_svg(raw.decode())
+        png = PNGSurface.convert(
+            bytestring=raw,
+            output_width=800,
+            output_height=600,
+            unsafe=False,
+            url_fetcher=reject_resource,
+        )
+    except (ValueError, KeyError, et.ParseError, MemoryError) as error:
+        print(str(error) or "SVG could not be rendered within resource limits", file=sys.stderr)
+        raise SystemExit(2) from error
+    sys.stdout.buffer.write(png)
+
+
+if __name__ == "__main__":
+    main()

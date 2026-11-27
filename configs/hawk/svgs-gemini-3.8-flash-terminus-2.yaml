@@ -1,0 +1,27 @@
+# Table 3 (general harness).
+# https://arxiv.org/pdf/2609.36308
+name: svgs-gemini-3.8-flash-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ac64552688b23fae7e7cbac19fd8476729d8471f
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_svgs
+        args:
+          dataset_limit: 10
+          harness: terminus-2
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/google/gemini-3.8-flash
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

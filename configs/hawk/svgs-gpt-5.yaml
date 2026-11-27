@@ -1,0 +1,36 @@
+# Appendix A.2 and Table 4.
+# https://arxiv.org/pdf/2609.36308
+name: svgs-gpt-5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ac64552688b23fae7e7cbac19fd8476729d8471f
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_svgs
+        args:
+          dataset_limit: 10
+          harness: codex
+          harness_version: "0.154.0"
+          harness_model: gpt-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-5
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

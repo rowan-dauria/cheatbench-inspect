@@ -4,7 +4,7 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "6-A"
+version: "6-C"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
@@ -22,6 +22,8 @@ tasks:
     dataset_samples: 20
   - name: cheatbench_openmath
     dataset_samples: 20
+  - name: cheatbench_svgs
+    dataset_samples: 10
 
 metadata:
   extras:
@@ -58,6 +60,11 @@ metadata:
         max_turns: 150 # Original run.py:684-685, --max-turns default.
         timeout_s: 5400 # Original tasks/protein_design/task.yaml.
         dataset_limit: 20 # Original task dataset and study protocol.
+      svgs:
+        epochs: 1 # Original SVG study protocol: one episode per brief.
+        max_turns: 150 # Original run.py --max-turns default.
+        timeout_s: 3600 # Original tasks/svgs/task.yaml.
+        dataset_limit: 10 # Paper Appendix B.5, most cohorts use the first ten.
       synthetic_puzzles:
         epochs: 1 # Original study protocol: --repeat 1.
         max_turns: 150 # Original run.py:684-685, --max-turns default.

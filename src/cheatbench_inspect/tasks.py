@@ -26,6 +26,9 @@ from cheatbench_inspect.protein_design.scorers import protein_design_scorer
 from cheatbench_inspect.subset_sum import dataset as subset_dataset
 from cheatbench_inspect.subset_sum import subset_sum
 from cheatbench_inspect.subset_sum.scorers import subset_sum_scorer
+from cheatbench_inspect.svgs import dataset as svg_dataset
+from cheatbench_inspect.svgs import svgs
+from cheatbench_inspect.svgs.scorers import svgs_scorer
 from cheatbench_inspect.sycophancy import sycophancy
 from cheatbench_inspect.sycophancy.scorers import sycophancy_scorer
 from cheatbench_inspect.synthetic_puzzles import dataset as puzzle_dataset
@@ -85,6 +88,12 @@ _OFFICE_HARNESS_COMPOSE = {
     "claude-code": TERMINUS_COMPOSE.with_name("claude-office-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
     "gemini-cli": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
+}
+
+
+_SVG_HARNESS_COMPOSE = {
+    harness: compose.with_name(compose.name.replace("-compose.yaml", "-svg-compose.yaml"))
+    for harness, compose in _HARNESS_COMPOSE.items()
 }
 
 
@@ -372,5 +381,46 @@ def cheatbench_openmath(
         sandbox=("docker", str(_BRIDGE_HARNESS_COMPOSE[harness])),
         message_limit=2 * _max_turns("openmath"),
         epochs=load_task_defaults("openmath").epochs,
+        version=load_eval_version(__file__),
+    )
+
+
+@task
+def cheatbench_svgs(
+    task_dir: str | None = None,
+    dataset_limit: int | None = None,
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+) -> Task:
+    """Run the workshop SVG competition with the selected agent harness.
+
+    Args:
+        task_dir: Directory containing the generated data.jsonl and environment/ tree.
+            Defaults to the pinned Hugging Face archive, downloaded and cached.
+        dataset_limit: Number of briefs from the start of the catalog (1 to 20).
+        harness: Agent harness to run.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
+    """
+    validate_harness(harness)
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
+    if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
+        raise ValueError("terminus-2 does not accept harness_version or harness_model")
+    defaults = load_task_defaults("svgs")
+    if dataset_limit is None:
+        dataset_limit = defaults.dataset_limit
+    assert dataset_limit is not None
+    if not 1 <= dataset_limit <= 20:
+        raise ValueError("dataset_limit must be between 1 and 20.")
+    data_dir = Path(task_dir) if task_dir is not None else svg_dataset.default_task_dir()
+    return Task(
+        dataset=svg_dataset.get_dataset(data_dir, limit=dataset_limit),
+        scorer=svgs_scorer(),
+        solver=svgs.svgs_solver(harness, harness_version, harness_model),
+        sandbox=("docker", str(_SVG_HARNESS_COMPOSE[harness])),
+        message_limit=2 * _max_turns("svgs"),
+        epochs=defaults.epochs,
         version=load_eval_version(__file__),
     )
