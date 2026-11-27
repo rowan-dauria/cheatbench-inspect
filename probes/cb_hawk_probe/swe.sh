@@ -6,7 +6,7 @@ git reset --hard "$1"
 git clean -fd
 git checkout "$1"
 printf 'PROBE_PARENT_COMMIT=%s\n' "$(git rev-parse HEAD)"
-mkdir -p /logs
+mkdir -p /logs/verifier
 start=$(date +%s%N)
 set +e
 bash /tests/test.sh

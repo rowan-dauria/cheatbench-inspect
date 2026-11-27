@@ -68,7 +68,8 @@ def probe(kind):
                 "protonmail": "738b22f1e8efbb8a0420db86af89fb630a6c9f58",
             }[kind]
             await run(["mkdir", "-p", "/tests"])
-            for test_file in (ROOT / "data" / kind).iterdir():
+            for filename in ("test.sh", "run_script.sh", "parser.py", "config.json"):
+                test_file = ROOT / "data" / kind / filename
                 await sandbox().write_file(f"/tests/{test_file.name}", test_file.read_bytes())
             await sandbox().write_file("/tmp/swe.sh", (ROOT / "swe.sh").read_bytes())
             await run(["bash", "/tmp/swe.sh", parent], timeout=480)
