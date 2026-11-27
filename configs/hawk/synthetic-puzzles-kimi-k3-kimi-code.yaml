@@ -2,7 +2,7 @@
 # https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/synthetic_puzzles/README.md#L126
 name: synthetic-puzzles-kimi-k3-kimi-code
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@9adf9d0b46a3a6d8d25a9e27e0949623b25b2661
     name: cheatbench_inspect
     items:
       - name: cheatbench_synthetic_puzzles
