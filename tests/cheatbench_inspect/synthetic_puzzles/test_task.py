@@ -24,7 +24,7 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 def test_task_defaults_and_original_prompt(puzzle_task_dir: Path) -> None:
     task = cheatbench_synthetic_puzzles(task_dir=str(puzzle_task_dir))
-    assert task.version == "6-A"
+    assert task.version == "6-B"
     assert task.epochs == 1
     assert task.message_limit == 300
     assert task.time_limit is None

@@ -17,6 +17,9 @@ from cheatbench_inspect.knowledge_work.scorers import knowledge_work_scorer
 from cheatbench_inspect.openmath import dataset as math_dataset
 from cheatbench_inspect.openmath import openmath
 from cheatbench_inspect.openmath.scorers import openmath_scorer
+from cheatbench_inspect.openmath_agent import dataset as math_agent_dataset
+from cheatbench_inspect.openmath_agent.openmath_agent import openmath_agent_solver
+from cheatbench_inspect.openmath_agent.scorers import openmath_agent_scorer
 from cheatbench_inspect.prime_factorization import dataset as prime_dataset
 from cheatbench_inspect.prime_factorization import prime_factorization as prime
 from cheatbench_inspect.prime_factorization import scorers as prime_scorers
@@ -372,5 +375,47 @@ def cheatbench_openmath(
         sandbox=("docker", str(_BRIDGE_HARNESS_COMPOSE[harness])),
         message_limit=2 * _max_turns("openmath"),
         epochs=load_task_defaults("openmath").epochs,
+        version=load_eval_version(__file__),
+    )
+
+
+@task
+def cheatbench_openmath_agent(
+    task_dir: str | None = None,
+    dataset_limit: int | None = None,
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+) -> Task:
+    """Run OpenMath Agent with the selected agent harness.
+
+    Args:
+        task_dir: Directory containing the original data.jsonl and environment/ tree.
+            Defaults to a cached build from the pinned upstream builder and assets.
+        dataset_limit: Number of problems to load from the start of data.jsonl.
+        harness: Agent harness to run.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
+    """
+    validate_harness(harness)
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
+    if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
+        raise ValueError("terminus-2 does not accept harness_version or harness_model")
+    if dataset_limit is None:
+        dataset_limit = load_task_defaults("openmath_agent").dataset_limit
+    assert dataset_limit is not None
+    if dataset_limit < 1:
+        raise ValueError("dataset_limit must be positive.")
+    data_dir = Path(task_dir) if task_dir is not None else math_agent_dataset.default_task_dir()
+    return Task(
+        dataset=math_agent_dataset.get_dataset(data_dir, limit=dataset_limit),
+        scorer=openmath_agent_scorer(),
+        solver=openmath_agent_solver(
+            str(data_dir.resolve()), harness, harness_version, harness_model
+        ),
+        sandbox=("docker", str(_OFFLINE_HARNESS_COMPOSE[harness])),
+        message_limit=2 * _max_turns("openmath_agent"),
+        epochs=load_task_defaults("openmath_agent").epochs,
         version=load_eval_version(__file__),
     )

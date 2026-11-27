@@ -1,0 +1,36 @@
+# Run with hawk eval-set run configs/hawk/openmath-agent-gpt-6-sol.yaml
+# Paper Table 2 Mathematical Research cohort. Settings from the upstream model registry.
+name: openmath-agent-gpt-6-sol
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_openmath_agent
+        args:
+          harness: codex
+          dataset_limit: 20
+          harness_version: "0.156.1"
+          harness_model: gpt-6-sol
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

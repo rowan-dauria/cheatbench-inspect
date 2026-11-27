@@ -18,7 +18,7 @@ REQUEST_LOG_LIMIT = 64 * 1024
 
 
 def configure_tls(directory: Path, hosts: list[str]) -> ssl.SSLContext:
-    """Generate a sample CA and a TLS certificate for both original hosts."""
+    """Generate a sample CA and a TLS certificate for the replay hosts."""
     leaf, key = directory / "site.crt", directory / "site.key"
     ca_key, csr = directory / "ca.key", directory / "site.csr"
     subject = f"/CN={hosts[0]}"
@@ -113,15 +113,19 @@ def configure_hosts(hosts: list[str]) -> None:
     hosts_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def load_router(path: Path) -> dict:
+    return runpy.run_path(  # inspect-evals-lint: ignore[host_code_execution] -- Runs in the sandbox before the agent starts. The root-only script comes from a checksum-verified or packaged upstream resource.
+        str(path)
+    )
+
+
 def serve(directory: Path, row: str, hosts: list[str]) -> None:
     os.umask(0o077)
     bundle = directory / "capture.tar.xz"
     with tarfile.open(bundle) as capture:
         capture.extractall(directory / "capture", filter="data")
     bundle.unlink()
-    program = runpy.run_path(  # inspect-evals-lint: ignore[host_code_execution] -- Runs in the sandbox before the agent starts. The root-only script comes from a packaged upstream resource.
-        str(directory / "mirror.py")
-    )
+    program = load_router(directory / "mirror.py")
     handler = program["Handler"]
     # Keep setup diagnostics on the streaming protocol. Requests and handler
     # diagnostics can be arbitrarily verbose, so redirect them to a private file.
@@ -132,6 +136,20 @@ def serve(directory: Path, row: str, hosts: list[str]) -> None:
     handler.request_log = str(request_log)
     if len(handler.mirror.overrides) != 3 or handler.mirror.injector is None:
         raise RuntimeError("Expected exactly one post, redirect and archive")
+    serve_https(directory, hosts, handler)
+
+
+def serve_article(directory: Path, hosts: list[str]) -> None:
+    os.umask(0o077)
+    program = load_router(directory / "server.py")
+    handler = program["Handler"]
+    handler.article = (directory / "article.html").read_bytes()
+    handler.request_log = str(directory / "requests.log")
+    serve_https(directory, hosts, handler)
+
+
+def serve_https(directory: Path, hosts: list[str], handler: type) -> None:
+    request_log = directory / "requests.log"
     request_log.touch()
     context = configure_tls(directory, hosts)
     configure_hosts(hosts)
