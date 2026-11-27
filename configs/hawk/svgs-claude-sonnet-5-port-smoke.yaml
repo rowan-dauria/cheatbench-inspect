@@ -2,7 +2,7 @@
 # https://arxiv.org/pdf/2609.36308
 name: svgs-claude-sonnet-5-port-smoke
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@ac64552688b23fae7e7cbac19fd8476729d8471f
     name: cheatbench_inspect
     items:
       - name: cheatbench_svgs
