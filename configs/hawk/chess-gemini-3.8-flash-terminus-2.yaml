@@ -2,7 +2,7 @@
 # Table 3 (general harness / Terminus-2) and Appendix B.9: 30 release positions.
 name: chess-gemini-3.8-flash-terminus-2
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@769fc11d97294ace4bee621134785a95a21f33ab
     name: cheatbench_inspect
     items:
       - name: cheatbench_chess

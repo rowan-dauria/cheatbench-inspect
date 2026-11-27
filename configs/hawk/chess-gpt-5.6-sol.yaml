@@ -2,7 +2,7 @@
 # Pinned task README Results row: 30 release positions, codex 0.154.0.
 name: chess-gpt-5.6-sol
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@769fc11d97294ace4bee621134785a95a21f33ab
     name: cheatbench_inspect
     items:
       - name: cheatbench_chess

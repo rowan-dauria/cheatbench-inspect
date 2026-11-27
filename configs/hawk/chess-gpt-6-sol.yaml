@@ -2,7 +2,7 @@
 # Table 2 (Games) and Appendix B.9: 30 release positions, codex 0.156.1.
 name: chess-gpt-6-sol
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@769fc11d97294ace4bee621134785a95a21f33ab
     name: cheatbench_inspect
     items:
       - name: cheatbench_chess

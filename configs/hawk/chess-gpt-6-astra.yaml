@@ -3,7 +3,7 @@
 # The pinned README also records an earlier 20-position Linux cohort; this config uses the 30-position release.
 name: chess-gpt-6-astra
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@769fc11d97294ace4bee621134785a95a21f33ab
     name: cheatbench_inspect
     items:
       - name: cheatbench_chess

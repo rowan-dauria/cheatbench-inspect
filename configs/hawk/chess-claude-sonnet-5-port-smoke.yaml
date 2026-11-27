@@ -2,7 +2,7 @@
 # One-row port smoke test. This model is outside the paper cohorts.
 name: chess-claude-sonnet-5-port-smoke
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@769fc11d97294ace4bee621134785a95a21f33ab
     name: cheatbench_inspect
     items:
       - name: cheatbench_chess

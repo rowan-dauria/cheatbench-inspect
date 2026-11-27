@@ -2,7 +2,7 @@
 # Tables 2-3 (Games / provider harness), Appendix B.9, and pinned task README: 30 release positions, gemini-cli 0.59.0.
 name: chess-gemini-3.8-flash-gemini-cli
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@769fc11d97294ace4bee621134785a95a21f33ab
     name: cheatbench_inspect
     items:
       - name: cheatbench_chess
