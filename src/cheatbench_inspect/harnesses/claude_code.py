@@ -8,40 +8,14 @@ from cheatbench_inspect.harnesses.container import AGENT_ENV, AGENT_USER
 from cheatbench_inspect.harnesses.harness import HarnessPolicy
 from cheatbench_inspect.harnesses.reasoning_replay import anthropic_reasoning_filter
 
+_TOOLS = ["Bash", "Read", "Write"]
 _DISALLOWED_TOOLS = [
-    "Agent",
     "Task",
-    "TaskOutput",
-    "TaskStop",
-    "Monitor",
     "TodoWrite",
     "Edit",
     "NotebookEdit",
     "WebSearch",
     "WebFetch",
-    "Glob",
-    "Grep",
-    "Skill",
-    "AskUserQuestion",
-    "EnterPlanMode",
-    "ExitPlanMode",
-    "EnterWorktree",
-    "ExitWorktree",
-    "ListMcpResourcesTool",
-    "ReadMcpResourceTool",
-    "ToolSearch",
-    "TaskCreate",
-    "TaskGet",
-    "TaskList",
-    "TaskUpdate",
-    "CronCreate",
-    "CronDelete",
-    "CronList",
-    "ListAgents",
-    "ReportFindings",
-    "ScheduleWakeup",
-    "SendMessage",
-    "Workflow",
 ]
 
 
@@ -66,7 +40,9 @@ async def run_claude_code(
         retry_refusals=0,
         retry_uncaught_errors=0,
         filter=anthropic_reasoning_filter,
+        tools=_TOOLS,
         disallowed_tools=_DISALLOWED_TOOLS,
+        strict_mcp_config=True,
         replace_system_prompt="",
         mcp_servers=[
             MCPServerConfigHTTP(name=server["name"], url=server["url"], type="http")
