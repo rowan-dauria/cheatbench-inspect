@@ -83,6 +83,11 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
     "resources/sandbox/terminus-offline-compose.yaml",
     "resources/sandbox/task-requirements.txt",
 ]
+"cheatbench_inspect.creative_writings" = [
+    "resources/interviewer.txt",
+    "resources/pairwise_judge.txt",
+    "resources/review_proxy.py",
+]
 "cheatbench_inspect.geoguessr" = ["resources/instruction.txt"]
 "cheatbench_inspect.knowledge_work" = ["resources/*.txt", "resources/*.json"]
 "cheatbench_inspect.openmath" = ["resources/*.txt", "resources/*.json", "resources/materials.tar.gz"]

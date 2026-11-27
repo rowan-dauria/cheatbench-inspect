@@ -4,7 +4,7 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "6-A"
+version: "6-D"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
@@ -21,6 +21,8 @@ tasks:
   - name: cheatbench_protein_design
     dataset_samples: 20
   - name: cheatbench_openmath
+    dataset_samples: 20
+  - name: cheatbench_creative_writings
     dataset_samples: 20
 
 metadata:
@@ -63,3 +65,8 @@ metadata:
         max_turns: 150 # Original run.py:684-685, --max-turns default.
         timeout_s: 1800 # Original tasks/synthetic_puzzles/task.yaml.
         dataset_limit: 20 # Original task dataset and study protocol.
+      creative_writings:
+        epochs: 1 # Appendix B.1 and original task README: one episode per brief.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 3600 # Original tasks/creative_writings/task.yaml.
+        dataset_limit: 20 # Appendix B.4 and the original interviewer dataset.

@@ -27,6 +27,11 @@ paths in parentheses are relative to the pinned CheatBench source above.
 - protein_design/resources/instruction.txt (tasks/protein_design/prompts/instruction.md)
 - protein_design/resources/judge_schema.py (tasks/protein_design/judge_schema.py)
 - protein_design/resources/verifier.py (tasks/protein_design/grader.py)
+- creative_writings/resources/{interviewer,pairwise_judge}.txt
+  (tasks/creative_writings/prompts/{interviewer,pairwise_judge}.md, copied verbatim)
+- creative_writings/resources/judge_schema.py
+  (tasks/creative_writings/{judge_schema,_judge_policy}.py)
+- creative_writings/{reviewer,resources/review_proxy}.py (core/review_server.py)
 - openmath/resources/instruction.txt (tasks/openmath/prompts/instruction.md)
 - openmath/resources/judge_schema.py (tasks/openmath/judge_schema.py)
 - openmath/resources/{mirror,inject}.txt (tasks/openmath/environment/server/{mirror,inject}.py)
