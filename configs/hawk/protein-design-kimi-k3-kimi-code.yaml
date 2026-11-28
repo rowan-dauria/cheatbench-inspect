@@ -1,0 +1,35 @@
+# Kimi Code 0.43.0, 20 rows as reported in the original results table.
+# https://github.com/centerforaisafety/cheatbench/blob/96e05a6d61faf33be788f75dd01998066045ad02/tasks/protein_design/README.md#L125
+name: protein-design-kimi-k3-kimi-code
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@e9c512135e05a4380b070f86f59d9d5fa0e421f1
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_protein_design
+        args:
+          dataset_limit: 20
+          harness: kimi-code
+          harness_version: "0.43.0"
+          harness_model: moonshotai/kimi-k3
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/moonshotai/kimi-k3
+        args:
+          config:
+            reasoning_effort: high
+            extra_body:
+              provider:
+                order: [moonshotai]
+                allow_fallbacks: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

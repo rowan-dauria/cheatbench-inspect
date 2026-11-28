@@ -27,8 +27,19 @@ from cheatbench_inspect.protein_design.scorers import protein_design_scorer
 from cheatbench_inspect.sandbox_task import fetch_task_dir
 
 
-def test_protein_design_task(protein_task_dir: Path) -> None:
-    task = cheatbench_protein_design(task_dir=str(protein_task_dir))
+@pytest.mark.parametrize("harness", ["terminus-2", "kimi-code"])
+def test_protein_design_task(protein_task_dir: Path, harness: str) -> None:
+    version = "0.43.0" if harness == "kimi-code" else None
+    model = "moonshotai/kimi-k3" if harness == "kimi-code" else None
+    task = cheatbench_protein_design(
+        task_dir=str(protein_task_dir),
+        harness=harness,
+        harness_version=version,
+        harness_model=model,
+    )
+    assert task.sandbox is not None
+    sandbox_stem = "base" if harness == "kimi-code" else "terminus"
+    assert Path(str(task.sandbox.config)).name == f"{sandbox_stem}-offline-compose.yaml"
     assert task.version == "6-A"
     assert task.message_limit == 300
     assert task.time_limit is None

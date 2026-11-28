@@ -12,7 +12,9 @@ from cheatbench_inspect.harnesses.harness import HarnessResult
 from cheatbench_inspect.subset_sum import subset_sum
 
 
-@pytest.mark.parametrize("harness", ["terminus-2", "claude-code", "codex", "gemini-cli"])
+@pytest.mark.parametrize(
+    "harness", ["terminus-2", "claude-code", "codex", "gemini-cli", "kimi-code"]
+)
 @pytest.mark.parametrize("fail", [False, True])
 async def test_subset_sum_solver(harness: str, fail: bool) -> None:
     state = TaskState(
@@ -49,7 +51,7 @@ async def test_subset_sum_solver(harness: str, fail: bool) -> None:
             {"name": "verifier", "transport": "streamable-http", "url": "http://localhost/mcp"}
         ]
         assert options == ({"cli_version": "1", "cli_model": "model"} if uses_cli else None)
-        assert policy.max_turns == (None if uses_cli else 150)
+        assert policy.max_turns == (150 if harness in {"terminus-2", "kimi-code"} else None)
         assert policy.timeout_s == 3600
         if fail:
             raise RuntimeError("failure")

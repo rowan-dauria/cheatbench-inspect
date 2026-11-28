@@ -20,7 +20,9 @@ def test_export_and_default_task(tmp_path: Path) -> None:
     assert len(tasks.cheatbench_subset_sum(task_dir=str(tmp_path), dataset_limit=2).dataset) == 2
 
 
-@pytest.mark.parametrize("harness", ["terminus-2", "claude-code", "codex", "gemini-cli"])
+@pytest.mark.parametrize(
+    "harness", ["terminus-2", "claude-code", "codex", "gemini-cli", "kimi-code"]
+)
 def test_compose_selection(tmp_path: Path, harness: str) -> None:
     (tmp_path / "data.jsonl").write_text(
         (Path(__file__).parent / "fixtures/q4.json").read_text().replace("\n", "") + "\n"

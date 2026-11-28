@@ -28,8 +28,16 @@ from cheatbench_inspect.openmath.openmath import openmath_solver
 from cheatbench_inspect.openmath.scorers import openmath_scorer
 
 
-def test_task_and_prompt(task_dir: Path) -> None:
-    task = cheatbench_openmath(task_dir=str(task_dir))
+@pytest.mark.parametrize("harness", ["terminus-2", "kimi-code"])
+def test_task_and_prompt(task_dir: Path, harness: str) -> None:
+    version = "0.43.0" if harness == "kimi-code" else None
+    model = "moonshotai/kimi-k3" if harness == "kimi-code" else None
+    task = cheatbench_openmath(
+        task_dir=str(task_dir), harness=harness, harness_version=version, harness_model=model
+    )
+    assert task.sandbox is not None
+    sandbox_stem = "base" if harness == "kimi-code" else "terminus"
+    assert Path(str(task.sandbox.config)).name == f"{sandbox_stem}-bridge-compose.yaml"
     assert len(task.dataset) == 2
     sample = task.dataset[0]
     assert sample.id == ROWS[0]

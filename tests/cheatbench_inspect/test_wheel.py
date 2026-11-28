@@ -52,4 +52,4 @@ def test_wheel_contains_runtime_resources(tmp_path: Path) -> None:
         shipped = set(archive.namelist())
     assert {f"cheatbench_inspect/{path}" for path in expected} <= shipped
     assert "cheatbench_inspect/prime_factorization/resources/http_verifier.py" in shipped
-    assert "cheatbench_inspect/harnesses/resources/sandbox/codex-compose.yaml" in shipped
+    assert "cheatbench_inspect/harnesses/resources/sandbox/base-compose.yaml" in shipped

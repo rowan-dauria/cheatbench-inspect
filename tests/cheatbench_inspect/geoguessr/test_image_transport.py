@@ -810,10 +810,84 @@ def test_claude_code_image_transport_openrouter(
 
     assert _model_events_with_images(sample), "Inspect transcript missing ContentImage"
     assert len(prompts) == 1
-    assert "Assistant:" in prompts[0]
-    assert "Read(" in prompts[0]
+    assert "ASSISTANT:\nReading the staged photograph." in prompts[0]
     assert "Tool Call: Read" in prompts[0]
     _assert_judge_prompt_has_no_base64(prompts[0])
+
+
+@pytest.mark.docker
+@pytest.mark.slow
+@pytest.mark.dataset_download
+def test_kimi_code_image_transport_openrouter(tmp_path: Path, row0_task_dir: Path) -> None:
+    episode = ImageEpisode(cheatbench_geoguessr, row0_task_dir, _IMAGE_PATH)
+    staged_bytes = episode.staged_bytes
+
+    def responder(request: dict[str, Any], turn: int) -> tuple[dict[str, Any], str]:
+        if turn == 0:
+            assert "ReadMediaFile" in {tool["function"]["name"] for tool in request["tools"]}
+            return {
+                "role": "assistant",
+                "content": None,
+                "tool_calls": [
+                    {
+                        "id": "call_read_img_1",
+                        "type": "function",
+                        "function": {
+                            "name": "ReadMediaFile",
+                            "arguments": json.dumps({"path": episode.image_path}),
+                        },
+                    }
+                ],
+            }, "tool_calls"
+        return {"role": "assistant", "content": "Inspected the photograph."}, "stop"
+
+    fake = _FakeChatCompletionsServer(responder).start()
+    prompts: list[str] = []
+    try:
+        task = episode.task(
+            task_dir=str(episode.directory),
+            dataset_limit=1,
+            harness="kimi-code",
+            harness_version="0.43.0",
+            harness_model="moonshotai/kimi-k3",
+        )
+        [log] = inspect_eval(
+            task,
+            model=get_model(
+                "openrouter/moonshotai/kimi-k3",
+                base_url=fake.base_url,
+                api_key="dummy-openrouter-key",
+                responses_api=False,
+                config=GenerateConfig(max_retries=0),
+            ),
+            model_roles={
+                "grader": get_model(
+                    "mockllm/model",
+                    custom_outputs=_honest_judge_reply(prompts, puzzle=False),
+                    memoize=False,
+                )
+            },
+            log_dir=str(tmp_path / "logs"),
+            display="none",
+        )
+    finally:
+        fake.close()
+
+    assert log.status == "success", log.error
+    assert log.samples
+    [sample] = log.samples
+    assert sample.error is None, sample.error
+    _, second_request = fake.requests
+    [(role, block)] = _find_chat_image_blocks(second_request["body"]["messages"])
+    assert role == "user"
+    mime, delivered = _decode_data_uri(block["image_url"]["url"])
+    assert mime == "image/jpeg"
+    assert delivered == staged_bytes
+    assert _model_events_with_images(sample)
+    [judge_prompt] = prompts
+    assert "Tool Call: ReadMediaFile" in judge_prompt
+    assert episode.image_path in judge_prompt
+    _assert_judge_prompt_has_no_base64(judge_prompt)
 
 
 @pytest.mark.docker
@@ -967,9 +1041,11 @@ def test_codex_image_transport_openrouter(tmp_path: Path, image_episode: ImageEp
 
     assert _model_events_with_images(sample), "Inspect transcript missing ContentImage"
     assert len(prompts) == 1
-    assert "ASSISTANT:\nViewing the staged photograph." in prompts[0]
-    assert f"view_image(path={image_episode.image_path!r})" in prompts[0]
-    assert "Tool Call: view_image" in prompts[0]
+    assert "ASSISTANT:" in prompts[0]
+    assert (
+        "Viewing the staged photograph.\n\nTool Call: view_image\nArguments:\n"
+        f"path: {image_episode.image_path}"
+    ) in prompts[0]
     _assert_judge_prompt_has_no_base64(prompts[0])
 
 

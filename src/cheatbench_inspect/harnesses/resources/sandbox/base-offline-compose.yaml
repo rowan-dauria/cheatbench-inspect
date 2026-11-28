@@ -1,11 +1,11 @@
 services:
   default:
-    # Same published image and local build target as codex-compose.yaml, with
+    # Same published image and local build target as base-compose.yaml, with
     # network_mode: none so tasks that deny egress have no outbound network locally
     # (loopback stays available for Inspect's sandbox agent bridge and proxy, and
     # CLI install runs host-side). On Hawk, the k8s converter maps network_mode: none
     # to networkIsolated: true.
-    image: ghcr.io/rowan-dauria/task-env-codex:5f38b4b0ae74
+    image: ghcr.io/rowan-dauria/task-env-base:5f38b4b0ae74
     build:
       context: .
       target: task

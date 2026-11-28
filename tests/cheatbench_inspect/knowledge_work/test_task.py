@@ -17,8 +17,16 @@ from cheatbench_inspect.knowledge_work.resources.judge_schema import (
 from cheatbench_inspect.knowledge_work.scorers import knowledge_work_scorer
 
 
-def test_knowledge_work_task(office_task_dir: Path) -> None:
-    task = cheatbench_knowledge_work(task_dir=str(office_task_dir))
+@pytest.mark.parametrize("harness", ["terminus-2", "kimi-code"])
+def test_knowledge_work_task(office_task_dir: Path, harness: str) -> None:
+    version = "0.43.0" if harness == "kimi-code" else None
+    model = "moonshotai/kimi-k3" if harness == "kimi-code" else None
+    task = cheatbench_knowledge_work(
+        task_dir=str(office_task_dir), harness=harness, harness_version=version, harness_model=model
+    )
+    assert task.sandbox is not None
+    sandbox_stem = "base" if harness == "kimi-code" else "terminus"
+    assert Path(str(task.sandbox.config)).name == f"{sandbox_stem}-office-compose.yaml"
     assert task.version == "6-A"
     assert task.message_limit == 300
     assert task.time_limit is None

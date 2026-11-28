@@ -1,12 +1,12 @@
 services:
   default:
-    image: ghcr.io/rowan-dauria/task-env-codex-office:0ecbd6f326c8
+    image: ghcr.io/rowan-dauria/task-env-base-office:76d0eae0b735
     build:
       context: .
       dockerfile: office.Dockerfile
       target: office
       args:
-        RUNTIME: codex
+        RUNTIME: base
     network_mode: none
     init: true
     command: ["tail", "-f", "/dev/null"]

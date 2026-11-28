@@ -1,6 +1,6 @@
 services:
   default:
-    image: ghcr.io/rowan-dauria/task-env-terminus-office:0ecbd6f326c8
+    image: ghcr.io/rowan-dauria/task-env-terminus-office:76d0eae0b735
     build:
       context: .
       dockerfile: office.Dockerfile
