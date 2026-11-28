@@ -30,4 +30,4 @@ def test_office_image_tag(runtime: str) -> None:
         "target": f"{runtime}-office",
         "stage": "office",
         "runtime": runtime,
-    } in workflow["jobs"]["publish"]["strategy"]["matrix"]["include"]
+    } in workflow["jobs"]["publish-office"]["strategy"]["matrix"]["include"]
