@@ -1,0 +1,31 @@
+# Run with hawk eval-set run configs/hawk/software-engineering-gemini-3.8-flash-gemini-cli.yaml
+# Port test (stock gemini-cli 0.59.0 stand-in for Harbor's ACP agent; not a direct paper harness row).
+# Original Paper Table 2 / Table 3 Provider cohort (5.0%) ran harbor/configs/gemini-3.8-flash_gemini-cli.json
+# via Harbor's acp runner launching @google/gemini-cli@0.59.0 --acp.
+name: software-engineering-gemini-3.8-flash-gemini-cli
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@d42f57fa0d274eb97fda79f557996b772b438ee5
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_software_engineering
+        args:
+          harness: gemini-cli
+          dataset_limit: 20
+          harness_version: "0.59.0"
+          harness_model: gemini-3.8-flash
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/google/gemini-3.8-flash
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

@@ -1,0 +1,37 @@
+# Run with hawk eval-set run configs/hawk/software-engineering-gpt-6-astra.yaml
+# Paper Table 2 and Table 3 Provider SWE cohort (0.0%), codex 0.154.0.
+# Original Harbor config: harbor/configs/gpt-6-astra_codex.json.
+name: software-engineering-gpt-6-astra
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@d42f57fa0d274eb97fda79f557996b772b438ee5
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_software_engineering
+        args:
+          harness: codex
+          dataset_limit: 20
+          harness_version: "0.154.0"
+          harness_model: gpt-6-astra
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-astra
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

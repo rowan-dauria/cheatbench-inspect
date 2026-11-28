@@ -7,7 +7,7 @@ from inspect_ai.tool import MCPServerConfigHTTP
 from inspect_ai.util import sandbox
 from inspect_swe import gemini_cli
 
-from cheatbench_inspect.harnesses.container import AGENT_ENV, AGENT_USER
+from cheatbench_inspect.harnesses.container import user_env
 from cheatbench_inspect.harnesses.harness import HarnessPolicy
 
 _SYSTEM_SETTINGS = "/etc/gemini-cli/system-settings.json"
@@ -23,16 +23,13 @@ async def run_gemini_cli(
     result = await box.exec(["mkdir", "-p", "/etc/gemini-cli"], user="root")
     if not result.success:
         raise RuntimeError(f"Cannot create Gemini settings directory: {result.stderr}")
-    await box.write_file(
-        _SYSTEM_SETTINGS,
-        json.dumps(
-            {
-                "tools": {"exclude": ["google_web_search", "web_fetch"]},
-                "general": {"enableAutoUpdate": False, "enableAutoUpdateNotification": False},
-                "advanced": {"autoConfigureMemory": False},
-            }
-        ),
-    )
+    settings: dict[str, object] = {
+        "general": {"enableAutoUpdate": False, "enableAutoUpdateNotification": False},
+        "advanced": {"autoConfigureMemory": False},
+    }
+    if not policy.allow_web_tools:
+        settings = {"tools": {"exclude": ["google_web_search", "web_fetch"]}, **settings}
+    await box.write_file(_SYSTEM_SETTINGS, json.dumps(settings))
     result = await box.exec(["chown", "root:root", _SYSTEM_SETTINGS], user="root")
     if not result.success:
         raise RuntimeError(f"Cannot own Gemini settings: {result.stderr}")
@@ -42,15 +39,15 @@ async def run_gemini_cli(
     agent = gemini_cli(
         version=cli_version,
         gemini_model=cli_model.rsplit("/", 1)[-1],
-        cwd="/workspace",
-        user=AGENT_USER,
+        cwd=policy.cwd,
+        user=policy.user,
         env={
-            **AGENT_ENV,
+            **user_env(policy.user),
             **policy.env,
             "NO_COLOR": "1",
             "GEMINI_CLI_SYSTEM_SETTINGS_PATH": _SYSTEM_SETTINGS,
         },
-        web_search=False,
+        web_search=policy.allow_web_tools,
         attempts=1,
         retry_refusals=0,
         mcp_servers=[

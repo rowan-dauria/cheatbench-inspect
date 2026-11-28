@@ -7,6 +7,7 @@ from inspect_ai.agent import AgentState
 from inspect_ai.model import ModelOutput
 from inspect_ai.solver import TaskState
 
+from cheatbench_inspect.harnesses.container import AGENT_USER
 from cheatbench_inspect.harnesses.lost_episodes import is_lost_episode
 
 
@@ -17,6 +18,9 @@ class HarnessPolicy:
     timeout_s: int = 3600
     mcp_only: bool = False
     env: dict[str, str] = field(default_factory=dict)
+    cwd: str = "/workspace"
+    allow_web_tools: bool = False
+    user: str = AGENT_USER
 
 
 @dataclass

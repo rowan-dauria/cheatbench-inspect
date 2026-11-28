@@ -15,6 +15,18 @@ SANDBOX_RESOURCES = Path(__file__).parent / "resources" / "sandbox"
 AGENT_USER = "user"
 AGENT_HOME = f"/home/{AGENT_USER}"
 AGENT_ENV = {"HOME": AGENT_HOME, "USER": AGENT_USER, "LOGNAME": AGENT_USER}
+ROOT_USER = "root"
+ROOT_ENV = {"HOME": "/root", "USER": ROOT_USER, "LOGNAME": ROOT_USER}
+
+
+def user_env(user: str) -> dict[str, str]:
+    """Return the default HOME/USER/LOGNAME environment for the sandbox user."""
+    if user == AGENT_USER:
+        return AGENT_ENV
+    if user == ROOT_USER:
+        return ROOT_ENV
+    raise ValueError(f"Unsupported sandbox user: {user!r}")
+
 
 # The agent can read every process's command line, so nothing on it may
 # identify the eval. The program and its inputs arrive as JSON on stdin, as in

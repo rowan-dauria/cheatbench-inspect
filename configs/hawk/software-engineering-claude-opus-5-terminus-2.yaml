@@ -1,0 +1,27 @@
+# Run with hawk eval-set run configs/hawk/software-engineering-claude-opus-5-terminus-2.yaml
+# Paper Table 3 General (Terminus-2) SWE cohort (45.0%), 20 instances.
+name: software-engineering-claude-opus-5-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@d42f57fa0d274eb97fda79f557996b772b438ee5
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_software_engineering
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-opus-5
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

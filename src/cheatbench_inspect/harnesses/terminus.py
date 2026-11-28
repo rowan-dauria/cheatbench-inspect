@@ -8,10 +8,9 @@ from inspect_ai.solver import TaskState
 from inspect_ai.util import sandbox
 
 from cheatbench_inspect.harnesses.container import (
-    AGENT_ENV,
-    AGENT_USER,
     BOOTSTRAP,
     SANDBOX_RESOURCES,
+    user_env,
 )
 from cheatbench_inspect.harnesses.harness import HarnessPolicy, HarnessResult
 
@@ -42,19 +41,23 @@ def prepare_harbor(
     mcp_servers: list[dict[str, str]],
     max_turns: int | None = None,
     timeout_s: int = 3600,
+    cwd: str = "/workspace",
 ) -> tuple[list[str], str]:
     """Return the sandbox command and the JSON document to send on its stdin."""
+    config: dict[str, object] = {
+        "id": sample_id,
+        "prompt": prompt,
+        "model": model,
+        "api_base": api_base,
+        "mcp_servers": mcp_servers,
+        "max_turns": max_turns,
+        "timeout_s": timeout_s,
+    }
+    if cwd != "/workspace":
+        config["cwd"] = cwd
     payload = {
         "code": _START,
-        "config": {
-            "id": sample_id,
-            "prompt": prompt,
-            "model": model,
-            "api_base": api_base,
-            "mcp_servers": mcp_servers,
-            "max_turns": max_turns,
-            "timeout_s": timeout_s,
-        },
+        "config": config,
         "extension": (_RESOURCES / "image_extension.py").read_text(),
         "runner": (_RESOURCES / "episode.py").read_text(),
     }
@@ -76,13 +79,14 @@ async def run_terminus_2(state: TaskState, policy: HarnessPolicy) -> HarnessResu
                 mcp_servers=policy.mcp_servers,
                 max_turns=policy.max_turns,
                 timeout_s=policy.timeout_s,
+                cwd=policy.cwd,
             )
             result = await sandbox().exec(
                 command,
                 input=stdin,
                 timeout=policy.timeout_s + 650,
-                user=AGENT_USER,
-                env={**AGENT_ENV, **policy.env},
+                user=policy.user,
+                env={**user_env(policy.user), **policy.env},
             )
     finally:
         state.messages = agent_state.messages
