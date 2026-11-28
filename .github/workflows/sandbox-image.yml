@@ -9,7 +9,7 @@ on:
       - src/cheatbench_inspect/harnesses/resources/sandbox/task-requirements.txt
       - src/cheatbench_inspect/harnesses/resources/sandbox/terminus-compose.yaml
       - src/cheatbench_inspect/harnesses/resources/sandbox/claude-compose.yaml
-      - src/cheatbench_inspect/harnesses/resources/sandbox/codex-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/base-compose.yaml
       - src/cheatbench_inspect/harnesses/resources/sandbox/claude-requirements.txt
       - src/cheatbench_inspect/harnesses/resources/sandbox/office.Dockerfile
       - src/cheatbench_inspect/harnesses/resources/sandbox/office-requirements.txt
@@ -38,7 +38,7 @@ jobs:
             stage: terminus
           - target: claude
             stage: claude
-          - target: codex
+          - target: base
             stage: task
           - target: terminus-office
             stage: office
@@ -46,9 +46,9 @@ jobs:
           - target: claude-office
             stage: office
             runtime: claude
-          - target: codex-office
+          - target: base-office
             stage: office
-            runtime: codex
+            runtime: base
     env:
       IMAGE: ghcr.io/rowan-dauria/task-env-${{ matrix.target }}
       TARGET: ${{ matrix.target }}

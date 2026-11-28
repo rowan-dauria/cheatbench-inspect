@@ -7,7 +7,7 @@ import yaml
 from cheatbench_inspect.harnesses.container import SANDBOX_RESOURCES
 
 
-@pytest.mark.parametrize("runtime", ["terminus", "claude", "codex"])
+@pytest.mark.parametrize("runtime", ["terminus", "claude", "base"])
 def test_office_image_tag(runtime: str) -> None:
     inputs = ("office.Dockerfile", "office-requirements.txt")
     tag = hashlib.sha256(

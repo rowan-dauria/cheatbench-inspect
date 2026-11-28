@@ -38,7 +38,7 @@ def test_protein_design_task(protein_task_dir: Path, harness: str) -> None:
         harness_model=model,
     )
     assert task.sandbox is not None
-    sandbox_stem = "codex" if harness == "kimi-code" else "terminus"
+    sandbox_stem = "base" if harness == "kimi-code" else "terminus"
     assert Path(str(task.sandbox.config)).name == f"{sandbox_stem}-offline-compose.yaml"
     assert task.version == "6-A"
     assert task.message_limit == 300

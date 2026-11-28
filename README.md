@@ -307,7 +307,7 @@ uv run inspect eval cheatbench_inspect/cheatbench_prime_factorization \
   -G parallel_tool_calls=false --model-role grader=openrouter/openai/gpt-6-sol
 ```
 
-See the [Hawk config](configs/hawk/prime-factorization-gpt-5.6-luna.yaml). The Codex sandbox uses the `task-env-codex` image.
+See the [Hawk config](configs/hawk/prime-factorization-gpt-5.6-luna.yaml). The Codex sandbox uses the `task-env-base` image, the task environment with no harness additions, which Gemini CLI and Kimi Code also use.
 
 ### Kimi Code
 

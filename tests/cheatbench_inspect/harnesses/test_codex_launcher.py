@@ -177,7 +177,7 @@ def test_prime_task_codex_argument_validation_and_compose(tmp_path: Path) -> Non
     assert task.sandbox is not None
     assert task.sandbox.type == "docker"
     assert isinstance(task.sandbox.config, str)
-    assert task.sandbox.config.endswith("resources/sandbox/codex-compose.yaml")
+    assert task.sandbox.config.endswith("resources/sandbox/base-compose.yaml")
 
 
 @pytest.mark.parametrize("summary", ["detailed", "none", None])

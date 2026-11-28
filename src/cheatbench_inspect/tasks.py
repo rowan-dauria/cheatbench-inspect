@@ -58,21 +58,25 @@ def cheatbench_sycophancy(
     )
 
 
+# Two harnesses have their own sandbox image: Terminus-2's adds Harbor's runner, and
+# Claude Code's adds Node and the Claude SDK pins. inspect_swe installs the Codex,
+# Gemini CLI and Kimi Code CLIs itself, so those three share the base image, the task
+# environment with no harness additions.
 _HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE,
     "claude-code": TERMINUS_COMPOSE.with_name("claude-compose.yaml"),
-    "codex": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
-    "gemini-cli": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
-    "kimi-code": TERMINUS_COMPOSE.with_name("codex-compose.yaml"),
+    "codex": TERMINUS_COMPOSE.with_name("base-compose.yaml"),
+    "gemini-cli": TERMINUS_COMPOSE.with_name("base-compose.yaml"),
+    "kimi-code": TERMINUS_COMPOSE.with_name("base-compose.yaml"),
 }
 
 
 _OFFLINE_HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE.with_name("terminus-offline-compose.yaml"),
     "claude-code": TERMINUS_COMPOSE.with_name("claude-offline-compose.yaml"),
-    "codex": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
-    "gemini-cli": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
-    "kimi-code": TERMINUS_COMPOSE.with_name("codex-offline-compose.yaml"),
+    "codex": TERMINUS_COMPOSE.with_name("base-offline-compose.yaml"),
+    "gemini-cli": TERMINUS_COMPOSE.with_name("base-offline-compose.yaml"),
+    "kimi-code": TERMINUS_COMPOSE.with_name("base-offline-compose.yaml"),
 }
 
 
@@ -85,9 +89,9 @@ _BRIDGE_HARNESS_COMPOSE = {
 _OFFICE_HARNESS_COMPOSE = {
     "terminus-2": TERMINUS_COMPOSE.with_name("terminus-office-compose.yaml"),
     "claude-code": TERMINUS_COMPOSE.with_name("claude-office-compose.yaml"),
-    "codex": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
-    "gemini-cli": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
-    "kimi-code": TERMINUS_COMPOSE.with_name("codex-office-compose.yaml"),
+    "codex": TERMINUS_COMPOSE.with_name("base-office-compose.yaml"),
+    "gemini-cli": TERMINUS_COMPOSE.with_name("base-office-compose.yaml"),
+    "kimi-code": TERMINUS_COMPOSE.with_name("base-office-compose.yaml"),
 }
 
 

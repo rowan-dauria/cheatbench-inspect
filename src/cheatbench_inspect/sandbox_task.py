@@ -194,6 +194,11 @@ def sandbox_solver(
             else None
         )
         endpoint = verifier_endpoint(state, grader_state) if verifier_endpoint else nullcontext()
+        # Terminus-2 and Kimi Code enforce the original's per-episode step limit
+        # natively; Kimi's CLI reads it from KIMI_LOOP_MAX_STEPS_PER_TURN, as the
+        # original's [loop_control].max_steps_per_turn. inspect_swe gives Claude Code,
+        # Codex and Gemini CLI no way to set one, so they rely on the task's
+        # message_limit alone (PR #10 decision).
         try:
             async with endpoint as url:
                 policy = HarnessPolicy(
