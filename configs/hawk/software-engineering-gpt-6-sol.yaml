@@ -3,7 +3,7 @@
 # Original Harbor config: harbor/configs/gpt-6-sol_codex.json.
 name: software-engineering-gpt-6-sol
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@d42f57fa0d274eb97fda79f557996b772b438ee5
     name: cheatbench_inspect
     items:
       - name: cheatbench_software_engineering

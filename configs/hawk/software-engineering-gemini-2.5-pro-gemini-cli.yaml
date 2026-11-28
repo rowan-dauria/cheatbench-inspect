@@ -4,7 +4,7 @@
 # via Harbor's acp runner launching @google/gemini-cli@0.59.0 --acp.
 name: software-engineering-gemini-2.5-pro-gemini-cli
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@d42f57fa0d274eb97fda79f557996b772b438ee5
     name: cheatbench_inspect
     items:
       - name: cheatbench_software_engineering

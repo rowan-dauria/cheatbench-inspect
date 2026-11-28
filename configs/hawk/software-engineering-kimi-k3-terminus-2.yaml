@@ -2,7 +2,7 @@
 # Paper Table 3 General (Terminus-2) SWE cohort (68.4%), 20 instances.
 name: software-engineering-kimi-k3-terminus-2
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@d42f57fa0d274eb97fda79f557996b772b438ee5
     name: cheatbench_inspect
     items:
       - name: cheatbench_software_engineering
