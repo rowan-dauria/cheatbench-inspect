@@ -19,7 +19,7 @@ from cheatbench_inspect.knowledge_work.scorers import knowledge_work_scorer
 
 def test_knowledge_work_task(office_task_dir: Path) -> None:
     task = cheatbench_knowledge_work(task_dir=str(office_task_dir))
-    assert task.version == "6-A"
+    assert task.version == "6-G"
     assert task.message_limit == 300
     assert task.time_limit is None
     [sample] = task.dataset

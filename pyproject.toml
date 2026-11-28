@@ -87,6 +87,7 @@ include = ["cheatbench_inspect*"] # examples/ stays out of the wheel
 "cheatbench_inspect.knowledge_work" = ["resources/*.txt", "resources/*.json"]
 "cheatbench_inspect.openmath" = ["resources/*.txt", "resources/*.json", "resources/materials.tar.gz"]
 "cheatbench_inspect.protein_design" = ["resources/instruction.txt"]
+"cheatbench_inspect.software_engineering" = ["resources/*.json"]
 "cheatbench_inspect.synthetic_puzzles" = ["resources/instruction.txt"]
 "cheatbench_inspect.sycophancy" = ["resources/*.jsonl"]
 

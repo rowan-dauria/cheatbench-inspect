@@ -12,7 +12,7 @@ from inspect_ai.model._generate_config import (
 from inspect_ai.tool import MCPServerConfigHTTP
 from inspect_swe import codex_cli
 
-from cheatbench_inspect.harnesses.container import AGENT_ENV, AGENT_USER
+from cheatbench_inspect.harnesses.container import user_env
 from cheatbench_inspect.harnesses.harness import HarnessPolicy
 from cheatbench_inspect.harnesses.reasoning_replay import responses_reasoning_filter
 
@@ -106,11 +106,11 @@ async def run_codex(
     agent = codex_cli(
         version=cli_version,
         model_config=slug,
-        cwd="/workspace",
-        user=AGENT_USER,
+        cwd=policy.cwd,
+        user=policy.user,
         home_dir="/tmp/codex-home",
-        env={**AGENT_ENV, **policy.env},
-        web_search="disabled",
+        env={**user_env(policy.user), **policy.env},
+        web_search="live" if policy.allow_web_tools else "disabled",
         goals=not policy.mcp_only,
         attempts=1,
         retry_refusals=0,

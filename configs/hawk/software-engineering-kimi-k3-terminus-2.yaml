@@ -1,0 +1,34 @@
+# Run with hawk eval-set run configs/hawk/software-engineering-kimi-k3-terminus-2.yaml
+# Paper Table 3 General (Terminus-2) SWE cohort (68.4%), 20 instances.
+name: software-engineering-kimi-k3-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_software_engineering
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/moonshotai/kimi-k3
+        args:
+          config:
+            reasoning_effort: high
+            extra_body:
+              provider:
+                order: [moonshotai]
+                allow_fallbacks: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

@@ -30,6 +30,7 @@ from cheatbench_inspect.harnesses.container import (
     AGENT_USER,
     STREAM_BOOTSTRAP,
     hand_staged_files_to_agent,
+    user_env,
 )
 from cheatbench_inspect.harnesses.harness import (
     CLI_HARNESSES,
@@ -170,6 +171,9 @@ def sandbox_solver(
     collect_terminus_grader_state: bool = False,
     restore_staged_atimes: bool = False,
     agent_env: dict[str, str] | None = None,
+    cwd: str = "/workspace",
+    allow_web_tools: bool = False,
+    user: str = AGENT_USER,
     stage_files: Callable[[list[str]], Awaitable[None]] | None = None,
     launch_harness: Callable[..., Awaitable[HarnessResult | AgentState]] | None = None,
 ) -> Solver:
@@ -182,8 +186,8 @@ def sandbox_solver(
             time_flags = ["-am"] if restore_staged_atimes else ["-m"]
             result = await sandbox().exec(
                 ["touch", "-c", *time_flags, "-d", stamp, "--", path],
-                env={**AGENT_ENV, "TZ": "UTC"},
-                user=AGENT_USER,
+                env={**user_env(user), "TZ": "UTC"},
+                user=user,
             )
             if not result.success:
                 raise RuntimeError(f"Could not set staged file mtime for {path}: {result.stderr}")
@@ -205,6 +209,9 @@ def sandbox_solver(
                     max_turns=None if stock_agent else max_turns,
                     timeout_s=timeout_s,
                     env=agent_env or {},
+                    cwd=cwd,
+                    allow_web_tools=allow_web_tools,
+                    user=user,
                 )
                 options = (
                     {"cli_version": harness_version or "", "cli_model": harness_model or ""}

@@ -85,7 +85,9 @@ async def episode(config, agent_class):
     context = AgentContext()
     with TemporaryDirectory(prefix="terminal-session-") as directory:
         logs = Path(directory)
-        environment = EpisodeEnvironment("/workspace", logs, config["id"], dict(os.environ))
+        environment = EpisodeEnvironment(
+            config.get("cwd", "/workspace"), logs, config["id"], dict(os.environ)
+        )
         agent = agent_class(
             logs_dir=logs,
             model_name=config["model"],

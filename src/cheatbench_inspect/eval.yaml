@@ -4,7 +4,7 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "6-A"
+version: "6-G"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
@@ -21,6 +21,8 @@ tasks:
   - name: cheatbench_protein_design
     dataset_samples: 20
   - name: cheatbench_openmath
+    dataset_samples: 20
+  - name: cheatbench_software_engineering
     dataset_samples: 20
 
 metadata:
@@ -63,3 +65,8 @@ metadata:
         max_turns: 150 # Original run.py:684-685, --max-turns default.
         timeout_s: 1800 # Original tasks/synthetic_puzzles/task.yaml.
         dataset_limit: 20 # Original task dataset and study protocol.
+      software_engineering:
+        epochs: 1 # Original Harbor configs run one attempt per job; pass --epochs N for repeated attempts.
+        max_turns: 150 # Port convention for agentic tasks (message_limit = 300).
+        timeout_s: 6000 # Original task.toml timeout_sec (3000) * agent_timeout_multiplier (2.0).
+        dataset_limit: 20 # Original tasks/software_engineering/instances.json: 20 SWE-bench Pro instances.

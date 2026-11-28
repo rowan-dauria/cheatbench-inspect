@@ -1,0 +1,387 @@
+{
+  "cheatbench_commit": "96e05a6d61faf33be788f75dd01998066045ad02",
+  "harbor_datasets_repo": "laude-institute/harbor-datasets",
+  "harbor_datasets_commit": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+  "instances": [
+    {
+      "id": "instance_ansible__ansible-5640093f1ca63fd6af231cc8a7fb7d40e1907b8c-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5",
+      "repo": "ansible/ansible",
+      "repo_language": "python",
+      "base_commit": "a5a13246ce02fd4c4ce997627b4f42152e59d288",
+      "image": "jefzda/sweap-images:ansible.ansible-ansible__ansible-5640093f1ca63fd6af231cc8a7fb7d40e1907b8c-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5@sha256:b19ffa8f396db02e4b52902992b1e8314d33c60b93b3877ba557c3a69ae24104",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_ansible__ansible-5640093f1ca63fd6af231cc8a7fb7d40e1907b8c-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5",
+      "upstream_instruction_sha256": "770a3f30baccfe5b5193fd9f70b0179fb2d5f6f6d00b0fcf922512d8f2949790",
+      "sha256": {
+        "instruction.md": "6f6d2fae049aaff372632d989c6598f1c933f76996820d5d31f24e9e0927bca0",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "c8fd7c51c5cff523aaaca6461149100258b23133daec4f6467e4bd8d5401459b",
+        "tests/parser.py": "3bb7f471aa61ea90f7c8992cb901f61c14efc2a703dee9a14cd682840006c2dd",
+        "tests/config.json": "2a0006acbf54a7cf96b626d6ecd47d58b5f48b726432613492febbbbebf92579",
+        "solution/solve.sh": "1949994c0d63117d447db1b371d1a42965fa7c5c06e416e27279ca77c736701a"
+      }
+    },
+    {
+      "id": "instance_ansible__ansible-cd9c4eb5a6b2bfaf4a6709f001ce3d0c92c1eed2-v0f01c69f1e2528b935359cfe578530722bca2c59",
+      "repo": "ansible/ansible",
+      "repo_language": "python",
+      "base_commit": "585ef6c55e87c10c1ce7d59ebe9c33dd6dbe5afb",
+      "image": "jefzda/sweap-images:ansible.ansible-ansible__ansible-cd9c4eb5a6b2bfaf4a6709f001ce3d0c92c1eed2-v0f01c69f1e2528b935359cfe578530722bca2c59@sha256:a1bd1c909800e23e36039f837ba62a3a9a3645f3c8218d4ba8a3911f23c5117f",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_ansible__ansible-cd9c4eb5a6b2bfaf4a6709f001ce3d0c92c1eed2-v0f01c69f1e2528b935359cfe578530722bca2c59",
+      "upstream_instruction_sha256": "20f6f56c79056097fa86375a77236277674c81d19b2fc7f3b19afdb8fc0c6599",
+      "sha256": {
+        "instruction.md": "50085c1706bbf7580cbf04e03bf73523f9f04b61199d172e7fe5cee8f221f187",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "04974027067d84ead1446ebe0bc1e9e11a07c18be4f56b8bfbd0fa005399e2e9",
+        "tests/parser.py": "5bd3590c174898489d8bf55c60c7938cb8b32806ce812ad6e192651419396b6c",
+        "tests/config.json": "9c6561859b6102e2b69259da787bdc8187431e0b5ad8c7810945b305f96a6395",
+        "solution/solve.sh": "57ca7e53d8ecc5d9ce49c88601e3c9c23400923350587cfd4cf36ae635f3581c"
+      }
+    },
+    {
+      "id": "instance_ansible__ansible-ecea15c508f0e081525be036cf76bbb56dbcdd9d-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5",
+      "repo": "ansible/ansible",
+      "repo_language": "python",
+      "base_commit": "01e7915b0a9778a934a0f0e9e9d110dbef7e31ec",
+      "image": "jefzda/sweap-images:ansible.ansible-ansible__ansible-ecea15c508f0e081525be036cf76bbb56dbcdd9d-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5@sha256:da115f7f867b24fc6163bd47971957c3baf8ff96df4c43a3d584177996169ec4",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_ansible__ansible-ecea15c508f0e081525be036cf76bbb56dbcdd9d-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5",
+      "upstream_instruction_sha256": "eaba10f78f87fa9e0dd9e436c0e71537b8350f217644bd05608c4e0228d30479",
+      "sha256": {
+        "instruction.md": "01b3b3e7d5a310f1e584bbda35575b637d908751dff90538e867d51c037870a8",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "c8fd7c51c5cff523aaaca6461149100258b23133daec4f6467e4bd8d5401459b",
+        "tests/parser.py": "3bb7f471aa61ea90f7c8992cb901f61c14efc2a703dee9a14cd682840006c2dd",
+        "tests/config.json": "1f9083284e879c10fc0110d5564732f0a179f5966c5729aabdde9296a317ac71",
+        "solution/solve.sh": "862922f25c36a5eee44ebad27be709a9023b8d87c29a1ffcd66b3776c5a167d6"
+      }
+    },
+    {
+      "id": "instance_element-hq__element-web-ce554276db97b9969073369fefa4950ca8e54f84-vnan",
+      "repo": "element-hq/element-web",
+      "repo_language": "js",
+      "base_commit": "16e92a4d8cb66c10c46eb9d94d9e2b82d612108a",
+      "image": "jefzda/sweap-images:element-hq.element-element-hq__element-web-ce554276db97b9969073369fefa4950ca8e54f84@sha256:d2882981a381f3276a9792b2666eb7c444d3798e6dfc5d98e7420b48148bcf5c",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_element-hq__element-web-ce554276db97b9969073369fefa4950ca8e54f84-vnan",
+      "upstream_instruction_sha256": "32f8738b1a5d08789540321657c4770ef4781bb8ee8dc0d9f00443f667973262",
+      "sha256": {
+        "instruction.md": "821c144219fd836fb5cf555adc09d6085976a02c61b4b1581ccbba0ba6222b1c",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "ead0c6a2ac3c2d52ec77e99750899378829e1c3ed0470eab91cac6f16a3fc6b3",
+        "tests/parser.py": "1cc8ebab95e5dcde1b0e892555752eacbe7a653948ed880bfdf9c79329bde0a3",
+        "tests/config.json": "c8c762192c847db97917ac5de1ba8b2f0a48e3f476b6e7edbb94eaa3cbffde5d",
+        "solution/solve.sh": "cb4d26a1691b2e7a53fc554caa182f77af00b83311a5a6e776ed8b7e628b5a85"
+      }
+    },
+    {
+      "id": "instance_flipt-io__flipt-02e21636c58e86c51119b63e0fb5ca7b813b07b1",
+      "repo": "flipt-io/flipt",
+      "repo_language": "go",
+      "base_commit": "85bb23a3571794c7ba01e61904bac6913c3d9729",
+      "image": "jefzda/sweap-images:flipt-io.flipt-flipt-io__flipt-02e21636c58e86c51119b63e0fb5ca7b813b07b1@sha256:c936fbeff2b65212b5f19ce866d84514cc1a4eb0a4c838bf67bc7eeb14d0e0b4",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_flipt-io__flipt-02e21636c58e86c51119b63e0fb5ca7b813b07b1",
+      "upstream_instruction_sha256": "a3454de477638bf781b413d34b05ed5444f178aa4ba8ae786f5a3f6a73eef4c3",
+      "sha256": {
+        "instruction.md": "56b998c5f88b8aebbe08196f3e4c110299112da09d6e32efc3ffd437a11bf416",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "83374233a61a23ce2ef0c8353c008bbdd4c1f8e7f8ccc60241ce64da8e0323e0",
+        "tests/parser.py": "fedec88f7bb3094f8c694a517fc4894d26cc508a5e932fd2099a0355dbcbd81a",
+        "tests/config.json": "7f5bff058dcf840246cc642f35e583c2456f10b27f745a75707ab6ad37770011",
+        "solution/solve.sh": "9fd74773554ece90247b000a09871e6d38dd88398b12af4ebedd052c3d9c6d3b"
+      }
+    },
+    {
+      "id": "instance_flipt-io__flipt-21a935ad7886cc50c46852be21b37f363a926af0",
+      "repo": "flipt-io/flipt",
+      "repo_language": "go",
+      "base_commit": "4e1cd36398ee73acf7d9235b517f05178651c464",
+      "image": "jefzda/sweap-images:flipt-io.flipt-flipt-io__flipt-21a935ad7886cc50c46852be21b37f363a926af0@sha256:8f823f9f1594046db0f7483b16953df41dc6141891ced5c6d39044693a3b95e9",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_flipt-io__flipt-21a935ad7886cc50c46852be21b37f363a926af0",
+      "upstream_instruction_sha256": "10f0dcdce360a09731d2665dddd4d7811c99b51350cec0aa25c1f2d3b8c2a231",
+      "sha256": {
+        "instruction.md": "ec7e11f4dd59d34c791a5d495c08641d30241ab5ce84cfe192d0bca853e26709",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "83374233a61a23ce2ef0c8353c008bbdd4c1f8e7f8ccc60241ce64da8e0323e0",
+        "tests/parser.py": "fedec88f7bb3094f8c694a517fc4894d26cc508a5e932fd2099a0355dbcbd81a",
+        "tests/config.json": "8f9d0c0ee51dbba491aa4f967ecfe492c41ac4d2ff68ce803cc140888a46d78e",
+        "solution/solve.sh": "ba4f0f296b93f9817fc1d5dbf0167e7063c2e265b13a50f4756565eed58f8657"
+      }
+    },
+    {
+      "id": "instance_flipt-io__flipt-72d06db14d58692bfb4d07b1aa745a37b35956f3",
+      "repo": "flipt-io/flipt",
+      "repo_language": "go",
+      "base_commit": "b6edc5e46af598a3c187d917ad42b2d013e4dfee",
+      "image": "jefzda/sweap-images:flipt-io.flipt-flipt-io__flipt-72d06db14d58692bfb4d07b1aa745a37b35956f3@sha256:95838b5fb8e83d66d00f7ee2e97ebee83d66e8c7f8023102b9056af3cdfc1c64",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_flipt-io__flipt-72d06db14d58692bfb4d07b1aa745a37b35956f3",
+      "upstream_instruction_sha256": "140806947e9e8f88938919ac1cd5bcbf86965d7d8eff2df7cffb62ea45bb9934",
+      "sha256": {
+        "instruction.md": "621ddf0c39f1cadcb9dd7be7e9e8b4bac8e3a8883cb6adb6f251ff05a80729d7",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "83374233a61a23ce2ef0c8353c008bbdd4c1f8e7f8ccc60241ce64da8e0323e0",
+        "tests/parser.py": "fedec88f7bb3094f8c694a517fc4894d26cc508a5e932fd2099a0355dbcbd81a",
+        "tests/config.json": "b9ea9e1e4df22c9937c427595d6c5e4fe5daa7f8d6ab2c978b95f2789960de6d",
+        "solution/solve.sh": "d8622ddb6bcf5ae1a7950661f66d5d729b78ff35a1e540b3bdf642115675031e"
+      }
+    },
+    {
+      "id": "instance_future-architect__vuls-1832b4ee3a20177ad313d806983127cb6e53f5cf",
+      "repo": "future-architect/vuls",
+      "repo_language": "go",
+      "base_commit": "78b52d6a7f480bd610b692de9bf0c86f57332f23",
+      "image": "jefzda/sweap-images:future-architect.vuls-future-architect__vuls-1832b4ee3a20177ad313d806983127cb6e53f5cf@sha256:cb3f5a1a378d289b791b24f2a1b653a19ba9de05f893476c97bcff8b03b72a66",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_future-architect__vuls-1832b4ee3a20177ad313d806983127cb6e53f5cf",
+      "upstream_instruction_sha256": "675564995451e35aa914085252e87de99e331e2452e3a0b18203e159bddf4fb2",
+      "sha256": {
+        "instruction.md": "150917761f532b187b3ebeaa46f4497c5f21b559d0ad9a78402658763f228873",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "1513c452b224949c1e37a28f2405d21fc0c5d34215ddf8d616330b11d28ae8bc",
+        "tests/parser.py": "bfd3ba2ec189b525d683cfaedf80ac597395a956a3413ef1369ae49a7e830fc5",
+        "tests/config.json": "f57ff3f78709c9f2de6ae94ea71608c6c477bfc5b64e717b72f1c947c23b041f",
+        "solution/solve.sh": "ab0b5e8d04ba2d5a0c6df54232b29392945cc1f1f43c236ca66f2c96713051ea"
+      }
+    },
+    {
+      "id": "instance_future-architect__vuls-ca3f6b1dbf2cd24d1537bfda43e788443ce03a0c",
+      "repo": "future-architect/vuls",
+      "repo_language": "go",
+      "base_commit": "f1c78e42a22aaefe3aa816c0ebd47a845850b856",
+      "image": "jefzda/sweap-images:future-architect.vuls-future-architect__vuls-ca3f6b1dbf2cd24d1537bfda43e788443ce03a0c@sha256:40ec96b47c8b921b2ee27c3525d8f15d245d0d81592faa6c6e969f1f8ed21504",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_future-architect__vuls-ca3f6b1dbf2cd24d1537bfda43e788443ce03a0c",
+      "upstream_instruction_sha256": "a38162fba6fc13794c8ee7c5772d8c20ebf4320bd6842fda54f029b549db118e",
+      "sha256": {
+        "instruction.md": "fb175a399055d7395eb9a70b897e52df069933dec20928f3aaa6f57cedda343a",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "1513c452b224949c1e37a28f2405d21fc0c5d34215ddf8d616330b11d28ae8bc",
+        "tests/parser.py": "bfd3ba2ec189b525d683cfaedf80ac597395a956a3413ef1369ae49a7e830fc5",
+        "tests/config.json": "9e7969f0436f8e9b5db3c798876c1a677a73f87085b7a680477aee68a265a5e9",
+        "solution/solve.sh": "de47b10e40c45c4f9dfac88ed665c26302fcdf7b65f35a82e5b7450661bff7af"
+      }
+    },
+    {
+      "id": "instance_gravitational__teleport-288c5519ce0dec9622361a5e5d6cd36aa2d9e348",
+      "repo": "gravitational/teleport",
+      "repo_language": "go",
+      "base_commit": "dafcf377a004506ff840d713bfd7359848ef7b8b",
+      "image": "jefzda/sweap-images:gravitational.teleport-gravitational__teleport-288c5519ce0dec9622361a5e5d6cd36aa2d9e348@sha256:1244183417a798b522688810aa27d0d9539385f28af9521670d7a5cf02349619",
+      "install_linux_headers": true,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_gravitational__teleport-288c5519ce0dec9622361a5e5d6cd36aa2d9e348",
+      "upstream_instruction_sha256": "8d6fdd4bf48f708e11196f7c4ad6bd8871ce42d3eee79c6b4dc24c2a7513fe5f",
+      "sha256": {
+        "instruction.md": "917611351a952257bbf6dc749efc7c14ea5dee5f217404500c64c31fec4d1f18",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "ec4ed75a660aa12a61fe6b5fd3b0e8f2e12b6b08f90784ffb7622fca6e01e5ee",
+        "tests/parser.py": "9a0f04486e3680a6e2f577e54fa9151da15e5bc0b2cc4804177a9da28adc1b17",
+        "tests/config.json": "acd4d1af447b404c019c10d2e96759fb0160e2d2565d5703e81aa228ec9bdca7",
+        "solution/solve.sh": "bda64145658a8a2ba07734a6a72868dfb0a5adbaf8b381fed4ae326a40146bfc"
+      }
+    },
+    {
+      "id": "instance_gravitational__teleport-2b15263e49da5625922581569834eec4838a9257-vee9b09fb20c43af7e520f57e9239bbcf46b7113d",
+      "repo": "gravitational/teleport",
+      "repo_language": "go",
+      "base_commit": "189d41a956ebf5b90b6cf5829d60be46c1df992e",
+      "image": "jefzda/sweap-images:gravitational.teleport-gravitational__teleport-2b15263e49da5625922581569834eec4838a9257-vee9b09fb20c43af7e520f57e9239bbcf46b7113@sha256:9612e0420b7f4c1eac17f2e387611fa038222ab358dc9132214a27828b903459",
+      "install_linux_headers": true,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_gravitational__teleport-2b15263e49da5625922581569834eec4838a9257-vee9b09fb20c43af7e520f57e9239bbcf46b7113d",
+      "upstream_instruction_sha256": "20518b2f1b954add616432569cf7064f2e7e54f8020fcd78338637298781a9a3",
+      "sha256": {
+        "instruction.md": "5c5b3e8eaa9ad6d6207d913dc022d4a987054c0000da81d99d228bda8a2c24bc",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "859d758d693b8ec8379f092ee9e0c2d7cc411f6d09df125d37fdbb7898717efb",
+        "tests/parser.py": "f9317549f89bd177c0fcad18141e0576278c7a9d7ac181e2b598758d578a79af",
+        "tests/config.json": "5ad64d237b37df0b16bd29a10714c3751ab1c6ab8b0bacaad64e06f874ad5289",
+        "solution/solve.sh": "9a85089678f2b77fae62103c16b39d32342858273f8d55179b6a7bbb0e5cbfbf"
+      }
+    },
+    {
+      "id": "instance_internetarchive__openlibrary-111347e9583372e8ef91c82e0612ea437ae3a9c9-v2d9a6c849c60ed19fd0858ce9e40b7cc8e097e59",
+      "repo": "internetarchive/openlibrary",
+      "repo_language": "python",
+      "base_commit": "c9795319b19c60e884f34df3eaf7e3e7f2bfd58c",
+      "image": "jefzda/sweap-images:internetarchive.openlibrary-internetarchive__openlibrary-111347e9583372e8ef91c82e0612ea437ae3a9c9-v2d9a6c849c60ed19fd0858ce9e40b@sha256:69cf0b3e1037bd113959532dc98724563ccc7f455c83cd26338b2c445f56ab15",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_internetarchive__openlibrary-111347e9583372e8ef91c82e0612ea437ae3a9c9-v2d9a6c849c60ed19fd0858ce9e40b7cc8e097e59",
+      "upstream_instruction_sha256": "37080e31e89d71f04054c2eacf1e341f2d1777a7def0a58acad1df3cead6dfe2",
+      "sha256": {
+        "instruction.md": "9256994b7a992d615f29a81e90e776cdff447d1f736f7607973c2f87e16572da",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "a0f7ec600deaede1b0c26d5c6215cfb09c13d5b1a99213458fb0bd772b6c05c8",
+        "tests/parser.py": "86c163ab2b1732bc41c95ffec34ea221086a1e0e8d64981aed4310daafbfc241",
+        "tests/config.json": "25ab22d8ec5b67fefd24489f174e093c0c896efc99b5b393ca2858c36dcc28bf",
+        "solution/solve.sh": "1200fae82f4dfdaeda4e1335a6bf5d255a5205ebc731d5467fab4b70312e5b05"
+      }
+    },
+    {
+      "id": "instance_internetarchive__openlibrary-3aeec6afed9198d734b7ee1293f03ca94ff970e1-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+      "repo": "internetarchive/openlibrary",
+      "repo_language": "python",
+      "base_commit": "b36762b27e11d2bdf1ef556a8c5588294bb7deb7",
+      "image": "jefzda/sweap-images:internetarchive.openlibrary-internetarchive__openlibrary-3aeec6afed9198d734b7ee1293f03ca94ff970e1-v13642507b4fc1f8d234172bf81299@sha256:86152d47f7d3d52752f4fa6209ce6f4413920cdf908968df4bbf180d38c10d62",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_internetarchive__openlibrary-3aeec6afed9198d734b7ee1293f03ca94ff970e1-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+      "upstream_instruction_sha256": "45316163d6a69a6b84cbb82218bba2c5a996d321e61cd63dd877c6f35985272a",
+      "sha256": {
+        "instruction.md": "d2d1ab4714011f7c6875455d9ab8b63eaaa3b86802951396691fbb31ec67c45f",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "2c8cd23e5553abc6be72fc78db837292dee32d3700754b9e8d621daf1c3ef70d",
+        "tests/parser.py": "303ceda2c97816c27383b767baa9e2f28f8e9b0cebed4dd5d6159c6760770b66",
+        "tests/config.json": "0e9da07a260f095c18e0460a431d0304ba5755ce25bd65f286c4c46c9f413126",
+        "solution/solve.sh": "5fa3d029463b463377a192cef925b1d2faea0e6e8e8ed3c6429eece289b9e8fb"
+      }
+    },
+    {
+      "id": "instance_navidrome__navidrome-29bc17acd71596ae92131aca728716baf5af9906",
+      "repo": "navidrome/navidrome",
+      "repo_language": "go",
+      "base_commit": "4044642abf5a7147c3ed3076c045e0e3b2520171",
+      "image": "jefzda/sweap-images:navidrome.navidrome-navidrome__navidrome-29bc17acd71596ae92131aca728716baf5af9906@sha256:63c201fb4354db84dc55bbfb664a793736d7797701e973ae9a0863e06a1dd589",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_navidrome__navidrome-29bc17acd71596ae92131aca728716baf5af9906",
+      "upstream_instruction_sha256": "fadf4b7eaeda189d35e1cdc52546137a5018404fc60dd30b37cf31049a648aac",
+      "sha256": {
+        "instruction.md": "bd953ee36c8912084c38cf899d7c19992530c5a4516bf7d72000211dee2999a1",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "de95b36858deb68cd22d3a77989aad3c70c736397d9bc0977a6217531944cd61",
+        "tests/parser.py": "b1c0279417bc528109d5022e6ac4e0ba27899b09dfc7500e020be0754ee21039",
+        "tests/config.json": "f6267013b546a16af7ca6f5fa6b7d07de797d1471fbbdd4997b7fbf5e07b255b",
+        "solution/solve.sh": "b8bb48b85745c3309d240e461665cb06ede94dc43821a6e95b9aad20fdc5be95"
+      }
+    },
+    {
+      "id": "instance_nodebb__nodebb-0f788b8eaa4bba3c142d171fd941d015c53b65fc-v0ec6d6c2baf3cb4797482ce4829bc25cd5716649",
+      "repo": "NodeBB/NodeBB",
+      "repo_language": "js",
+      "base_commit": "606808760edd7f0bf73715ae71a3d365a9c6ae95",
+      "image": "jefzda/sweap-images:nodebb.nodebb-NodeBB__NodeBB-0f788b8eaa4bba3c142d171fd941d015c53b65fc-v0ec6d6c2baf3cb4797482ce4829bc25cd5716649@sha256:5082ba4e6f58c85670294049709cf94827d39ee62f5e6a3bb11d6fcdc63d4e43",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_nodebb__nodebb-0f788b8eaa4bba3c142d171fd941d015c53b65fc-v0ec6d6c2baf3cb4797482ce4829bc25cd5716649",
+      "upstream_instruction_sha256": "7035decb85fd66c354cc0aa7f39c921d99d6d0c634bce074f84f4b5bf423988b",
+      "sha256": {
+        "instruction.md": "c850146da4fc527f9e5096c9a436a61e1e8c30bda8cfdd147eba3e4e12a1d8e0",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "57a7919f23849d943afe6adac35c73b5fd1fbc23aed41ed83d6d854fc70d00e7",
+        "tests/parser.py": "e09474a2ca90f0e5a550e2787cee73c4380337995f19cf7c90e4d229e4a93c07",
+        "tests/config.json": "77ca035f68b572435f3e4ae5ae8a6cec6443d9b616104f0d5c431f03b6410a2d",
+        "solution/solve.sh": "0367c91e19f9163bc144e7681ee89ada55a4859353df8dc839a96b0927bd4b3d"
+      }
+    },
+    {
+      "id": "instance_protonmail__webclients-d3e513044d299d04e509bf8c0f4e73d812030246",
+      "repo": "protonmail/webclients",
+      "repo_language": "js",
+      "base_commit": "738b22f1e8efbb8a0420db86af89fb630a6c9f58",
+      "image": "jefzda/sweap-images:protonmail.webclients-protonmail__webclients-d3e513044d299d04e509bf8c0f4e73d812030246@sha256:5fa2d05570c7a847c3ec8978c371698eb80be62b00458b3c3061dc6f7733555d",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_protonmail__webclients-d3e513044d299d04e509bf8c0f4e73d812030246",
+      "upstream_instruction_sha256": "5b3cb7ba907687b6428b0a30f83fda7472c65c6f71f25bf5c722a704ae4181c0",
+      "sha256": {
+        "instruction.md": "9612242f3865282bdbf51be20786fbe1132f7e041115fedc57d74e052c4d79d7",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "d3f46c3cfc8ef8d6b2b51bd2eb2117e829027b9a1dd3639a9bc1e1472efe411d",
+        "tests/parser.py": "b9ab810bdad23626e75fd4e831e5cbb93656775b107904c147353b27eec1c2e2",
+        "tests/config.json": "7fcc05664f8787c76daee889d59d51256188d91f8baf31f5728180a3afb09d5f",
+        "solution/solve.sh": "43c49643c9a783ba432966a6ed5fd8110c7f29552e1b6bfb60c6d6845d51975a"
+      }
+    },
+    {
+      "id": "instance_protonmail__webclients-fc9d535e9beb3ae30a52a7146398cadfd6e30606",
+      "repo": "protonmail/webclients",
+      "repo_language": "js",
+      "base_commit": "ebed8ea9f69216d3ce996dd88457046c0a033caf",
+      "image": "jefzda/sweap-images:protonmail.webclients-protonmail__webclients-fc9d535e9beb3ae30a52a7146398cadfd6e30606@sha256:a0cb8f7f04f08ecb826d915702170c052f810b4b8e84eaa4e9b100dbe78f2038",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_protonmail__webclients-fc9d535e9beb3ae30a52a7146398cadfd6e30606",
+      "upstream_instruction_sha256": "4ce37727f0e0e0edc0114aaf243d30f5e55b89a18be1830d4ab225dcf0274019",
+      "sha256": {
+        "instruction.md": "386bd2a7b7a5c8c5802a18bd763b4b414c548298da84deb0b767a3f150b64f6a",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "353007e786ee0042d319be05a74bcbfce9960246168e8dbf991c1ecda7de14b8",
+        "tests/parser.py": "ed9fdce7768825057db4726a21a7545863df541ec25e64e0cd6c566097534142",
+        "tests/config.json": "f380bbedaeb805b11350eeb114d210a45b0e16ccc91ef58df530b36008a7dd93",
+        "solution/solve.sh": "257f07c2bad3754b750c4b648c474b3ce1958361b94780e8195388cd2ac10ed5"
+      }
+    },
+    {
+      "id": "instance_qutebrowser__qutebrowser-70248f256f93ed9b1984494d0a1a919ddd774892-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+      "repo": "qutebrowser/qutebrowser",
+      "repo_language": "python",
+      "base_commit": "bf65a1db0f3f49977de77d7d61eeaaecd022185c",
+      "image": "jefzda/sweap-images:qutebrowser.qutebrowser-qutebrowser__qutebrowser-70248f256f93ed9b1984494d0a1a919ddd774892-v2ef375ac784985212b1805e1d0431dc8f1b3c@sha256:41b3a05536ff5fccaf9a3c79bda5a8cd394264e419cc8ea63f8a70213f09e649",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": true,
+      "upstream_path": "datasets/swebenchpro/instance_qutebrowser__qutebrowser-70248f256f93ed9b1984494d0a1a919ddd774892-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+      "upstream_instruction_sha256": "8d2b0b55bdb90ac9c4fb0773be27581f516195f4420ee2d2ac768a258eddec77",
+      "sha256": {
+        "instruction.md": "19bf5d54fdbf79bb8d90a30e5ef0d03756fd7bc2043721d4a633408de6fde55b",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "1c8f929ccae63b5ba26db96926c1b1abfff28d4f91927c17fee5bb935dfdd305",
+        "tests/parser.py": "eedbb04d9f71f140c4af38043d3bddb0fc6374799d2b84c95c5b8c8214efd4d6",
+        "tests/config.json": "f6ec6777b4d024bd48d6cf611c77e1c067e8c5566d285373d3d0873177b0094a",
+        "solution/solve.sh": "1f2c9cfbe763037298777448ce8e6a72e262cb7ec5c8811cd40f30c57a658167"
+      }
+    },
+    {
+      "id": "instance_qutebrowser__qutebrowser-a84ecfb80a00f8ab7e341372560458e3f9cfffa2-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+      "repo": "qutebrowser/qutebrowser",
+      "repo_language": "python",
+      "base_commit": "c9380605a1240748769c012403520323b4d2c3be",
+      "image": "jefzda/sweap-images:qutebrowser.qutebrowser-qutebrowser__qutebrowser-a84ecfb80a00f8ab7e341372560458e3f9cfffa2-v2ef375ac784985212b1805e1d0431dc8f1b3c@sha256:a5b0efbd1d61b8f1dcb7b5d0cafd226de205125434dea613017cebc008f8aa83",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_qutebrowser__qutebrowser-a84ecfb80a00f8ab7e341372560458e3f9cfffa2-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+      "upstream_instruction_sha256": "62c43faec4b59c5a7b41264a4c01ead1530e3ea166aef04fbbd210f96dd3d4b4",
+      "sha256": {
+        "instruction.md": "dfef51900345d768d438988e2d895774431f7ea0f9a06087bc69d825cf760149",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "1c8f929ccae63b5ba26db96926c1b1abfff28d4f91927c17fee5bb935dfdd305",
+        "tests/parser.py": "eedbb04d9f71f140c4af38043d3bddb0fc6374799d2b84c95c5b8c8214efd4d6",
+        "tests/config.json": "8ed85cb9603728e46c385f1d5eeab356ca6dd5f2ecd4e9d0a1a84e4da032251f",
+        "solution/solve.sh": "a9409d5f44c4982452db75b48aabac01918b1cb654f8b749bcb53c44499106d3"
+      }
+    },
+    {
+      "id": "instance_tutao__tutanota-1ff82aa365763cee2d609c9d19360ad87fdf2ec7-vc4e41fd0029957297843cb9dec4a25c7c756f029",
+      "repo": "tutao/tutanota",
+      "repo_language": "ts",
+      "base_commit": "2e5d877afe8a1b8fc9ad3ac0a0d579bbad364224",
+      "image": "jefzda/sweap-images:tutao.tutanota-tutao__tutanota-1ff82aa365763cee2d609c9d19360ad87fdf2ec7-vc4e41fd0029957297843cb9dec4a25c7c756f029@sha256:25a356916cd3a8128d3451c687f4e997ccb1e86e368756868d96308f2015b54b",
+      "install_linux_headers": false,
+      "extra_trailing_blank_line": false,
+      "upstream_path": "datasets/swebenchpro/instance_tutao__tutanota-1ff82aa365763cee2d609c9d19360ad87fdf2ec7-vc4e41fd0029957297843cb9dec4a25c7c756f029",
+      "upstream_instruction_sha256": "8dd8c14a00b4ebc16660b85eb284cdfd2c169b19af5843072b6a1b32569c5e3b",
+      "sha256": {
+        "instruction.md": "2faa2f0a96c278941c697f8a10842f6978d200b6d996e1ae7f2808d4d13b34c1",
+        "tests/test.sh": "59b3d84478093557154357b4ab65bd5f7677f2e93d768f9fb805aa04ceb460ff",
+        "tests/run_script.sh": "ffa4f85c551ec9073b55512fe2b01321b1411ee89815cdccf75d676cd1d35425",
+        "tests/parser.py": "ae8b8f59fdbfd54983a3f0fa8b3b7baeadfe5f492c7e86bb2d8ad91c564af523",
+        "tests/config.json": "ad1b9a81ca3d8174484d7e9d882f19080a69459feaa7cab1906e51bcf16a75cb",
+        "solution/solve.sh": "727b1848033ac1096825570c04d112b796785796b40dbaee5dc470d22570370a"
+      }
+    }
+  ]
+}

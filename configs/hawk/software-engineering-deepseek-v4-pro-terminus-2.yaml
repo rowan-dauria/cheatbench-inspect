@@ -1,0 +1,31 @@
+# Run with hawk eval-set run configs/hawk/software-engineering-deepseek-v4-pro-terminus-2.yaml
+# Port test (Terminus-2 stand-in for Harbor ACP DeepSeek Harness; not a direct paper harness row).
+# Original Paper Table 2 cohort (68%) ran harbor/configs/deepseek-v4-pro_dsh.json via Harbor's acp runner.
+name: software-engineering-deepseek-v4-pro-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_software_engineering
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/deepseek/deepseek-v4-pro
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard

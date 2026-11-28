@@ -23,6 +23,9 @@ from cheatbench_inspect.prime_factorization import scorers as prime_scorers
 from cheatbench_inspect.protein_design import dataset as protein_dataset
 from cheatbench_inspect.protein_design import protein_design
 from cheatbench_inspect.protein_design.scorers import protein_design_scorer
+from cheatbench_inspect.software_engineering import dataset as swe_dataset
+from cheatbench_inspect.software_engineering import software_engineering
+from cheatbench_inspect.software_engineering.scorers import software_engineering_scorer
 from cheatbench_inspect.subset_sum import dataset as subset_dataset
 from cheatbench_inspect.subset_sum import subset_sum
 from cheatbench_inspect.subset_sum.scorers import subset_sum_scorer
@@ -372,5 +375,57 @@ def cheatbench_openmath(
         sandbox=("docker", str(_BRIDGE_HARNESS_COMPOSE[harness])),
         message_limit=2 * _max_turns("openmath"),
         epochs=load_task_defaults("openmath").epochs,
+        version=load_eval_version(__file__),
+    )
+
+
+@task
+def cheatbench_software_engineering(
+    task_dir: str | None = None,
+    dataset_limit: int | None = None,
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+    cpus: float = 8,
+    memory_mb: int = 16384,
+) -> Task:
+    """Run Software Engineering (SWE-bench Pro coding interviews) with the selected harness.
+
+    Args:
+        task_dir: Directory containing materialized data.jsonl and per-instance prompts and tests.
+            Defaults to a cached build downloaded and SHA-256 verified from pinned upstream sources.
+        dataset_limit: Number of SWE-bench Pro instances to load from the start of data.jsonl.
+        harness: Agent harness to run: terminus-2, claude-code, codex, or gemini-cli.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
+        cpus: CPU limit per sample sandbox container (matches Harbor override_cpus).
+        memory_mb: Memory limit in MiB per sample sandbox container (matches Harbor override_memory_mb).
+    """
+    validate_harness(harness)
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
+    if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
+        raise ValueError("terminus-2 does not accept harness_version or harness_model")
+    if dataset_limit is None:
+        dataset_limit = load_task_defaults("software_engineering").dataset_limit
+    assert dataset_limit is not None
+    if dataset_limit < 1:
+        raise ValueError("dataset_limit must be positive.")
+    if cpus <= 0:
+        raise ValueError("cpus must be positive.")
+    if memory_mb < 1:
+        raise ValueError("memory_mb must be positive.")
+    data_dir = Path(task_dir) if task_dir is not None else swe_dataset.default_task_dir()
+    return Task(
+        dataset=swe_dataset.get_dataset(
+            data_dir, limit=dataset_limit, cpus=cpus, memory_mb=memory_mb
+        ),
+        scorer=software_engineering_scorer(),
+        solver=software_engineering.software_engineering_solver(
+            str(data_dir.resolve()), harness, harness_version, harness_model
+        ),
+        # Each Sample carries its own digest-pinned SWE-bench Pro Docker compose spec.
+        message_limit=2 * _max_turns("software_engineering"),
+        epochs=load_task_defaults("software_engineering").epochs,
         version=load_eval_version(__file__),
     )

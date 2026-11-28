@@ -1,0 +1,30 @@
+# Run with hawk eval-set run configs/hawk/software-engineering-gpt-6-astra-terminus-2.yaml
+# Paper Table 3 General (Terminus-2) SWE cohort (0.0%), 20 instances.
+name: software-engineering-gpt-6-astra-terminus-2
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_software_engineering
+        args:
+          harness: terminus-2
+          dataset_limit: 20
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-astra
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1
+isolation: standard
