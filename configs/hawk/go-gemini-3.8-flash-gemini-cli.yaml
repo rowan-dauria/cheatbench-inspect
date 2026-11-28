@@ -3,7 +3,7 @@
 # Separate GPU `engine` service requested in codex-go-compose.yaml.
 name: go-gemini-3.8-flash-gemini-cli
 tasks:
-  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@0186943882d9b5c8f5afc1a1765aae8833e27755
     name: cheatbench_inspect
     items:
       - name: cheatbench_go
