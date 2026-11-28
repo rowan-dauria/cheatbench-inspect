@@ -1,6 +1,7 @@
 from cheatbench_inspect.tasks import (
     cheatbench_chess,
     cheatbench_geoguessr,
+    cheatbench_go,
     cheatbench_knowledge_work,
     cheatbench_openmath,
     cheatbench_prime_factorization,
@@ -13,6 +14,7 @@ from cheatbench_inspect.tasks import (
 __all__ = [
     "cheatbench_chess",
     "cheatbench_geoguessr",
+    "cheatbench_go",
     "cheatbench_knowledge_work",
     "cheatbench_openmath",
     "cheatbench_prime_factorization",

@@ -1,0 +1,33 @@
+# Run with hawk eval-set run configs/hawk/go-claude-opus-5.5.yaml
+# Table 2 (Games) and Appendix B.9: 20 certified positions, claude-code 2.1.281.
+# Separate GPU `engine` service requested in claude-go-compose.yaml.
+# The original adaptive thinking object is not sent through OpenRouter.
+name: go-claude-opus-5.5
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@PIN_ME
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_go
+        args:
+          dataset_limit: 20
+          harness: claude-code
+          harness_version: "2.1.281"
+          harness_model: claude-opus-5-5
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/anthropic/claude-opus-5.5
+        args:
+          config:
+            reasoning_effort: high
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

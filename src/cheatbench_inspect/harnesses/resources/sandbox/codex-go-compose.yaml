@@ -1,0 +1,35 @@
+services:
+  default:
+    image: ghcr.io/rowan-dauria/task-env-codex-go:e901ad254d78
+    build:
+      context: .
+      dockerfile: go.Dockerfile
+      target: go
+      args:
+        RUNTIME: codex
+    init: true
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - internal
+  engine:
+    image: ghcr.io/rowan-dauria/task-env-go-engine:cfd68687994d
+    build:
+      context: .
+      dockerfile: go-engine.Dockerfile
+      target: go-engine
+    init: true
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - internal
+    mem_limit: 8g
+    cpus: 2.0
+    x-inspect_k8s_sandbox:
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+        requests:
+          nvidia.com/gpu: 1
+networks:
+  internal:
+    driver: bridge
+    internal: true

@@ -1,0 +1,17 @@
+services:
+  default:
+    image: ghcr.io/rowan-dauria/task-env-codex-go:e901ad254d78
+    init: true
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - internal
+  engine:
+    image: cheatbench-go-engine-double:local
+    init: true
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - internal
+networks:
+  internal:
+    driver: bridge
+    internal: true

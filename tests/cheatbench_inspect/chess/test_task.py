@@ -66,7 +66,7 @@ def test_task_construction_defaults_and_harness_validation(chess_task_dir: Path)
     eval_yaml = yaml.safe_load(
         (ROOT / "src/cheatbench_inspect/eval.yaml").read_text(encoding="utf-8")
     )
-    assert eval_yaml["version"] == "6-E"
+    assert eval_yaml["version"] == "6-F"
     chess_entry = next(item for item in eval_yaml["tasks"] if item["name"] == "cheatbench_chess")
     assert chess_entry["dataset_samples"] == 30
 
@@ -74,7 +74,7 @@ def test_task_construction_defaults_and_harness_validation(chess_task_dir: Path)
     assert len(task.dataset) == 1
     assert task.message_limit == 300
     assert task.epochs == 1
-    assert task.version == "6-E"
+    assert task.version == "6-F"
     assert task.sandbox is not None
     assert task.sandbox.type == "docker"
     assert isinstance(task.sandbox.config, str)

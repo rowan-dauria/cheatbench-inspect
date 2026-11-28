@@ -12,6 +12,9 @@ from cheatbench_inspect.config import load_task_defaults
 from cheatbench_inspect.geoguessr import dataset as geo_dataset
 from cheatbench_inspect.geoguessr import geoguessr
 from cheatbench_inspect.geoguessr.scorers import geoguessr_scorer
+from cheatbench_inspect.go import dataset as go_dataset
+from cheatbench_inspect.go import go as go_task
+from cheatbench_inspect.go.scorers import go_scorer
 from cheatbench_inspect.harnesses.harness import CLI_HARNESSES, validate_harness
 from cheatbench_inspect.harnesses.terminus import TERMINUS_COMPOSE
 from cheatbench_inspect.knowledge_work import dataset as work_dataset
@@ -96,6 +99,14 @@ _CHESS_HARNESS_COMPOSE = {
     "claude-code": TERMINUS_COMPOSE.with_name("claude-chess-compose.yaml"),
     "codex": TERMINUS_COMPOSE.with_name("codex-chess-compose.yaml"),
     "gemini-cli": TERMINUS_COMPOSE.with_name("codex-chess-compose.yaml"),
+}
+
+
+_GO_HARNESS_COMPOSE = {
+    "terminus-2": TERMINUS_COMPOSE.with_name("terminus-go-compose.yaml"),
+    "claude-code": TERMINUS_COMPOSE.with_name("claude-go-compose.yaml"),
+    "codex": TERMINUS_COMPOSE.with_name("codex-go-compose.yaml"),
+    "gemini-cli": TERMINUS_COMPOSE.with_name("codex-go-compose.yaml"),
 }
 
 
@@ -424,5 +435,46 @@ def cheatbench_chess(
         # One assistant message and one tool message per turn.
         message_limit=2 * _max_turns("chess"),
         epochs=load_task_defaults("chess").epochs,
+        version=load_eval_version(__file__),
+    )
+
+
+@task
+def cheatbench_go(
+    task_dir: str | None = None,
+    dataset_limit: int | None = None,
+    harness: str = "terminus-2",
+    harness_version: str | None = None,
+    harness_model: str | None = None,
+) -> Task:
+    """Run Go with the selected agent harness in MCP-only mode.
+
+    Args:
+        task_dir: Directory containing the generated data.jsonl and environment/ tree.
+            Defaults to the pinned Hugging Face archive, downloaded and cached.
+        dataset_limit: Number of certified positions to load from the start of data.jsonl.
+        harness: Agent harness to run: terminus-2, claude-code, codex, or gemini-cli.
+        harness_version: Pinned CLI version, required for CLI harnesses.
+        harness_model: CLI model ID, required for CLI harnesses.
+    """
+    validate_harness(harness)
+    if harness in CLI_HARNESSES and (not harness_version or not harness_model):
+        raise ValueError(f"{harness} requires harness_version and harness_model")
+    if harness == "terminus-2" and (harness_version is not None or harness_model is not None):
+        raise ValueError("terminus-2 does not accept harness_version or harness_model")
+    if dataset_limit is None:
+        dataset_limit = load_task_defaults("go").dataset_limit
+    assert dataset_limit is not None
+    if dataset_limit < 1:
+        raise ValueError("dataset_limit must be positive.")
+    data_dir = Path(task_dir) if task_dir is not None else go_dataset.default_task_dir()
+    return Task(
+        dataset=go_dataset.get_dataset(data_dir, limit=dataset_limit),
+        scorer=go_scorer(),
+        solver=go_task.go_solver(harness, harness_version, harness_model),
+        sandbox=("docker", str(_GO_HARNESS_COMPOSE[harness])),
+        # One assistant message and one tool message per turn.
+        message_limit=2 * _max_turns("go"),
+        epochs=load_task_defaults("go").epochs,
         version=load_eval_version(__file__),
     )
