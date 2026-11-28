@@ -1,0 +1,36 @@
+# Run with hawk eval-set run configs/hawk/go-gpt-6-sol.yaml
+# Table 2 (Games), Appendix B.9, and pinned Go README: 20 certified positions, codex 0.156.1.
+# Separate GPU `engine` service requested in codex-go-compose.yaml.
+name: go-gpt-6-sol
+tasks:
+  - package: git+https://github.com/rowan-dauria/cheatbench-inspect@0186943882d9b5c8f5afc1a1765aae8833e27755
+    name: cheatbench_inspect
+    items:
+      - name: cheatbench_go
+        args:
+          dataset_limit: 20
+          harness: codex
+          harness_version: "0.156.1"
+          harness_model: gpt-6-sol
+models:
+  - package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          responses_api: true
+          config:
+            reasoning_effort: high
+            reasoning_summary: detailed
+            verbosity: low
+            parallel_tool_calls: false
+model_roles:
+  grader:
+    package: openai
+    name: openrouter
+    items:
+      - name: openrouter/openai/gpt-6-sol
+        args:
+          config:
+            reasoning_effort: high
+retry_attempts: 1

@@ -43,6 +43,14 @@ paths in parentheses are relative to the pinned CheatBench source above.
 - chess/resources/engine_signature.json (tasks/chess/game/data/engine_signature.json)
 - chess/resources/service.py (tasks/chess/environment/server/service.py)
 - chess/resources/game/{board,defense,endpoint,engine_signature,game}.py (tasks/chess/game/)
+- go/resources/instruction.txt (tasks/go/prompts/instruction.md)
+- go/resources/judge_schema.py (tasks/go/judge_schema.py)
+- go/resources/grader.py (tasks/go/grader.py)
+- go/resources/engine_signature.json (tasks/go/data/engine_signature.json)
+- go/resources/probes/tournament_ogs_{68506069,63091411}.json (tasks/go/data/fixtures/)
+- go/resources/start_engine.py (tasks/go/environment/server/service.py)
+- go/resources/start_proxy.py (tasks/go/environment/server/service.py)
+- go/resources/game/{engine_signature,episode,go_game,katago_api,linux_policy_sandbox,policy_worker,surfaces}.py (tasks/go/)
 
 Test fixtures under tests/cheatbench_inspect also use prompts, schemas and
 reference outputs from the same CheatBench revision.
@@ -77,6 +85,37 @@ the Python package wheel.
 
 Bubblewrap (bwrap)
 Licensed under the GNU Library General Public License, version 2 or later
-(LGPL-2.0-or-later). Installed in the Chess sandbox Docker image from pinned
-Debian Trixie binary packages, with copyright notice under
+(LGPL-2.0-or-later). Installed in the Chess and Go sandbox Docker images from
+pinned Debian Trixie binary packages, with copyright notice under
 /usr/share/doc/bubblewrap/copyright.
+
+Go uses twenty 19x19 game positions derived from Online-Go Server (OGS) game
+records compiled in CheatBench. Source game identifiers and hashes are listed
+in certified_positions.json in the dataset archive at
+https://huggingface.co/datasets/rowan-dauria/cheatbench-go.
+
+KataGo v1.18.2
+Copyright (c) 2019-2026 David J Wu ("lightvector") and contributors.
+Licensed under the MIT License
+(https://github.com/lightvector/KataGo/blob/v1.18.2/LICENSE).
+Installed in the Go engine Docker image
+(harnesses/resources/sandbox/go-engine.Dockerfile) from the official
+SHA-256-verified v1.18.2 CUDA AppImage release archive; KataGo is not
+distributed in the Python package wheel.
+
+KataGo Neural Network Weights (kata1-b18c384nbt-s9996604416-d4316597426)
+Copyright (c) KataGo distributed training contributors.
+Licensed under the MIT-style KataGo Neural Network License
+(https://katagotraining.org/network_license/).
+Installed in the Go engine Docker image from the SHA-256-verified archive;
+network weights are not distributed in the Python package wheel.
+
+sgfmill 1.1.1
+Copyright (c) Matthew Woodcraft.
+Licensed under the MIT License. Installed inside the Go engine Docker image
+virtual environment (/opt/engine/venv).
+
+libseccomp2
+Licensed under the GNU Lesser General Public License, version 2.1 (LGPL-2.1).
+Installed in the Go engine Docker image from Debian/Ubuntu packages to enforce
+the Landlock and seccomp policy-worker sandbox for edited opponent/play.py.

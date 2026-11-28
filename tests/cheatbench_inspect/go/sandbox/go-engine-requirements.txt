@@ -1,0 +1,4 @@
+# Pinned with SHA-256 hashes from PyPI for the isolated Go engine venv.
+sgfmill==1.1.1 \
+    --hash=sha256:1f44fa6b613acfae23cf7f69985a4a911fc06f772f6c63c0bbfc89044d88f41d \
+    --hash=sha256:759cd843eba647875931d3a10eb329362087b9832f6b49ee85cf8948b0608b3d

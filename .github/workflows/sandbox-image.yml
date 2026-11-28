@@ -18,6 +18,11 @@ on:
       - src/cheatbench_inspect/harnesses/resources/sandbox/chess-requirements.txt
       - src/cheatbench_inspect/harnesses/resources/sandbox/chess-debs-*.txt
       - src/cheatbench_inspect/harnesses/resources/sandbox/*-chess-compose.yaml
+      - src/cheatbench_inspect/harnesses/resources/sandbox/go.Dockerfile
+      - src/cheatbench_inspect/harnesses/resources/sandbox/go-debs-*.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/go-engine.Dockerfile
+      - src/cheatbench_inspect/harnesses/resources/sandbox/go-engine-requirements.txt
+      - src/cheatbench_inspect/harnesses/resources/sandbox/*-go-compose.yaml
       - .github/workflows/sandbox-image.yml
   workflow_dispatch:
 
@@ -62,11 +67,26 @@ jobs:
           - target: codex-chess
             stage: chess
             runtime: codex
+          - target: terminus-go
+            stage: go
+            runtime: terminus
+          - target: claude-go
+            stage: go
+            runtime: claude
+          - target: codex-go
+            stage: go
+            runtime: codex
+          - target: go-engine
+            stage: go-engine
+            dockerfile: go-engine.Dockerfile
+            platforms: linux/amd64
     env:
       IMAGE: ghcr.io/rowan-dauria/task-env-${{ matrix.target }}
       TARGET: ${{ matrix.target }}
       RUNTIME: ${{ matrix.runtime }}
       STAGE: ${{ matrix.stage }}
+      DOCKERFILE: ${{ matrix.dockerfile }}
+      PLATFORMS: ${{ matrix.platforms || 'linux/amd64,linux/arm64' }}
     permissions:
       contents: read
       packages: write # push the image to GHCR
@@ -77,19 +97,45 @@ jobs:
       - name: Compute the tag and check the compose file names it
         id: tag
         run: |
-          if [ "$STAGE" = chess ]; then
+          if [ "$STAGE" = go-engine ]; then
+            tag="$(cat "$CONTEXT/go-engine.Dockerfile" "$CONTEXT/go-engine-requirements.txt" | sha256sum | cut -c1-12)"
+            for rt in terminus claude codex; do
+              grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$rt-go-compose.yaml" || {
+                echo "::error::$rt-go-compose.yaml must name $IMAGE:$tag"
+                exit 1
+              }
+            done
+          elif [ "$STAGE" = go ]; then
+            tag="$(cat "$CONTEXT/go.Dockerfile" "$CONTEXT/go-debs-amd64.txt" "$CONTEXT/go-debs-arm64.txt" | sha256sum | cut -c1-12)"
+            grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$TARGET-compose.yaml" || {
+              echo "::error::$TARGET-compose.yaml must name $IMAGE:$tag"
+              exit 1
+            }
+          elif [ "$STAGE" = chess ]; then
             tag="$(cat "$CONTEXT/chess.Dockerfile" "$CONTEXT/chess-requirements.txt" "$CONTEXT/chess-debs-amd64.txt" "$CONTEXT/chess-debs-arm64.txt" | sha256sum | cut -c1-12)"
+            grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$TARGET-compose.yaml" || {
+              echo "::error::$TARGET-compose.yaml must name $IMAGE:$tag"
+              exit 1
+            }
           elif [ -n "$RUNTIME" ]; then
             tag="$(cat "$CONTEXT/office.Dockerfile" "$CONTEXT/office-requirements.txt" | sha256sum | cut -c1-12)"
+            grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$TARGET-compose.yaml" || {
+              echo "::error::$TARGET-compose.yaml must name $IMAGE:$tag"
+              exit 1
+            }
           elif [ "$TARGET" = claude ]; then
             tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" "$CONTEXT/claude-requirements.txt" | sha256sum | cut -c1-12)"
+            grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$TARGET-compose.yaml" || {
+              echo "::error::$TARGET-compose.yaml must name $IMAGE:$tag"
+              exit 1
+            }
           else
             tag="$(cat "$CONTEXT/Dockerfile" "$CONTEXT/task-requirements.txt" | sha256sum | cut -c1-12)"
+            grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$TARGET-compose.yaml" || {
+              echo "::error::$TARGET-compose.yaml must name $IMAGE:$tag"
+              exit 1
+            }
           fi
-          grep -qx "    image: $IMAGE:$tag" "$CONTEXT/$TARGET-compose.yaml" || {
-            echo "::error::$TARGET-compose.yaml must name $IMAGE:$tag"
-            exit 1
-          }
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
@@ -115,10 +161,10 @@ jobs:
         if: steps.existing.outputs.published == 'false'
         with:
           context: ${{ env.CONTEXT }}
-          file: ${{ env.CONTEXT }}/${{ matrix.runtime && format('{0}.Dockerfile', matrix.stage) || 'Dockerfile' }}
+          file: ${{ env.CONTEXT }}/${{ matrix.dockerfile || (matrix.runtime && format('{0}.Dockerfile', matrix.stage)) || 'Dockerfile' }}
           target: ${{ matrix.stage }}
           build-args: ${{ matrix.runtime && format('RUNTIME={0}', matrix.runtime) || '' }}
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ env.PLATFORMS }}
           push: true
           provenance: false
           tags: ${{ env.IMAGE }}:${{ steps.tag.outputs.tag }}

@@ -93,9 +93,10 @@ async def sandbox_service_endpoint(
     startup_timeout_s: float = 30,
     user: str = AGENT_USER,
     python_executable: str = "python3",
+    service: str | None = None,
 ) -> AsyncGenerator[str, None]:
     """Run a sandbox service that reports its URL on the first stdout line."""
-    process = await sandbox().exec_remote(
+    process = await sandbox(service).exec_remote(
         [python_executable, "-I", "-c", STREAM_BOOTSTRAP],
         ExecRemoteStreamingOptions(
             input=json.dumps(config) + "\n",

@@ -37,11 +37,21 @@ def test_wheel_contains_runtime_resources(tmp_path: Path) -> None:
     expected.add("protein_design/resources/instruction.txt")
     expected.add("chess/resources/instruction.txt")
     expected.add("chess/resources/engine_signature.json")
+    expected.add("go/resources/instruction.txt")
+    expected.add("go/resources/engine_signature.json")
+    expected.add("go/resources/probes/tournament_ogs_68506069.json")
+    expected.add("go/resources/probes/tournament_ogs_63091411.json")
     expected.update(
         f"openmath/resources/{name}"
         for name in ("instruction.txt", "inject.txt", "mirror.txt", "materials.tar.gz")
     )
-    for filename in ("Dockerfile", "office.Dockerfile", "chess.Dockerfile"):
+    for filename in (
+        "Dockerfile",
+        "office.Dockerfile",
+        "chess.Dockerfile",
+        "go.Dockerfile",
+        "go-engine.Dockerfile",
+    ):
         recipe = sandbox / filename
         expected.add(recipe.as_posix())
         for name in re.findall(

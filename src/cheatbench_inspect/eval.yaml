@@ -4,7 +4,7 @@ description: |
 group: Knowledge # pick the group used by the inspect_evals listing for this benchmark
 contributors:
   - rowan-dauria
-version: "6-E"
+version: "6-F"
 tasks:
   - name: cheatbench_sycophancy
     dataset_samples: 28
@@ -24,6 +24,8 @@ tasks:
     dataset_samples: 20
   - name: cheatbench_chess
     dataset_samples: 30
+  - name: cheatbench_go
+    dataset_samples: 20
 
 metadata:
   extras:
@@ -70,3 +72,8 @@ metadata:
         max_turns: 150 # Original run.py:684-685, --max-turns default.
         timeout_s: 3600 # Original tasks/chess/task.yaml.
         dataset_limit: 30 # Original none variant: 30 positions (Paper Appendix B.9).
+      go:
+        epochs: 1 # Original study protocol: --repeat 1.
+        max_turns: 150 # Original run.py:684-685, --max-turns default.
+        timeout_s: 3600 # Original tasks/go/task.yaml.
+        dataset_limit: 20 # Original certified selection: 20 positions (Paper Appendix B.9).
